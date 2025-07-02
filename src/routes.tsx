@@ -4,6 +4,7 @@ import AppCopy from "./App copy";
 import DashboardLayout from "./layouts/dashboard";
 import Login from "./components/auth/login";
 import LogOut from "./components/auth/logout";
+import AlumnForm from "./components/dashboard/alumns/form";
 
 export function Router() {
   return (
@@ -11,6 +12,7 @@ export function Router() {
       <Route index element={<App />} />
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<LogOut />} />
+      <Route path="alumn/form" element={<AlumnForm />} />
       <Route element={<DashboardLayout />}>
         <Route path="copy" element={<AppCopy />} />
       </Route>
