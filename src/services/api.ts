@@ -1,7 +1,12 @@
 import axios from "axios";
 
-const UNAUTHORIZED = 401;
+export const UNAUTHORIZED = 401;
+export const OK = 200;
 
+export interface IErrorResponse {
+  success: false,
+  errors: { msj: string }[]
+}
 export const api = axios.create({
   baseURL: 'http://localhost:3000/api/v1/',
   headers: {
