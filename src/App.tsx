@@ -5,13 +5,13 @@ import { useNavigate } from 'react-router'
 import AlumnsTable from './components/dashboard/alumns/table'
 
 function App() {
-  const [count, setCount] = useState(0)
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleUnauthorized = () => navigate("/login", { replace: true });
     window.addEventListener("unauthorized", handleUnauthorized);
     return () => window.removeEventListener("unauthorized", handleUnauthorized);
+
   }, [navigate])
 
   return (

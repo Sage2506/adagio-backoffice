@@ -7,6 +7,7 @@ export interface IErrorResponse {
   success: false,
   errors: { msj: string }[]
 }
+
 export const api = axios.create({
   baseURL: 'http://localhost:3000/api/v1/',
   headers: {
@@ -26,4 +27,8 @@ api.interceptors.response.use(
   }
 );
 
+const initialToken = localStorage.getItem("id_token");
+if (initialToken) {
+  api.defaults.headers.common['Authorization'] = initialToken;
+}
 export default api;
