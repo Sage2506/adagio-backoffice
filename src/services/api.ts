@@ -1,7 +1,8 @@
 import axios from "axios";
 
-export const UNAUTHORIZED = 401;
 export const OK = 200;
+
+export const UNAUTHORIZED = 401;
 
 export interface IErrorResponse {
   success: false,

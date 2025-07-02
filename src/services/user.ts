@@ -1,5 +1,5 @@
 
-import { api, type IErrorResponse } from "./api";
+import { api, OK, type IErrorResponse } from "./api";
 
 interface ILoginResponse {
   success: boolean, id_token: string, errors: { msj: string }[]
@@ -13,7 +13,7 @@ interface IUserCredentials {
 export function logIn(args: { user: IUserCredentials }): Promise<ILoginResponse | IErrorResponse> {
   const { user } = args;
   return api.post<ILoginResponse>(`auth/login`, user).then(response => {
-    if (response.status === 200) {
+    if (response.status === OK) {
 
       api.defaults.headers.common['Authorization'] = response.data.id_token;
       localStorage.setItem("id_token", response.data.id_token)
@@ -22,7 +22,6 @@ export function logIn(args: { user: IUserCredentials }): Promise<ILoginResponse 
       return { success: false, errors: [{ msj: response.status.toString() }], id_token: "" }
     }
   }).catch(error => {
-    console.log("success: ", error)
     return { success: false, errors: [{ msj: error.message }], id_token: "" }
   })
 }

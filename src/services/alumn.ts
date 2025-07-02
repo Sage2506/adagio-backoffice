@@ -14,7 +14,7 @@ export interface IAlumnRecord {
   birth_date: string
 }
 
-interface ILinks {
+export interface ILinks {
   first: string
   last: string
   prev?: string
@@ -24,14 +24,15 @@ interface ILinks {
 interface IGetAlumnsResponse {
   success: true,
   data: IAlumnRecord[],
-  links: ILinks
+  links: ILinks,
+  pages: number[]
 }
 
-export function getAlumns(params?: string[][]): Promise<IGetAlumnsResponse | IErrorResponse> {
-  return api.get<IGetAlumnsResponse>(`${path}`).then(response => {
+export function getAlumns(params?: string): Promise<IGetAlumnsResponse | IErrorResponse> {
+  return api.get<IGetAlumnsResponse>(`${path}?${params}`,).then(response => {
     if (response.status === OK) {
-      const { data, links } = response.data
-      return { success: true as const, data, links };
+      const { data, links, pages } = response.data
+      return { success: true as const, data, links, pages };
     } else {
       return { success: false as const, errors: [{ msj: response.status.toString() }] };
     }
