@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const OK = 200;
-
+export const CREATED = 201
 export const UNAUTHORIZED = 401;
 
 export interface IErrorResponse {
@@ -19,6 +19,8 @@ export const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.log("response error interceptor: ", error);
+
     if (error.response?.status === UNAUTHORIZED) {
       localStorage.removeItem("id_token");
       delete api.defaults.headers.common["Authorization"];

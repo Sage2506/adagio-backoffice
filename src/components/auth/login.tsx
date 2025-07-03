@@ -3,7 +3,7 @@ import { logIn } from "../../services/user";
 import { useNavigate } from "react-router";
 
 function Login() {
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ msj: string }[]>([]);

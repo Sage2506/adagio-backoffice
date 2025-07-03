@@ -9,12 +9,13 @@ import AlumnForm from "./components/dashboard/alumns/form";
 export function Router() {
   return (
     <Routes>
-      <Route index element={<App />} />
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<LogOut />} />
-      <Route path="alumn/form" element={<AlumnForm />} />
       <Route element={<DashboardLayout />}>
+        <Route index element={<App />} />
         <Route path="copy" element={<AppCopy />} />
+        <Route path="alumn/form" element={<AlumnForm />} />
+        <Route path="alumn/:id/edit" element={<AlumnForm />} />
       </Route>
     </Routes>
   )

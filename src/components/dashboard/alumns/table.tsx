@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { getAlumns, type ILinks, type IAlumnRecord } from "../../../services/alumn";
-import { NavLink, useSearchParams } from "react-router";
+import { NavLink, useNavigate, useSearchParams } from "react-router";
 
 
 export default function AlumnsTable() {
-
+  const navigate = useNavigate()
   const [alumns, setAlumns] = useState<IAlumnRecord[]>([]);
   const [pages, setPages] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -36,7 +36,7 @@ export default function AlumnsTable() {
   }
 
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
@@ -51,7 +51,7 @@ export default function AlumnsTable() {
 
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
           {alumns.map((alumn) =>
-            <tr key={`alumn_${alumn.id}`} className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700">
+            <tr key={`alumn_${alumn.id}`} onClick={()=> navigate(`/alumn/${alumn.id}/edit`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
               <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                 {alumn.name}
               </th>
@@ -89,10 +89,10 @@ export default function AlumnsTable() {
           }
 
           {pages.map(page =>
-            <li>
+            <li key={`page_${page}`}>
               <NavLink
                 aria-current={currentPage === page ? 'page' : 'false'}
-                key={`page_${page}`}
+
                 to={`?page%5Bpage%5D=${page}`}
                 className={
                   `flex items-center justify-center px-3 h-8 border ${currentPage === page
