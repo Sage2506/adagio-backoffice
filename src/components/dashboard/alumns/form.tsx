@@ -35,11 +35,16 @@ export default function AlumnForm() {
         if (response.success) {
           const { name, last_name, email, birth_date, phone_number, address, special_med_conditions } = response.data
           setAddress(address || "");
-          setBirthDate(birth_date+'T00:00:00');
+          if (birth_date) {
+            setBirthDate(birth_date + 'T00:00:00');
+          } else {
+            setBirthDate((new Date()).toString())
+          }
           setEmail(email || "");
           setLastName(last_name || "");
           setName(name || "");
           setPhoneNumber(phone_number || "");
+          setSpecialMedConditions(special_med_conditions);
         }
       }).finally(() => {
         setIsLoading(false);
