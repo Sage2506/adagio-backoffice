@@ -1,14 +1,9 @@
 
-import { api, OK, type IErrorResponse } from "./api";
+import type { ILoginResponse, IUserCredentials } from "../types/auth";
+import type { IErrorResponse } from "../types/errors";
+import { api, OK } from "./api";
 
-interface ILoginResponse {
-  success: boolean, id_token: string, errors: { msj: string }[]
-}
 
-interface IUserCredentials {
-  email: string,
-  password: string
-}
 
 export function logIn(args: { user: IUserCredentials }): Promise<ILoginResponse | IErrorResponse> {
   const { user } = args;

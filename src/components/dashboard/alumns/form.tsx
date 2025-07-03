@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Datepicker } from "flowbite-react";
-import { getAlumn, postAlumn, type IAlumnNew } from "../../../services/alumn";
-import { postGuardian, type IGuardianNew } from "../../../services/guardian";
+import { getAlumn, postAlumn, putAlumn } from "../../../services/alumn";
+import { postGuardian, putGuardian } from "../../../services/guardian";
 import { useNavigate, useParams } from "react-router";
+import type { IAlumnNew } from "../../../types/alumns";
+import type { IGuardianNew, IPostGuardianResponse } from "../../../types/guardians";
+import type { IErrorResponse } from "../../../types/errors";
 
 export default function AlumnForm() {
   const navigate = useNavigate()
@@ -14,11 +17,14 @@ export default function AlumnForm() {
   const [address, setAddress] = useState<string>("")
   const [phone_number, setPhoneNumber] = useState<string>("")
   const [email, setEmail] = useState<string>("")
+  const [is_guardian_required_for_leaving, setIsGuardianRequiredForLeaving] = useState<boolean>(false);
+  const [guardianId, setGuardianId] = useState<number>();
   const [guardian_name, setGuardianName] = useState<string>("")
   const [special_med_conditions, setSpecialMedConditions] = useState<string>("")
   const [guardian_last_name, setGuardianLastName] = useState<string>("")
   const [guardian_phone_number, setGuardianPhoneNumber] = useState<string>("")
   const [guardian_email, setGuardianEmail] = useState<string>("")
+  const [secGuardianId, setSecondaryGuardianId] = useState<number>()
   const [secondary_guardian_name, setSecondaryGuardianName] = useState<string>("")
   const [secondary_guardian_last_name, setSecondaryGuardianLastName] = useState<string>("")
   const [secondary_guardian_phone_number, setSecondaryGuardianPhoneNumber] = useState<string>("")
@@ -31,20 +37,32 @@ export default function AlumnForm() {
   function loadAlumnData() {
     if (id) {
       setIsLoading(true);
-      getAlumn(id).then(response => {
+      getAlumn({ id }).then(response => {
         if (response.success) {
-          const { name, last_name, email, birth_date, phone_number, address, special_med_conditions } = response.data
+          const { name, last_name, email, birth_date, phone_number, address, special_med_conditions, guardians } = response.data
           setAddress(address || "");
-          if (birth_date) {
-            setBirthDate(birth_date + 'T00:00:00');
-          } else {
-            setBirthDate((new Date()).toString())
-          }
+          setBirthDate(birth_date ? birth_date + 'T00:00:00' : (new Date()).toString());
           setEmail(email || "");
           setLastName(last_name || "");
           setName(name || "");
           setPhoneNumber(phone_number || "");
           setSpecialMedConditions(special_med_conditions);
+          if (guardians.length > 0) {
+            let guardian = guardians[0]
+            setGuardianId(guardian.id);
+            setGuardianName(guardian.name);
+            setGuardianLastName(guardian.last_name)
+            setGuardianPhoneNumber(guardian.phone_number);
+            setGuardianEmail(guardian.email);
+            if (guardians.length > 1) {
+              guardian = guardians[1]
+              setSecondaryGuardianId(guardian.id);
+              setSecondaryGuardianName(guardian.name);
+              setSecondaryGuardianLastName(guardian.last_name)
+              setSecondaryGuardianPhoneNumber(guardian.phone_number);
+              setSecondaryGuardianEmail(guardian.email);
+            }
+          }
         }
       }).finally(() => {
         setIsLoading(false);
@@ -55,7 +73,7 @@ export default function AlumnForm() {
   function formSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setIsLoading(true)
-    const alumn: IAlumnNew = { name, last_name, birth_date, address, phone_number, email, special_med_conditions };
+    const alumn: IAlumnNew = { name, last_name, birth_date, address, phone_number, email, special_med_conditions, is_guardian_required_for_leaving };
     const guardian = { name: guardian_name, last_name: guardian_last_name, phone_number: guardian_phone_number, email: guardian_email };
     const args: {
       alumn: IAlumnNew,
@@ -67,16 +85,20 @@ export default function AlumnForm() {
     if (secondary_guardian_name.trim().length > 0 && (secondary_guardian_email.trim().length > 0 || secondary_guardian_email.trim().length > 0)) {
       args.secondaryGuardian = { name: secondary_guardian_name, last_name: secondary_guardian_last_name, phone_number: secondary_guardian_phone_number, email: secondary_guardian_email };
     }
-    createAlumn(args)
+    if (id) {
+      updateAlumn(args)
+    } else {
+      createAlumn(args)
+    }
   }
 
   async function createAlumn(args: { alumn: IAlumnNew, guardian: IGuardianNew, secondaryGuardian?: IGuardianNew }) {
-    const response = await postAlumn(args.alumn)
+    const response = await postAlumn({ data: args.alumn })
     if (response.success) {
-      const promises: any[] = [];
-      promises.push(postGuardian({ ...args.guardian, alumn_id: response.data.id }));
+      const promises: Promise<IPostGuardianResponse | IErrorResponse>[] = [];
+      promises.push(postGuardian({ data: { ...args.guardian, alumn_id: response.data.id } }));
       if (args.secondaryGuardian) {
-        promises.push(postGuardian({ ...args.secondaryGuardian, alumn_id: response.data.id }))
+        promises.push(postGuardian({ data: { ...args.secondaryGuardian, alumn_id: response.data.id } }))
       }
       Promise.all(promises)
         .then(res => {
@@ -92,6 +114,28 @@ export default function AlumnForm() {
         });
     }
     setIsLoading(false);
+  }
+
+  async function updateAlumn(args: { alumn: IAlumnNew, guardian: IGuardianNew, secondaryGuardian?: IGuardianNew }) {
+    if (id) {
+      const response = await putAlumn({ id, data: args.alumn });
+      if (response.success) {
+        if (guardianId) {
+          const promises: Promise<IPostGuardianResponse | IErrorResponse>[] = [];
+          promises.push(putGuardian({ id: guardianId, data: args.guardian }))
+          if (secGuardianId && args.secondaryGuardian) {
+            promises.push(putGuardian({ id: secGuardianId, data: args.secondaryGuardian }))
+          }
+          Promise.all(promises)
+            .then(res => {
+              if (res[0].success) {
+              }
+            }).finally(() => {
+              setIsLoading(false)
+            })
+        }
+      }
+    }
   }
 
   return (
@@ -174,9 +218,9 @@ export default function AlumnForm() {
       </div>
       <div className="flex items-start mb-6">
         <div className="flex items-center h-5">
-          <input id="remember" name="remember" type="checkbox" value="" className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
+          <input id="is_guardian_required_for_leaving" name="is_guardian_required_for_leaving" type="checkbox" checked={is_guardian_required_for_leaving} onChange={e => setIsGuardianRequiredForLeaving(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
         </div>
-        <label htmlFor="remember" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">The student may leave the installations wihout a guardian.</label>
+        <label htmlFor="is_guardian_required_for_leaving" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">The student may leave the installations wihout a guardian.</label>
       </div>
       <button type="submit" disabled={isLoading} className={`text-white ${isLoading ? "bg-gray-400 cursor-progress" : "bg-blue-700 hover:bg-blue-800 cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700"} focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center  dark:focus:ring-blue-800`}>Submit</button>
     </form>
