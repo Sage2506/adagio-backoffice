@@ -3,7 +3,7 @@ import { logIn } from "../../services/user";
 import { useNavigate } from "react-router";
 
 function Login() {
-  let navigate = useNavigate()
+  const navigate = useNavigate()
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
@@ -39,14 +39,11 @@ function Login() {
   }
 
   async function postLogIn(data: { email: string, password: string }) {
-    const response = await logIn({ user: data, rememberMe: false })
+    const response = await logIn({ user: data})
     if (response.success) {
-      console.log("navigate")
       navigate("/");
     } else {
-      let responseErrors: { msj: string }[] = [];
-      responseErrors = response.errors;
-      setErrors(responseErrors)
+      setErrors(response.errors)
     }
 
   }

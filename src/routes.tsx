@@ -4,15 +4,18 @@ import AppCopy from "./App copy";
 import DashboardLayout from "./layouts/dashboard";
 import Login from "./components/auth/login";
 import LogOut from "./components/auth/logout";
+import AlumnForm from "./components/dashboard/alumns/form";
 
 export function Router() {
   return (
     <Routes>
-      <Route index element={<App />} />
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<LogOut />} />
       <Route element={<DashboardLayout />}>
+        <Route index element={<App />} />
         <Route path="copy" element={<AppCopy />} />
+        <Route path="alumn/form" element={<AlumnForm />} />
+        <Route path="alumn/:id/edit" element={<AlumnForm />} />
       </Route>
     </Routes>
   )
