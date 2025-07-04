@@ -115,7 +115,7 @@ export default function AutocompleteCombobox({
   }, []);
 
   return (
-    <div className="relative w-full max-w-md" ref={dropdownRef}>
+    <div ref={dropdownRef}>
       <input
         ref={inputRef}
         type="text"
@@ -127,7 +127,7 @@ export default function AutocompleteCombobox({
         onFocus={() => setIsOpen(true)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
       />
 
       {isOpen && (
@@ -149,8 +149,8 @@ export default function AutocompleteCombobox({
                 onClick={() => handleSelect(option)}
                 onMouseEnter={() => setHighlightedIndex(index)}
                 className={`px-4 py-2 cursor-pointer ${highlightedIndex === index
-                    ? "bg-blue-500 dark:bg-blue-600 text-white"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  ? "bg-blue-500 dark:bg-blue-600 text-white"
+                  : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
                   }`}
               >
                 {option.label}

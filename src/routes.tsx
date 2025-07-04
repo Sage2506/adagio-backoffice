@@ -12,12 +12,12 @@ export function Router() {
     <Routes>
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<LogOut />} />
-      <Route path="subscriptions/pay" element={<PaySubscriptionForm />}></Route>
       <Route element={<DashboardLayout />}>
         <Route index element={<App />} />
         <Route path="copy" element={<AppCopy />} />
         <Route path="alumn/form" element={<AlumnForm />} />
         <Route path="alumn/:id/edit" element={<AlumnForm />} />
+        <Route path="subscriptions/pay" element={<PaySubscriptionForm />}></Route>
       </Route>
     </Routes>
   )
