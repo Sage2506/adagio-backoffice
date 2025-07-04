@@ -10,6 +10,7 @@ export default function PaySubscriptionForm() {
     if (option) {
       console.log("type of selected price: ", typeof option.value.plan.price);
       console.log("value of selected price: ", option.value.plan.price)
+      setQuantity(option.value.plan.price)
     }
   }
 
