@@ -15,7 +15,7 @@ export interface IGuardianNew {
   last_name: string
   phone_number?: string
   email?: string
-  alumn_id?: number
+  alumn_id?: string
 }
 
 export interface IGuardianRecord {

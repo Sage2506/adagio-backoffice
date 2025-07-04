@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
-import { Datepicker } from "flowbite-react";
+import { Datepicker, Label, Select } from "flowbite-react";
 import { getAlumn, postAlumn, putAlumn } from "../../../services/alumn";
 import { postGuardian, putGuardian } from "../../../services/guardian";
 import { useNavigate, useParams } from "react-router";
 import type { IAlumnNew } from "../../../types/alumns";
-import type { IGuardianNew, IPostGuardianResponse } from "../../../types/guardians";
+import type { IGuardianNew, IGuardianRecord, IPostGuardianResponse } from "../../../types/guardians";
 import type { IErrorResponse } from "../../../types/errors";
+import { getPlans } from "../../../services/plan";
+import type { IPlanRecord } from "../../../types/plans";
+import type { IPostSubscriptionResponse, ISubscriptionRecord } from "../../../types/subscriptions";
+import { postSubscription, putSubscription } from "../../../services/subscription";
 
 export default function AlumnForm() {
   const navigate = useNavigate()
@@ -29,17 +33,41 @@ export default function AlumnForm() {
   const [secondary_guardian_last_name, setSecondaryGuardianLastName] = useState<string>("")
   const [secondary_guardian_phone_number, setSecondaryGuardianPhoneNumber] = useState<string>("")
   const [secondary_guardian_email, setSecondaryGuardianEmail] = useState<string>("")
-
+  const [plansList, setPlansList] = useState<IPlanRecord[]>([]);
+  const [plan_id, setPlanId] = useState<string>("");
+  const [subscription_id, setSubscriptionId] = useState<string>("");
   useEffect(() => {
-    if (id) { loadAlumnData() }
+    loadFormData()
   }, []);
+
+  function loadFormData() {
+    const promises = []
+    promises.push(loadPlans());
+    if (id) {
+      promises.push(loadAlumnData())
+    }
+    setIsLoading(true)
+    Promise.all(promises).finally(() => {
+      setIsLoading(false);
+    })
+  }
+
+  async function loadPlans() {
+    const response = await getPlans({});
+    if (response.success) {
+      setPlansList(response.data)
+      if (response.data.length > 0) {
+        setPlanId(response.data[0].id.toString())
+      }
+    }
+  }
 
   function loadAlumnData() {
     if (id) {
       setIsLoading(true);
       getAlumn({ id }).then(response => {
         if (response.success) {
-          const { name, last_name, email, birth_date, phone_number, address, special_med_conditions, guardians } = response.data
+          const { name, last_name, email, birth_date, phone_number, address, special_med_conditions, guardians, plan_id, subscription_id, is_guardian_required_for_leaving } = response.data
           setAddress(address || "");
           setBirthDate(birth_date ? birth_date + 'T00:00:00' : (new Date()).toString());
           setEmail(email || "");
@@ -47,6 +75,9 @@ export default function AlumnForm() {
           setName(name || "");
           setPhoneNumber(phone_number || "");
           setSpecialMedConditions(special_med_conditions);
+          setIsGuardianRequiredForLeaving(!!is_guardian_required_for_leaving)
+          if (plan_id) setPlanId(plan_id.toString());
+          if (subscription_id) setSubscriptionId(subscription_id.toString())
           if (guardians.length > 0) {
             let guardian = guardians[0]
             setGuardianId(guardian.id);
@@ -73,70 +104,88 @@ export default function AlumnForm() {
   function formSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setIsLoading(true)
-    const alumn: IAlumnNew = { name, last_name, birth_date, address, phone_number, email, special_med_conditions, is_guardian_required_for_leaving };
-    const guardian = { name: guardian_name, last_name: guardian_last_name, phone_number: guardian_phone_number, email: guardian_email };
+    const alumn: IAlumnNew = {
+      name,
+      last_name,
+      birth_date,
+      address,
+      phone_number,
+      email,
+      special_med_conditions,
+      is_guardian_required_for_leaving
+    };
+    const guardian = {
+      name: guardian_name,
+      last_name: guardian_last_name,
+      phone_number: guardian_phone_number,
+      email: guardian_email
+    };
     const args: {
       alumn: IAlumnNew,
       guardian: IGuardianNew,
       secondaryGuardian?: IGuardianNew
     } = {
-      alumn, guardian
+      alumn,
+      guardian
     }
-    if (secondary_guardian_name.trim().length > 0 && (secondary_guardian_email.trim().length > 0 || secondary_guardian_email.trim().length > 0)) {
-      args.secondaryGuardian = { name: secondary_guardian_name, last_name: secondary_guardian_last_name, phone_number: secondary_guardian_phone_number, email: secondary_guardian_email };
+
+    if (secondary_guardian_name.trim().length > 0 && (secondary_guardian_email.trim().length > 0 || secondary_guardian_phone_number.trim().length > 0)) {
+      args.secondaryGuardian = {
+        name: secondary_guardian_name,
+        last_name: secondary_guardian_last_name,
+        phone_number: secondary_guardian_phone_number,
+        email: secondary_guardian_email
+      };
     }
-    if (id) {
-      updateAlumn(args)
-    } else {
-      createAlumn(args)
-    }
+    updateCreateAlumn(args);
   }
 
-  async function createAlumn(args: { alumn: IAlumnNew, guardian: IGuardianNew, secondaryGuardian?: IGuardianNew }) {
-    const response = await postAlumn({ data: args.alumn })
+  async function updateCreateAlumn(args: { alumn: IAlumnNew, guardian: IGuardianNew, secondaryGuardian?: IGuardianNew }) {
+    setIsLoading(false);
+    const response = await (id
+      ? putAlumn({ id, data: args.alumn })
+      : postAlumn({ data: args.alumn }))
     if (response.success) {
-      const promises: Promise<IPostGuardianResponse | IErrorResponse>[] = [];
-      promises.push(postGuardian({ data: { ...args.guardian, alumn_id: response.data.id } }));
+      const promises: Promise<IPostGuardianResponse | IPostSubscriptionResponse | IErrorResponse>[] = [];
+      promises.push(subscription_id
+        ? putSubscription({ id: subscription_id, data: { alumn_id: response.data.id.toString(), plan_id } })
+        : postSubscription({ data: { alumn_id: response.data.id.toString(), plan_id } }))
+      promises.push((guardianId
+        ? putGuardian({ id: guardianId, data: args.guardian })
+        : postGuardian({ data: { ...args.guardian, alumn_id: response.data.id.toString() } })))
       if (args.secondaryGuardian) {
-        promises.push(postGuardian({ data: { ...args.secondaryGuardian, alumn_id: response.data.id } }))
+        promises.push((secGuardianId
+          ? putGuardian({ id: secGuardianId, data: args.secondaryGuardian })
+          : postGuardian({ data: { ...args.secondaryGuardian, alumn_id: response.data.id.toString() } })))
       }
       Promise.all(promises)
         .then(res => {
-          if (res[0].success) {
+          if (res[0].success && !id) {
             navigate("/")
+          } else {
+            if (res[0].success) {
+              const subscriptionResponse = res[0].data as ISubscriptionRecord
+              setSubscriptionId(subscriptionResponse.id.toString())
+              setPlanId(subscriptionResponse.plan_id.toString())
+            }
+            if (res[1].success) {
+              const subscriptionResponse = res[1].data as IGuardianRecord
+              setGuardianId(subscriptionResponse.id)
+            }
+            if (res[2]?.success) {
+              const subscriptionResponse = res[2]?.data as IGuardianRecord
+              setGuardianId(subscriptionResponse.id)
+            }
           }
         })
         .catch(error => {
           console.log(error);
-
         }).finally(() => {
           setIsLoading(false)
         });
     }
-    setIsLoading(false);
   }
 
-  async function updateAlumn(args: { alumn: IAlumnNew, guardian: IGuardianNew, secondaryGuardian?: IGuardianNew }) {
-    if (id) {
-      const response = await putAlumn({ id, data: args.alumn });
-      if (response.success) {
-        if (guardianId) {
-          const promises: Promise<IPostGuardianResponse | IErrorResponse>[] = [];
-          promises.push(putGuardian({ id: guardianId, data: args.guardian }))
-          if (secGuardianId && args.secondaryGuardian) {
-            promises.push(putGuardian({ id: secGuardianId, data: args.secondaryGuardian }))
-          }
-          Promise.all(promises)
-            .then(res => {
-              if (res[0].success) {
-              }
-            }).finally(() => {
-              setIsLoading(false)
-            })
-        }
-      }
-    }
-  }
 
   return (
     <form onSubmit={event => formSubmit(event)}
@@ -168,7 +217,7 @@ export default function AlumnForm() {
           </div>
           <div>
             <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email address</label>
-            <input onChange={(e) => { setEmail(e.target.value) }} value={email} type="email" id="email" name="email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$" required />
+            <input onChange={(e) => { setEmail(e.target.value) }} value={email} type="email" id="email" name="email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required />
           </div>
         </div>
         <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
@@ -187,7 +236,7 @@ export default function AlumnForm() {
           </div>
           <div>
             <label htmlFor="guardian_email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email address</label>
-            <input onChange={(e) => { setGuardianEmail(e.target.value) }} value={guardian_email} type="email" id="guardian_email" name="guardian_email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$" required />
+            <input onChange={(e) => { setGuardianEmail(e.target.value) }} value={guardian_email} type="email" id="guardian_email" name="guardian_email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required />
           </div>
         </div>
         <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
@@ -206,13 +255,19 @@ export default function AlumnForm() {
           </div>
           <div>
             <label htmlFor="secondary_guardian_email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email address</label>
-            <input onChange={(e) => { setSecondaryGuardianEmail(e.target.value) }} value={secondary_guardian_email} type="email" id="secondary_guardian_email" name="secondary_guardian_email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$" />
+            <input onChange={(e) => { setSecondaryGuardianEmail(e.target.value) }} value={secondary_guardian_email} type="email" id="secondary_guardian_email" name="secondary_guardian_email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" />
           </div>
         </div>
         <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
           <div>
             <label htmlFor="special_med_conditions" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Special medical conditions</label>
             <input onChange={(e) => { setSpecialMedConditions(e.target.value) }} value={special_med_conditions} type="text" id="special_med_conditions" name="special_med_conditions" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Allergies" required />
+          </div>
+          <div>
+            <label htmlFor="plan_id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select an option</label>
+            <select id="plan_id" name="plan_id" value={plan_id} onChange={e => setPlanId(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
+              {plansList.map(plan => <option key={`plan_${plan.id}`} value={plan.id.toString()}>{plan.name}</option>)}
+            </select>
           </div>
         </div>
       </div>
@@ -221,9 +276,11 @@ export default function AlumnForm() {
           <input id="is_guardian_required_for_leaving" name="is_guardian_required_for_leaving" type="checkbox" checked={is_guardian_required_for_leaving} onChange={e => setIsGuardianRequiredForLeaving(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
         </div>
         <label htmlFor="is_guardian_required_for_leaving" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">The student may leave the installations wihout a guardian.</label>
+
+
       </div>
       <button type="submit" disabled={isLoading} className={`text-white ${isLoading ? "bg-gray-400 cursor-progress" : "bg-blue-700 hover:bg-blue-800 cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700"} focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center  dark:focus:ring-blue-800`}>Submit</button>
     </form>
 
   );
-};
+}

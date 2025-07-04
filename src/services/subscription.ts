@@ -1,13 +1,13 @@
 import type { IErrorResponse } from "../types/errors";
-import type { IGuardianNew, IGuardianRecord, IPostGuardianResponse } from "../types/guardians";
-import api, { CREATED, OK } from "./api"
+import type { IPostSubscriptionResponse, ISubscriptionNew, ISubscriptionRecord } from "../types/subscriptions";
+import api, { CREATED, OK } from "./api";
 
-const path = "/guardians";
+const path = "/subscriptions";
 
+export function postSubscription(args: { data: ISubscriptionNew }): Promise<IPostSubscriptionResponse | IErrorResponse> {
+  console.log("post subscription args: ",args);
 
-
-export function postGuardian(args: { data: IGuardianNew }): Promise<IPostGuardianResponse | IErrorResponse> {
-  return api.post<IGuardianRecord>(path, args.data).then(response => {
+  return api.post<ISubscriptionRecord>(path, args.data).then(response => {
     if (response.status === CREATED) {
       return {
         success: true as const,
@@ -27,8 +27,8 @@ export function postGuardian(args: { data: IGuardianNew }): Promise<IPostGuardia
   });
 }
 
-export function putGuardian(args: { id: number, data: IGuardianNew }): Promise<IPostGuardianResponse | IErrorResponse> {
-  return api.put<IGuardianRecord>(`${path}/${args.id}`, args.data).then(response => {
+export function putSubscription(args: { id: string, data: ISubscriptionNew }): Promise<IPostSubscriptionResponse | IErrorResponse> {
+  return api.put<ISubscriptionRecord>(`${path}/${args.id}`, args.data).then(response => {
     if (response.status === OK) {
       return {
         success: true as const,

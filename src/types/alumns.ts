@@ -40,6 +40,8 @@ export interface IAlumnGuardiansRecord {
   special_med_conditions: string
   is_guardian_required_for_leaving: boolean
   guardians: IGuadianRecord[]
+  plan_id: number
+  subscription_id: number
 }
 
 export interface ILinks {
