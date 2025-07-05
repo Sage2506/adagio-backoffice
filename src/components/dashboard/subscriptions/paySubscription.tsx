@@ -1,16 +1,19 @@
 import AutocompleteCombobox from "../../utils/autocomplete";
 import { getSubscriptions } from "../../../services/subscription";
 import { useState } from "react";
+import type { IPaymentAlumnPlan, IPaymentNew } from "../../../types/payments";
 
 export default function PaySubscriptionForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [quantity, setQuantity] = useState<string>()
+  const [subscriptionId, setSubscriptionId] = useState<number>()
+  const [alumn_id, setAlumnId] = useState<string>('')
+  const [quantity, setQuantity] = useState<string>('')
 
-  function onOptionSelected(option: { id: string | number, label: string, value: any } | null) {
+  function onOptionSelected(option: { id: string | number, label: string, value: IPaymentAlumnPlan } | null) {
     if (option) {
-      console.log("type of selected price: ", typeof option.value.plan.price);
-      console.log("value of selected price: ", option.value.plan.price)
-      setQuantity(option.value.plan.price)
+      setQuantity(option.value.plan.price.toString())
+      setSubscriptionId(option.value.id)
+      setAlumnId(option.value.alumn_id.toString())
     }
   }
 
@@ -24,6 +27,14 @@ export default function PaySubscriptionForm() {
 
   function formSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const data: IPaymentNew = {
+      payment: {
+        alumn_id,
+        quantity
+      },
+      payable_type: "subscription",
+      payable_id: ""
+    }
   }
   return (
     <form onSubmit={e => formSubmit(e)} className={`py-6 px-6 space-y-6 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`} >

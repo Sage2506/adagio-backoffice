@@ -18,8 +18,6 @@ export function getSubscriptions(args: { params?: string }): Promise<IGetSubscri
 }
 
 export function postSubscription(args: { data: ISubscriptionNew }): Promise<IPostSubscriptionResponse | IErrorResponse> {
-  console.log("post subscription args: ", args);
-
   return api.post<ISubscriptionRecord>(path, args.data).then(response => {
     if (response.status === CREATED) {
       return {
