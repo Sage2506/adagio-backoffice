@@ -29,6 +29,9 @@ export default function DashboardLayout() {
                         <li>
                           <NavLink to={'/alumn/form'} className="relative block px-3 py-2 transition hover:text-teal-500 dark:hover:text-teal-400">Alumn Form</NavLink>
                         </li>
+                        <li>
+                          <NavLink to={'/subscriptions/pay'} className="relative block px-3 py-2 transition hover:text-teal-500 dark:hover:text-teal-400">Pay Subscription</NavLink>
+                        </li>
                       </ul>
                     </nav>
                   </div>

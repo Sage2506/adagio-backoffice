@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Datepicker, Label, Select } from "flowbite-react";
+import { Datepicker } from "flowbite-react";
 import { getAlumn, postAlumn, putAlumn } from "../../../services/alumn";
 import { postGuardian, putGuardian } from "../../../services/guardian";
 import { useNavigate, useParams } from "react-router";
@@ -276,8 +276,6 @@ export default function AlumnForm() {
           <input id="is_guardian_required_for_leaving" name="is_guardian_required_for_leaving" type="checkbox" checked={is_guardian_required_for_leaving} onChange={e => setIsGuardianRequiredForLeaving(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
         </div>
         <label htmlFor="is_guardian_required_for_leaving" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">The student may leave the installations wihout a guardian.</label>
-
-
       </div>
       <button type="submit" disabled={isLoading} className={`text-white ${isLoading ? "bg-gray-400 cursor-progress" : "bg-blue-700 hover:bg-blue-800 cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700"} focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center  dark:focus:ring-blue-800`}>Submit</button>
     </form>

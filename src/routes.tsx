@@ -5,6 +5,7 @@ import DashboardLayout from "./layouts/dashboard";
 import Login from "./components/auth/login";
 import LogOut from "./components/auth/logout";
 import AlumnForm from "./components/dashboard/alumns/form";
+import PaySubscriptionForm from "./components/dashboard/subscriptions/paySubscription";
 
 export function Router() {
   return (
@@ -16,6 +17,7 @@ export function Router() {
         <Route path="copy" element={<AppCopy />} />
         <Route path="alumn/form" element={<AlumnForm />} />
         <Route path="alumn/:id/edit" element={<AlumnForm />} />
+        <Route path="subscriptions/pay" element={<PaySubscriptionForm />}></Route>
       </Route>
     </Routes>
   )
