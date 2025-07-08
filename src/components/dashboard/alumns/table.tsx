@@ -24,7 +24,7 @@ export default function AlumnsTable() {
     } else {
       setCurrentPage(1)
     }
-    if(searchParams.has('q[full_name_cont]')){
+    if (searchParams.has('q[full_name_cont]')) {
       setSearchValue(searchParams.get('q[full_name_cont]')!)
     }
     loadAlumns();
@@ -46,7 +46,7 @@ export default function AlumnsTable() {
     })
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') {
       const newParams = new URLSearchParams(searchParams);
       newParams.delete('page[page]')
