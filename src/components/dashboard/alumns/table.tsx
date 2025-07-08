@@ -13,15 +13,24 @@ export default function AlumnsTable() {
   const [links, setLinks] = useState<ILinks>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
-  let [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
+  const [searchValue, setSearchValue] = useState('');
+
+
+
   useEffect(() => {
+    if (searchParams.has('page[page]')) {
+      setCurrentPage(parseInt(searchParams.get('page[page]')!))
+    } else {
+      setCurrentPage(1)
+    }
+    if(searchParams.has('q[full_name_cont]')){
+      setSearchValue(searchParams.get('q[full_name_cont]')!)
+    }
     loadAlumns();
   }, [searchParams.toString()])
 
   async function loadAlumns() {
-    if (searchParams.has('page[page]')) {
-      setCurrentPage(parseInt(searchParams.get('page[page]')!))
-    }
     setIsLoading(true)
     getAlumns({ params: searchParams.toString() }).then(response => {
       if (response.success) {
@@ -37,8 +46,43 @@ export default function AlumnsTable() {
     })
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('page[page]')
+      if (searchValue.trim()) {
+        newParams.set('q[full_name_cont]', searchValue.trim());
+      } else {
+        newParams.delete('q[full_name_cont]');
+      }
+      // Replace the current route
+      navigate(`?${newParams.toString()}`, { replace: true });
+    }
+  };
+
+  function setPage(page: number) {
+    const newParams = new URLSearchParams(searchParams)
+    newParams.set('page[page]', page.toString());
+    navigate(`?${newParams.toString()}`, { replace: true });
+  }
+
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
+      <div className="pb-4 ">
+        <label htmlFor="table-search" className="sr-only">Search</label>
+        <div className="relative mt-1">
+          <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
+            <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+            </svg>
+          </div>
+          <input type="text"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            id="table-search" className="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for items" />
+        </div>
+      </div>
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
@@ -92,10 +136,10 @@ export default function AlumnsTable() {
 
           {pages.map(page =>
             <li key={`page_${page}`}>
-              <NavLink
+              <a
                 aria-current={currentPage === page ? 'page' : 'false'}
 
-                to={`?page%5Bpage%5D=${page}`}
+                onClick={() => setPage(page)}
                 className={
                   `flex items-center justify-center px-3 h-8 border ${currentPage === page
                     ? 'text-blue-600 bg-blue-50 border-blue-300 dark:text-white dark:bg-blue-600 dark:border-blue-700'
@@ -103,9 +147,10 @@ export default function AlumnsTable() {
                   }`
                 }>
                 {page}
-              </NavLink>
+              </a>
             </li>
           )}
+
           {links?.next &&
             <li>
               <NavLink
