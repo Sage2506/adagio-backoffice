@@ -36,6 +36,7 @@ export default function AlumnForm() {
   const [plansList, setPlansList] = useState<IPlanRecord[]>([]);
   const [plan_id, setPlanId] = useState<string>("");
   const [subscription_id, setSubscriptionId] = useState<string>("");
+
   useEffect(() => {
     loadFormData()
   }, []);
@@ -103,7 +104,6 @@ export default function AlumnForm() {
 
   function formSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setIsLoading(true)
     const alumn: IAlumnNew = {
       name,
       last_name,
@@ -141,7 +141,7 @@ export default function AlumnForm() {
   }
 
   async function updateCreateAlumn(args: { alumn: IAlumnNew, guardian: IGuardianNew, secondaryGuardian?: IGuardianNew }) {
-    setIsLoading(false);
+    setIsLoading(true)
     const response = await (id
       ? putAlumn({ id, data: args.alumn })
       : postAlumn({ data: args.alumn }))
@@ -185,7 +185,6 @@ export default function AlumnForm() {
         });
     }
   }
-
 
   return (
     <form onSubmit={event => formSubmit(event)}
@@ -279,6 +278,5 @@ export default function AlumnForm() {
       </div>
       <button type="submit" disabled={isLoading} className={`text-white ${isLoading ? "bg-gray-400 cursor-progress" : "bg-blue-700 hover:bg-blue-800 cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700"} focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center  dark:focus:ring-blue-800`}>Submit</button>
     </form>
-
   );
 }

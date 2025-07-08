@@ -1,32 +1,33 @@
-import { useState, useEffect } from "react";
-import { getAlumns, } from "../../../services/alumn";
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
-import type { IAlumnRecord } from "../../../types/alumns";
+import type { IPlanRecord } from "../../../types/plans";
 import type { ILinks } from "../../../types/common";
+import { getPlans } from "../../../services/plan";
+import formatPrice from "../../../services/numbers";
 
-
-export default function AlumnsTable() {
+export default function PlansTable() {
   const navigate = useNavigate()
-  const [alumns, setAlumns] = useState<IAlumnRecord[]>([]);
+  const [plans, setPlans] = useState<IPlanRecord[]>([]);
   const [pages, setPages] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [links, setLinks] = useState<ILinks>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
   let [searchParams] = useSearchParams();
+
   useEffect(() => {
-    loadAlumns();
+    loadPlans();
   }, [searchParams.toString()])
 
-  async function loadAlumns() {
+  async function loadPlans() {
+    setIsLoading(true)
     if (searchParams.has('page[page]')) {
       setCurrentPage(parseInt(searchParams.get('page[page]')!))
     }
-    setIsLoading(true)
-    getAlumns({ params: searchParams.toString() }).then(response => {
+    getPlans({ params: searchParams.toString() }).then(response => {
       if (response.success) {
         const { data, pages, links } = response
-        setAlumns(data);
+        setPlans(data);
         setPages(pages);
         setLinks(links);
       } else {
@@ -39,6 +40,19 @@ export default function AlumnsTable() {
 
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
+
+      <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
+        <div>
+        </div>
+        <div className="relative">
+          <button id="dropdownRadioButton" onClick={()=> navigate('/plans/form')} className="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" type="button">
+            Create
+            <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5" />
+            </svg>
+          </button>
+        </div>
+      </div>
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
@@ -46,19 +60,19 @@ export default function AlumnsTable() {
               Name
             </th>
             <th scope="col" className="px-6 py-3">
-              Last name
+              Price
             </th>
           </tr>
         </thead>
 
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-          {alumns.map((alumn) =>
-            <tr key={`alumn_${alumn.id}`} onClick={() => navigate(`/alumns/form/${alumn.id}`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
+          {plans.map((plan) =>
+            <tr key={`plan_${plan.id}`} onClick={() => navigate(`/plans/form/${plan.id}`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
               <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                {alumn.name}
+                {plan.name}
               </th>
               <td className="px-6 py-4">
-                {alumn.last_name}
+                {formatPrice(plan.price)}
               </td>
             </tr>)}
         </tbody>
@@ -73,7 +87,7 @@ export default function AlumnsTable() {
           {links &&
             <li>
               <NavLink
-                to={links.first.split('alumns')[1]}
+                to={links.first.split('plans')[1]}
                 className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                 First
               </NavLink>
@@ -83,7 +97,7 @@ export default function AlumnsTable() {
           {links?.prev &&
             <li>
               <NavLink
-                to={links.prev.split('alumns')[1]}
+                to={links.prev.split('plans')[1]}
                 className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                 Previous
               </NavLink>
@@ -109,7 +123,7 @@ export default function AlumnsTable() {
           {links?.next &&
             <li>
               <NavLink
-                to={links.next.split('alumns')[1]}
+                to={links.next.split('plans')[1]}
                 className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                 Next
               </NavLink>
@@ -118,7 +132,7 @@ export default function AlumnsTable() {
           {links &&
             <li>
               <NavLink
-                to={links.last.split('alumns')[1]}
+                to={links.last.split('plans')[1]}
                 className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                 Last
               </NavLink>

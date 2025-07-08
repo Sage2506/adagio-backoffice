@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { getAlumns, } from "../../../services/alumn";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
-import type { IAlumnRecord } from "../../../types/alumns";
+import { getSubscriptions } from "../../../services/subscription";
+import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import type { ILinks } from "../../../types/common";
 
 
-export default function AlumnsTable() {
+export default function SubscriptionsTable() {
   const navigate = useNavigate()
-  const [alumns, setAlumns] = useState<IAlumnRecord[]>([]);
+  const [subscriptions, setSubscriptions] = useState<ISubscriptionAlumnPlanRecord[]>([]);
   const [pages, setPages] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [links, setLinks] = useState<ILinks>();
@@ -15,18 +15,18 @@ export default function AlumnsTable() {
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
   let [searchParams] = useSearchParams();
   useEffect(() => {
-    loadAlumns();
+    loadSubscriptions();
   }, [searchParams.toString()])
 
-  async function loadAlumns() {
+  async function loadSubscriptions() {
+    setIsLoading(true)
     if (searchParams.has('page[page]')) {
       setCurrentPage(parseInt(searchParams.get('page[page]')!))
     }
-    setIsLoading(true)
-    getAlumns({ params: searchParams.toString() }).then(response => {
+    getSubscriptions({ params: searchParams.toString() }).then(response => {
       if (response.success) {
         const { data, pages, links } = response
-        setAlumns(data);
+        setSubscriptions(data);
         setPages(pages);
         setLinks(links);
       } else {
@@ -48,17 +48,29 @@ export default function AlumnsTable() {
             <th scope="col" className="px-6 py-3">
               Last name
             </th>
+            <th scope="col" className="px-6 py-3">
+              Plan
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Fecha de ultimo pago
+            </th>
           </tr>
         </thead>
 
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-          {alumns.map((alumn) =>
-            <tr key={`alumn_${alumn.id}`} onClick={() => navigate(`/alumns/form/${alumn.id}`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
+          {subscriptions.map((subscription) =>
+            <tr key={`subscription_${subscription.id}`} onClick={() => navigate(`/subscription/${subscription.id}/edit`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
               <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                {alumn.name}
+                {subscription.alumn.name}
               </th>
               <td className="px-6 py-4">
-                {alumn.last_name}
+                {subscription.alumn.last_name}
+              </td>
+              <td className="px-6 py-4">
+                {subscription.plan.name}
+              </td>
+              <td className="px-6 py-4">
+                {subscription.last_payment_date}
               </td>
             </tr>)}
         </tbody>
@@ -73,7 +85,7 @@ export default function AlumnsTable() {
           {links &&
             <li>
               <NavLink
-                to={links.first.split('alumns')[1]}
+                to={links.first.split('subscriptions')[1]}
                 className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                 First
               </NavLink>
@@ -83,7 +95,7 @@ export default function AlumnsTable() {
           {links?.prev &&
             <li>
               <NavLink
-                to={links.prev.split('alumns')[1]}
+                to={links.prev.split('subscriptions')[1]}
                 className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                 Previous
               </NavLink>
@@ -109,7 +121,7 @@ export default function AlumnsTable() {
           {links?.next &&
             <li>
               <NavLink
-                to={links.next.split('alumns')[1]}
+                to={links.next.split('subscriptions')[1]}
                 className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                 Next
               </NavLink>
@@ -118,7 +130,7 @@ export default function AlumnsTable() {
           {links &&
             <li>
               <NavLink
-                to={links.last.split('alumns')[1]}
+                to={links.last.split('subscriptions')[1]}
                 className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                 Last
               </NavLink>

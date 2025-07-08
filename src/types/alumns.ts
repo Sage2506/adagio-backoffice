@@ -1,3 +1,4 @@
+import type { ILinks } from "./common"
 import type { IGuadianRecord } from "./guardians"
 
 export interface IAlumnNew {
@@ -42,13 +43,6 @@ export interface IAlumnGuardiansRecord {
   guardians: IGuadianRecord[]
   plan_id: number
   subscription_id: number
-}
-
-export interface ILinks {
-  first: string
-  last: string
-  prev?: string
-  next?: string
 }
 
 export interface IGetAlumnResponse {

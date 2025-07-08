@@ -1,4 +1,5 @@
-import type { IAlumnRecord, ILinks } from "./alumns"
+import type { IAlumnRecord } from "./alumns"
+import type { ILinks } from "./common"
 import type { IPlanRecord } from "./plans"
 
 export interface ISubscriptionNew {
