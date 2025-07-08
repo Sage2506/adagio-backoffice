@@ -23,6 +23,7 @@ export function Router() {
         <Route path="subscriptions/pay" element={<PaySubscriptionForm />}></Route>
         <Route path="subscriptions" element={<SubscriptionsTable />}></Route>
         <Route path="plans" element={<PlansTable />}></Route>
+        <Route path="plans/form" element={<PlanForm />}></Route>
         <Route path="plans/form/:id" element={<PlanForm />}></Route>
       </Route>
     </Routes>

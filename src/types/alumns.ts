@@ -1,3 +1,4 @@
+import type { ISuccessfulDelete } from "../services/api"
 import type { ILinks } from "./common"
 import type { IGuadianRecord } from "./guardians"
 
@@ -65,4 +66,9 @@ export interface IGetAlumnsResponse {
 export interface IPostAlumnResponse {
   success: true,
   data: IAlumnRecord
+}
+
+export interface IPostAlumnDelete {
+  success: true,
+  data: ISuccessfulDelete
 }

@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { getAlumns, } from "../../../services/alumn";
+import { deleteAlumn, getAlumns, } from "../../../services/alumn";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
 import type { IAlumnRecord } from "../../../types/alumns";
 import type { ILinks } from "../../../types/common";
+import ConfirmationModal from "../../utils/confirmationModal";
 
 
 export default function AlumnsTable() {
@@ -15,8 +16,8 @@ export default function AlumnsTable() {
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
   const [searchParams] = useSearchParams();
   const [searchValue, setSearchValue] = useState('');
-
-
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [alumnToDelete, setAlumnToDelete] = useState<IAlumnRecord>();
 
   useEffect(() => {
     if (searchParams.has('page[page]')) {
@@ -55,7 +56,6 @@ export default function AlumnsTable() {
       } else {
         newParams.delete('q[full_name_cont]');
       }
-      // Replace the current route
       navigate(`?${newParams.toString()}`, { replace: true });
     }
   };
@@ -66,8 +66,54 @@ export default function AlumnsTable() {
     navigate(`?${newParams.toString()}`, { replace: true });
   }
 
+  function resetPager() {
+    if (currentPage === 1) {
+      loadAlumns();
+    } else {
+      setPage(1)
+    }
+  }
+
+  function handleDelete(e: React.FormEvent, alumn: IAlumnRecord) {
+    e.stopPropagation()
+    setAlumnToDelete(alumn)
+    setIsModalOpen(true);
+  }
+
+  function onConfirmResponse(accepted: boolean) {
+    if (alumnToDelete) {
+      if (accepted) {
+        console.log("You're going to delete: ", alumnToDelete.name + ' ' + alumnToDelete.last_name)
+        eraseAlun();
+      } else {
+        console.log(alumnToDelete.name + ' ' + alumnToDelete.last_name + ' Wont be deleted');
+      }
+    }
+    setIsModalOpen(false)
+  }
+
+  async function eraseAlun() {
+    if (alumnToDelete) {
+      setIsLoading(true)
+      const response = await deleteAlumn({ id: alumnToDelete.id })
+      if (response.success) {
+        resetPager()
+      } else {
+        setIsLoading(false)
+      }
+    }
+  }
+
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
+      <ConfirmationModal
+        titleText="Delete Alumn"
+        bodyText={`You're about to erase alumn ${alumnToDelete?.name + " " + alumnToDelete?.last_name}, are you sure?`}
+        confirmText="Yes"
+        rejectText="No"
+        openModal={isModalOpen}
+        onConfirmResponse={((accepted: boolean) => onConfirmResponse(accepted))}
+      />
       <div className="pb-4 ">
         <label htmlFor="table-search" className="sr-only">Search</label>
         <div className="relative mt-1">
@@ -92,17 +138,23 @@ export default function AlumnsTable() {
             <th scope="col" className="px-6 py-3">
               Last name
             </th>
+            <th scope="col" className="px-6 py-3">
+              Actions
+            </th>
           </tr>
         </thead>
 
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
           {alumns.map((alumn) =>
-            <tr key={`alumn_${alumn.id}`} onClick={() => navigate(`/alumns/form/${alumn.id}`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
+            <tr key={`alumn_${alumn.id}`} onClick={() => navigate(`/alumns/form/${alumn.id}`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700 capitalize"}>
               <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                 {alumn.name}
               </th>
-              <td className="px-6 py-4">
+              <td className="px-6 py-4 capitalize">
                 {alumn.last_name}
+              </td>
+              <td className="px-6 py-4">
+                <a onClick={e => handleDelete(e, alumn)} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Delete</a>
               </td>
             </tr>)}
         </tbody>

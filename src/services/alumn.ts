@@ -1,6 +1,6 @@
-import type { IAlumnGuardiansRecord, IAlumnNew, IAlumnRecord, IGetAlumnGuardiansResponse, IGetAlumnsResponse, IPostAlumnResponse } from "../types/alumns";
+import type { IAlumnGuardiansRecord, IAlumnNew, IAlumnRecord, IGetAlumnGuardiansResponse, IGetAlumnsResponse, IPostAlumnDelete, IPostAlumnResponse } from "../types/alumns";
 import type { IErrorResponse } from "../types/errors";
-import api, { CREATED, OK } from "./api";
+import api, { CREATED, type ISuccessfulDelete, OK } from "./api";
 
 const path = "/alumns";
 
@@ -57,6 +57,27 @@ export function putAlumn(args: { id: string, data: IAlumnNew }): Promise<IPostAl
         success: true as const,
         data: response.data
       };
+    } else {
+      return {
+        success: false as const,
+        errors: [{ msj: response.status.toString() }]
+      };
+    }
+  }).catch((error: { message: string }) => {
+    return {
+      success: false as const,
+      errors: [{ msj: error.message }]
+    };
+  });
+}
+
+export function deleteAlumn(args: { id: number }): Promise<IPostAlumnDelete | IErrorResponse> {
+  return api.delete<ISuccessfulDelete>(`${path}/${args.id}`).then(response => {
+    if (response.status === OK) {
+      return {
+        success: true as const,
+        data: { successfull: true as const }
+      }
     } else {
       return {
         success: false as const,
