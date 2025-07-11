@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
-import { NavLink, useNavigate, useSearchParams } from "react-router";
+import { NavLink, useSearchParams } from "react-router";
 import { getSubscriptions } from "../../../services/subscription";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import type { ILinks } from "../../../types/common";
+import RegisterSubscriptionPaymentModal from "./registerSubscriptionPaymentModal";
 
 
 export default function SubscriptionsTable() {
-  const navigate = useNavigate()
   const [subscriptions, setSubscriptions] = useState<ISubscriptionAlumnPlanRecord[]>([]);
   const [pages, setPages] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [links, setLinks] = useState<ILinks>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [errors, setErrors] = useState<{ msj: string }[]>([]);
+  const [isSubscriptionPaymentModalOpen, setIsSubscriptionPaymentModalOpen] = useState<boolean>(false);
+  const [selectedSubscription, setSelectedSubscriptionId] = useState<ISubscriptionAlumnPlanRecord>();
   let [searchParams] = useSearchParams();
   useEffect(() => {
     loadSubscriptions();
@@ -29,16 +30,26 @@ export default function SubscriptionsTable() {
         setSubscriptions(data);
         setPages(pages);
         setLinks(links);
-      } else {
-        setErrors(response.errors)
       }
     }).finally(() => {
       setIsLoading(false)
     })
   }
 
+  function openPaySubscriptionModal(subscription: ISubscriptionAlumnPlanRecord) {
+    setSelectedSubscriptionId(subscription);
+    setIsSubscriptionPaymentModalOpen(true);
+  }
+
+  function subscriptionPaid(successful: boolean) {
+    setIsSubscriptionPaymentModalOpen(false)
+    setSelectedSubscriptionId(undefined);
+    console.log("se pagó la suscripción? :", successful);
+  }
+
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
+      {selectedSubscription && <RegisterSubscriptionPaymentModal isModalOpen={isSubscriptionPaymentModalOpen} subscription={selectedSubscription} onSubscriptionPaid={((successful) => subscriptionPaid(successful))} />}
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
@@ -59,7 +70,7 @@ export default function SubscriptionsTable() {
 
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
           {subscriptions.map((subscription) =>
-            <tr key={`subscription_${subscription.id}`} onClick={() => navigate(`/subscription/${subscription.id}/edit`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
+            <tr key={`subscription_${subscription.id}`} onClick={() => openPaySubscriptionModal(subscription)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
               <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white capitalize">
                 {subscription.alumn.name}
               </th>

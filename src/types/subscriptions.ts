@@ -27,7 +27,8 @@ export interface ISubscriptionAlumnPlanRecord {
   created_at: string
   updated_at: string
   alumn: IAlumnRecord
-  plan: IPlanRecord
+  plan: IPlanRecord,
+  paid_amount: number
 }
 
 export interface IPostSubscriptionResponse {
