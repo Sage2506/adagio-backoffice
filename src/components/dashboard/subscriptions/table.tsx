@@ -4,6 +4,7 @@ import { getSubscriptions } from "../../../services/subscription";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import type { ILinks } from "../../../types/common";
 import RegisterSubscriptionPaymentModal from "./registerSubscriptionPaymentModal";
+import SubscripcionsRow from "./row";
 
 
 export default function SubscriptionsTable() {
@@ -44,7 +45,6 @@ export default function SubscriptionsTable() {
   function subscriptionPaid(successful: boolean) {
     setIsSubscriptionPaymentModalOpen(false)
     setSelectedSubscriptionId(undefined);
-    console.log("se pagó la suscripción? :", successful);
   }
 
   return (
@@ -53,6 +53,9 @@ export default function SubscriptionsTable() {
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
+            <th scope="col" className="px-6 py-3">
+              ID
+            </th>
             <th scope="col" className="px-6 py-3">
               Name
             </th>
@@ -63,27 +66,17 @@ export default function SubscriptionsTable() {
               Plan
             </th>
             <th scope="col" className="px-6 py-3">
-              Fecha de ultimo pago
+              Last payment
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Due Date
             </th>
           </tr>
         </thead>
 
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-          {subscriptions.map((subscription) =>
-            <tr key={`subscription_${subscription.id}`} onClick={() => openPaySubscriptionModal(subscription)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
-              <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white capitalize">
-                {subscription.alumn.name}
-              </th>
-              <td className="px-6 py-4 capitalize">
-                {subscription.alumn.last_name}
-              </td>
-              <td className="px-6 py-4 capitalize">
-                {subscription.plan.name}
-              </td>
-              <td className="px-6 py-4">
-                {subscription.last_payment_date}
-              </td>
-            </tr>)}
+          {subscriptions.map((subscription) => <SubscripcionsRow key={`subscription_${subscription.id}`} subscription={subscription} onClick={() => openPaySubscriptionModal(subscription)} />
+          )}
         </tbody>
       </table>
       <nav

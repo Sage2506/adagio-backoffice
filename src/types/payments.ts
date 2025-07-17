@@ -5,6 +5,7 @@ export interface IPaymentNew {
   payment: {
     alumn_id: string
     quantity: string
+    created_at?: string
   }
   payable_type: 'subscription' | 'order'
   payable_id: string

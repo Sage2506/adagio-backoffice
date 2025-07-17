@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useSearchParams } from "react-router";
 import type { IPlanRecord } from "../../../types/plans";
 import type { ILinks } from "../../../types/common";
 import { getPlans } from "../../../services/plan";
-import formatPrice from "../../../services/numbers";
+import { formatPrice } from "../../../services/numbers";
 
 export default function PlansTable() {
   const navigate = useNavigate()
@@ -47,7 +47,7 @@ export default function PlansTable() {
           <button id="dropdownRadioButton" onClick={() => navigate('/plans/form')} className="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" type="button">
             Create
             <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5" />
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7 7V5" />
             </svg>
           </button>
         </div>
@@ -55,6 +55,9 @@ export default function PlansTable() {
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
+            <th scope="col" className="px-6 py-3">
+              ID
+            </th>
             <th scope="col" className="px-6 py-3">
               Name
             </th>
@@ -68,10 +71,13 @@ export default function PlansTable() {
           {plans.map((plan) =>
             <tr key={`plan_${plan.id}`} onClick={() => navigate(`/plans/form/${plan.id}`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
               <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                {plan.name}
+                {plan.id}
               </th>
+              <td className="px-6 py-4 capitalize">
+                {plan.name}
+              </td>
               <td className="px-6 py-4">
-                {formatPrice(plan.price)}
+                ${formatPrice(plan.price)}
               </td>
             </tr>)}
         </tbody>

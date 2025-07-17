@@ -4,6 +4,7 @@ import { NavLink, useNavigate, useSearchParams } from "react-router";
 import type { IAlumnRecord } from "../../../types/alumns";
 import type { ILinks } from "../../../types/common";
 import ConfirmationModal from "../../utils/confirmationModal";
+import AlumnsRow from "./row";
 
 
 export default function AlumnsTable() {
@@ -119,7 +120,7 @@ export default function AlumnsTable() {
         <div className="relative mt-1">
           <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
             <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
             </svg>
           </div>
           <input type="text"
@@ -133,6 +134,9 @@ export default function AlumnsTable() {
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
             <th scope="col" className="px-6 py-3">
+              ID
+            </th>
+            <th scope="col" className="px-6 py-3">
               Name
             </th>
             <th scope="col" className="px-6 py-3">
@@ -145,18 +149,7 @@ export default function AlumnsTable() {
         </thead>
 
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-          {alumns.map((alumn) =>
-            <tr key={`alumn_${alumn.id}`} onClick={() => navigate(`/alumns/form/${alumn.id}`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700 capitalize"}>
-              <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white capitalize">
-                {alumn.name}
-              </th>
-              <td className="px-6 py-4 capitalize">
-                {alumn.last_name}
-              </td>
-              <td className="px-6 py-4">
-                <a onClick={e => handleDelete(e, alumn)} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Delete</a>
-              </td>
-            </tr>)}
+          {alumns.map((alumn) => <AlumnsRow key={'alumno'+alumn.id} alumn={alumn} />)}
         </tbody>
       </table>
       <nav
@@ -190,7 +183,6 @@ export default function AlumnsTable() {
             <li key={`page_${page}`}>
               <a
                 aria-current={currentPage === page ? 'page' : 'false'}
-
                 onClick={() => setPage(page)}
                 className={
                   `flex items-center justify-center px-3 h-8 border ${currentPage === page

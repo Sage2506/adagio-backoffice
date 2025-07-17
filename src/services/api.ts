@@ -10,6 +10,7 @@ export interface ISuccessfulDelete {
 
 export const api = axios.create({
   baseURL: 'http://localhost:3000/api/v1/',
+  //baseURL: 'http://192.168.50.33:3000/api/v1/',
   headers: {
     'Content-Type': 'application/json',
   }

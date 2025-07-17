@@ -8,6 +8,7 @@ import AlumnForm from "./components/dashboard/alumns/form";
 import SubscriptionsTable from "./components/dashboard/subscriptions/table";
 import PlansTable from "./components/dashboard/plans/table";
 import PlanForm from "./components/dashboard/plans/form";
+import PaySubscriptionForm from "./components/dashboard/subscriptions/paySubscription";
 
 export function Router() {
   return (
@@ -20,6 +21,7 @@ export function Router() {
         <Route path="alumns/form" element={<AlumnForm />} />
         <Route path="alumns/form/:id" element={<AlumnForm />} />
         <Route path="subscriptions" element={<SubscriptionsTable />}></Route>
+        <Route path="subscriptions/pay" element={<PaySubscriptionForm />}></Route>
         <Route path="plans" element={<PlansTable />}></Route>
         <Route path="plans/form" element={<PlanForm />}></Route>
         <Route path="plans/form/:id" element={<PlanForm />}></Route>

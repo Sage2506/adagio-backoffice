@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ChangeEvent } from 'react';
 
 interface Option {
   id: string | number;
@@ -17,7 +17,7 @@ export default function AutocompleteCombobox({
   fetchOptions,
   placeholder = "Search...",
   onSelect,
-  debounceDelay = 300,
+  debounceDelay = 300
 }: AutocompleteProps) {
   const [inputValue, setInputValue] = useState("");
   const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
