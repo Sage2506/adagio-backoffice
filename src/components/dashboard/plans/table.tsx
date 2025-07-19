@@ -77,7 +77,7 @@ export default function PlansTable() {
                 {plan.name}
               </td>
               <td className="px-6 py-4">
-                ${formatPrice(plan.price)}
+                {formatPrice(plan.price)}
               </td>
             </tr>)}
         </tbody>

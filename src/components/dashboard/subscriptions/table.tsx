@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { NavLink, useSearchParams } from "react-router";
 import { getSubscriptions } from "../../../services/subscription";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
@@ -16,9 +16,11 @@ export default function SubscriptionsTable() {
   const [isSubscriptionPaymentModalOpen, setIsSubscriptionPaymentModalOpen] = useState<boolean>(false);
   const [selectedSubscription, setSelectedSubscriptionId] = useState<ISubscriptionAlumnPlanRecord>();
   let [searchParams] = useSearchParams();
+  const searchString = useMemo(() => searchParams.toString(), [searchParams]);
+
   useEffect(() => {
     loadSubscriptions();
-  }, [searchParams.toString()])
+  }, [searchString])
 
   async function loadSubscriptions() {
     setIsLoading(true)
