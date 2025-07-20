@@ -12,7 +12,7 @@ export interface IProductRecord {
 
 export interface IProductNew {
   name: string
-  price: number
+  price: string
   description: string
 }
 
