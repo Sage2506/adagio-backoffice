@@ -6,19 +6,19 @@ interface Option {
   value: any
 }
 
-interface AutocompleteProps {
+interface SearchComboboxProps {
   fetchOptions: (query: string) => Promise<Option[]>;
   placeholder?: string;
   onSelect: (selectedOption: Option | null) => void;
   debounceDelay?: number;
 }
 
-export default function AutocompleteCombobox({
+export default function SearchCombobox({
   fetchOptions,
   placeholder = "Search...",
   onSelect,
   debounceDelay = 300
-}: AutocompleteProps) {
+}: SearchComboboxProps) {
   const [inputValue, setInputValue] = useState("");
   const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -93,7 +93,7 @@ export default function AutocompleteCombobox({
   };
 
   const handleSelect = (option: Option) => {
-    setInputValue(option.label);
+    setInputValue("")
     setIsOpen(false);
     onSelect(option);
   };

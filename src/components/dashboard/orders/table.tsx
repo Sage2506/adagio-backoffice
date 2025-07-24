@@ -1,83 +1,85 @@
-import { useState, useEffect, useMemo } from "react";
-import { NavLink, useSearchParams } from "react-router";
-import { getSubscriptions } from "../../../services/subscription";
-import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
+import { useEffect, useState } from "react";
+import { NavLink, useNavigate, useSearchParams } from "react-router";
+import type { IOrderRecord } from "../../../types/orders";
 import type { ILinks } from "../../../types/common";
-import RegisterSubscriptionPaymentModal from "./registerSubscriptionPaymentModal";
-import SubscripcionsRow from "./row";
+import { getOrders } from "../../../services/order";
+import { formatPrice } from "../../../services/numbers";
 
-
-export default function SubscriptionsTable() {
-  const [subscriptions, setSubscriptions] = useState<ISubscriptionAlumnPlanRecord[]>([]);
+export default function OrdersTable() {
+  const navigate = useNavigate()
+  const [orders, setOrders] = useState<IOrderRecord[]>([]);
   const [pages, setPages] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [links, setLinks] = useState<ILinks>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isSubscriptionPaymentModalOpen, setIsSubscriptionPaymentModalOpen] = useState<boolean>(false);
-  const [selectedSubscription, setSelectedSubscriptionId] = useState<ISubscriptionAlumnPlanRecord>();
+  const [errors, setErrors] = useState<{ msj: string }[]>([]);
   let [searchParams] = useSearchParams();
-  const searchString = useMemo(() => searchParams.toString(), [searchParams]);
 
   useEffect(() => {
-    loadSubscriptions();
-  }, [searchString])
+    loadOrders();
+  }, [searchParams.toString()])
 
-  async function loadSubscriptions() {
+  async function loadOrders() {
     setIsLoading(true)
     if (searchParams.has('page[page]')) {
       setCurrentPage(parseInt(searchParams.get('page[page]')!))
     }
-    getSubscriptions({ params: searchParams.toString() }).then(response => {
+    getOrders({ params: searchParams.toString() }).then(response => {
       if (response.success) {
         const { data, pages, links } = response
-        setSubscriptions(data);
+        setOrders(data);
         setPages(pages);
         setLinks(links);
+      } else {
+        setErrors(response.errors)
       }
     }).finally(() => {
       setIsLoading(false)
     })
   }
 
-  function openPaySubscriptionModal(subscription: ISubscriptionAlumnPlanRecord) {
-    setSelectedSubscriptionId(subscription);
-    setIsSubscriptionPaymentModalOpen(true);
-  }
-
-  function subscriptionPaid(successful: boolean) {
-    setIsSubscriptionPaymentModalOpen(false)
-    setSelectedSubscriptionId(undefined);
-  }
-
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
-      {selectedSubscription && <RegisterSubscriptionPaymentModal isModalOpen={isSubscriptionPaymentModalOpen} subscription={selectedSubscription} onSubscriptionPaid={((successful) => subscriptionPaid(successful))} />}
+      <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
+        <div>
+        </div>
+        <div className="relative">
+          <button id="dropdownRadioButton" onClick={() => navigate('/orders/form')} className="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" type="button">
+            Create
+            <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7 7V5" />
+            </svg>
+          </button>
+        </div>
+      </div>
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
-            <th scope="col" className="px-6 py-3">
-              ID
+            <th scope="col" className="px-6 py-3 capitalize">
+              id
             </th>
-            <th scope="col" className="px-6 py-3">
-              Name
+            <th scope="col" className="px-6 py-3 capitalize">
+              descripcion
             </th>
-            <th scope="col" className="px-6 py-3">
-              Last name
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Plan
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Last payment
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Due Date
+            <th scope="col" className="px-6 py-3 capitalize">
+              price
             </th>
           </tr>
         </thead>
+
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-          {subscriptions.map((subscription) => <SubscripcionsRow key={`subscription_${subscription.id}`} subscription={subscription} onClick={() => openPaySubscriptionModal(subscription)} />
-          )}
+          {orders.map((order) =>
+            <tr key={`order_${order.id}`} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
+              <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                {order.id}
+              </th>
+              <td className="px-6 py-4 capitalize">
+                {order.description}
+              </td>
+              <td className="px-6 py-4">
+                {formatPrice(order.total)}
+              </td>
+            </tr>)}
         </tbody>
       </table>
       <nav
@@ -90,7 +92,7 @@ export default function SubscriptionsTable() {
           {links &&
             <li>
               <NavLink
-                to={links.first.split('subscriptions')[1]}
+                to={links.first.split('orders')[1]}
                 className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                 First
               </NavLink>
@@ -100,7 +102,7 @@ export default function SubscriptionsTable() {
           {links?.prev &&
             <li>
               <NavLink
-                to={links.prev.split('subscriptions')[1]}
+                to={links.prev.split('orders')[1]}
                 className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                 Previous
               </NavLink>
@@ -126,7 +128,7 @@ export default function SubscriptionsTable() {
           {links?.next &&
             <li>
               <NavLink
-                to={links.next.split('subscriptions')[1]}
+                to={links.next.split('orders')[1]}
                 className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                 Next
               </NavLink>
@@ -135,7 +137,7 @@ export default function SubscriptionsTable() {
           {links &&
             <li>
               <NavLink
-                to={links.last.split('subscriptions')[1]}
+                to={links.last.split('orders')[1]}
                 className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
                 Last
               </NavLink>
