@@ -47,6 +47,9 @@ export default function SubscriptionsTable() {
   function subscriptionPaid(successful: boolean) {
     setIsSubscriptionPaymentModalOpen(false)
     setSelectedSubscriptionId(undefined);
+    if (successful) {
+      loadSubscriptions();
+    }
   }
 
   return (

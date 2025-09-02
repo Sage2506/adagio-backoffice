@@ -16,6 +16,7 @@ export default function RegisterSubscriptionPaymentModal({ isModalOpen, onSubscr
 
   useEffect(() => {
     setQuantity((subscription.plan.price - subscription.paid_amount).toString())
+    alert("add a due date option for special scenarios when you want to control the desired due date")
   }, [])
   function formSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
