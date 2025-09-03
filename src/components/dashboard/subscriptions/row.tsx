@@ -45,7 +45,7 @@ export default function SubscripcionsRow({ subscription, onClick }: ISubscriptio
         {subscription.plan.name}
       </td>
       <td className="px-6 py-4">
-        {formatPrettyDateShort(subscription.last_payment_date)}
+        {subscription.last_payment_date? formatPrettyDateShort(subscription.last_payment_date): "No payments yet"}
       </td>
       <td className="px-6 py-4">
         {formatPrettyDateShort(subscription.due_date)}

@@ -6,6 +6,7 @@ export const formatPrice = (amount: number): string => {
 }
 
 export const formatPrettyDateShort = (dateString: string): string => {
+    if (!dateString) return "N/A"
     const date = new Date(`${dateString}T00:00:00Z`)
     const day = String(date.getUTCDate()).padStart(2, '0');
     const month = date.toLocaleString('default', { month: 'short', timeZone: 'UTC' });
