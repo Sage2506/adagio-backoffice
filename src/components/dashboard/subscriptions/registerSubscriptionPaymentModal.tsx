@@ -1,4 +1,4 @@
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "flowbite-react";
+import { Button, Datepicker, Modal, ModalBody, ModalFooter, ModalHeader } from "flowbite-react";
 import { useEffect, useState } from "react";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import type { IPaymentNew } from "../../../types/payments";
@@ -13,12 +13,13 @@ interface RegisterSubscriptionPaymentModalProps {
 export default function RegisterSubscriptionPaymentModal({ isModalOpen, onSubscriptionPaid, subscription }: RegisterSubscriptionPaymentModalProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [quantity, setQuantity] = useState<string>('')
-
+  const [due_date, setDueDate] = useState<string>(subscription.due_date)
   useEffect(() => {
     setQuantity((subscription.plan.price - subscription.paid_amount).toString())
     alert("add a due date option for special scenarios when you want to control the desired due date")
     alert("add an option in the alumn register to create an initial payment if not, the system should set the due date for that creation date");
   }, [])
+
   function formSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     submitData();
@@ -56,6 +57,7 @@ export default function RegisterSubscriptionPaymentModal({ isModalOpen, onSubscr
             <input onChange={(e) => { setQuantity(e.target.value) }} value={quantity} type="number" id="quantity" name="quantity"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               placeholder="$ 0.00" required pattern="^\d+(\.\d{1,2})?$" />
+            <Datepicker onChange={(value) => { setDueDate(value?.toString() || "") }} value={new Date(due_date)} id="birth_date" name="birth_date" />
           </div>
         </form>
       </ModalBody>

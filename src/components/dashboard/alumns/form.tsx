@@ -194,75 +194,75 @@ export default function AlumnForm() {
           <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">
             Alumn
           </div>
-          <div>
+          <div className="py-2">
             <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First name</label>
             <input onChange={(e) => { setName(e.target.value) }} value={name} type="text" id="name" name="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
           </div>
-          <div>
+          <div className="py-2">
             <label htmlFor="last_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last name</label>
             <input onChange={(e) => { setLastName(e.target.value) }} value={last_name} type="text" id="last_name" name="last_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Doe" required />
           </div>
-          <div>
+          <div className="py-2">
             <label htmlFor="birth_date" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Birth date</label>
             <Datepicker onChange={(value) => { setBirthDate(value?.toString() || "") }} value={new Date(birth_date)} id="birth_date" name="birth_date" />
           </div>
-          <div>
+          <div className="py-2">
             <label htmlFor="address" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Address</label>
             <input onChange={(e) => { setAddress(e.target.value) }} value={address} type="text" id="address" name="address" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Street ##" required />
           </div>
-          <div>
+          <div className="py-2">
             <label htmlFor="phone_number" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone number</label>
             <input onChange={(e) => { setPhoneNumber(e.target.value) }} value={phone_number} type="tel" id="phone_number" name="phone_number" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="123-45-6789" pattern="[0-9]{10}" required />
           </div>
-          <div>
+          <div className="py-2">
             <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email address</label>
             <input onChange={(e) => { setEmail(e.target.value) }} value={email} type="email" id="email" name="email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$" required />
           </div>
         </div>
         <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
           <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">Main guardian</div>
-          <div>
+          <div className="py-2">
             <label htmlFor="guardian_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First name</label>
             <input onChange={(e) => { setGuardianName(e.target.value) }} value={guardian_name} type="text" id="guardian_name" name="guardian_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
           </div>
-          <div>
+          <div className="py-2">
             <label htmlFor="guardian_last_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last name</label>
             <input onChange={(e) => { setGuardianLastName(e.target.value) }} value={guardian_last_name} type="text" id="guardian_last_name" name="guardian_last_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Doe" required />
           </div>
-          <div>
+          <div className="py-2">
             <label htmlFor="guardian_phone_number" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone number</label>
             <input onChange={(e) => { setGuardianPhoneNumber(e.target.value) }} value={guardian_phone_number} type="tel" id="guardian_phone_number" name="guardian_phone_number" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="123-45-678" pattern="[0-9]{10}" required />
           </div>
-          <div>
+          <div className="py-2">
             <label htmlFor="guardian_email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email address</label>
             <input onChange={(e) => { setGuardianEmail(e.target.value) }} value={guardian_email} type="email" id="guardian_email" name="guardian_email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required />
           </div>
         </div>
         <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
           <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">Secondary guardian</div>
-          <div>
+          <div className="py-2">
             <label htmlFor="secondary_guardian_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First name</label>
             <input onChange={(e) => { setSecondaryGuardianName(e.target.value) }} value={secondary_guardian_name} type="text" id="secondary_guardian_name" name="secondary_guardian_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" />
           </div>
-          <div>
+          <div className="py-2">
             <label htmlFor="secondary_guardian_last_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last name</label>
             <input onChange={(e) => { setSecondaryGuardianLastName(e.target.value) }} value={secondary_guardian_last_name} type="text" id="secondary_guardian_last_name" name="secondary_guardian_last_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Doe" />
           </div>
-          <div>
+          <div className="py-2">
             <label htmlFor="secondary_guardian_phone_number" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone number</label>
             <input onChange={(e) => { setSecondaryGuardianPhoneNumber(e.target.value) }} value={secondary_guardian_phone_number} type="tel" id="secondary_guardian_phone_number" name="secondary_guardian_phone_number" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="123-45-678" pattern="[0-9]{10}" />
           </div>
-          <div>
+          <div className="py-2">
             <label htmlFor="secondary_guardian_email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email address</label>
             <input onChange={(e) => { setSecondaryGuardianEmail(e.target.value) }} value={secondary_guardian_email} type="email" id="secondary_guardian_email" name="secondary_guardian_email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" />
           </div>
         </div>
         <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
-          <div>
+          <div className="py-2">
             <label htmlFor="special_med_conditions" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Special medical conditions</label>
             <input onChange={(e) => { setSpecialMedConditions(e.target.value) }} value={special_med_conditions} type="text" id="special_med_conditions" name="special_med_conditions" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Allergies" required />
           </div>
-          <div>
+          <div className="py-2">
             <label htmlFor="plan_id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select an option</label>
             <select id="plan_id" name="plan_id" value={plan_id} onChange={e => setPlanId(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
               {plansList.map(plan => <option key={`plan_${plan.id}`} value={plan.id.toString()}>{plan.name}</option>)}
