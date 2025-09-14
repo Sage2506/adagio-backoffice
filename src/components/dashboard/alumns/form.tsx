@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Datepicker } from "flowbite-react";
 import { getAlumn, postAlumn, putAlumn } from "../../../services/alumn";
 import { postGuardian, putGuardian } from "../../../services/guardian";
 import { useNavigate, useParams } from "react-router";
@@ -10,7 +9,7 @@ import { getPlans } from "../../../services/plan";
 import type { IPlanRecord } from "../../../types/plans";
 import type { IPostSubscriptionResponse, ISubscriptionRecord } from "../../../types/subscriptions";
 import { postSubscription, putSubscription } from "../../../services/subscription";
-
+import DatePicker from "../../utils/datePicker";
 export default function AlumnForm() {
   const navigate = useNavigate()
   const { id } = useParams();
@@ -204,7 +203,13 @@ export default function AlumnForm() {
           </div>
           <div className="py-2">
             <label htmlFor="birth_date" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Birth date</label>
-            <Datepicker onChange={(value) => { setBirthDate(value?.toString() || "") }} value={new Date(birth_date)} id="birth_date" name="birth_date" />
+            {/* <Datepicker onChange={(value) => { setBirthDate(value?.toString() || "") }} value={new Date(birth_date)} id="birth_date" name="birth_date" /> */}
+            <DatePicker
+              value={birth_date ? new Date(birth_date) : null}
+              onChange={(date) => setBirthDate(date?.toString()|| '')}
+              id="birth_date"
+              name="birth_date"
+            />
           </div>
           <div className="py-2">
             <label htmlFor="address" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Address</label>

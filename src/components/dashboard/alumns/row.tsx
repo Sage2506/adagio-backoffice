@@ -4,9 +4,10 @@ import { useNavigate } from "react-router";
 
 interface IAlumnsRow {
   alumn: IAlumnRecord
+  handleDelete: Function
 }
 
-export default function AlumnsRow({ alumn }: IAlumnsRow) {
+export default function AlumnsRow({ alumn, handleDelete }: IAlumnsRow) {
   const navigate = useNavigate()
   useEffect(() => {
 
@@ -23,7 +24,7 @@ export default function AlumnsRow({ alumn }: IAlumnsRow) {
         {alumn.last_name}
       </td>
       <td className="px-6 py-4">
-
+        <button onClick={ e => handleDelete(e, alumn)}>Delete</button>
       </td>
     </tr>
   );

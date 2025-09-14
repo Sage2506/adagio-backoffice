@@ -107,12 +107,15 @@ export default function AlumnsTable() {
 
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
+      <div>
+        {errors.map(error => <p>{error.msj}</p>)}
+      </div>
       <ConfirmationModal
         titleText="Delete Alumn"
         bodyText={`You're about to erase alumn ${alumnToDelete?.name + " " + alumnToDelete?.last_name}, are you sure?`}
         confirmText="Yes"
         rejectText="No"
-        openModal={isModalOpen}
+        isModalOpen={isModalOpen}
         onConfirmResponse={((accepted: boolean) => onConfirmResponse(accepted))}
       />
       <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
@@ -159,7 +162,7 @@ export default function AlumnsTable() {
         </thead>
 
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-          {alumns.map((alumn) => <AlumnsRow key={'alumno' + alumn.id} alumn={alumn} />)}
+          {alumns.map((alumn) => <AlumnsRow key={'alumno' + alumn.id} alumn={alumn} handleDelete={handleDelete}/>)}
         </tbody>
       </table>
       <nav

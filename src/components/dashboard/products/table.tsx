@@ -48,19 +48,19 @@ export default function ProductsTable() {
     })
   }
 
-  function setPage(page: number) {
-    const newParams = new URLSearchParams(searchParams)
-    newParams.set('page[page]', page.toString());
-    navigate(`?${newParams.toString()}`, { replace: true });
-  }
+  // function setPage(page: number) {
+  //   const newParams = new URLSearchParams(searchParams)
+  //   newParams.set('page[page]', page.toString());
+  //   navigate(`?${newParams.toString()}`, { replace: true });
+  // }
 
-  function resetPager() {
-    if (currentPage === 1) {
-      loadProducts();
-    } else {
-      setPage(1)
-    }
-  }
+  // function resetPager() {
+  //   if (currentPage === 1) {
+  //     loadProducts();
+  //   } else {
+  //     setPage(1)
+  //   }
+  // }
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') {
@@ -77,6 +77,9 @@ export default function ProductsTable() {
 
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
+      <div>
+        {errors.map(error => <p>{error.msj}</p>)}
+      </div>
       <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
         <div>
           <label htmlFor="table-search" className="sr-only">Search</label>
