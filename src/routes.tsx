@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router";
-import App from "./App";
 import DashboardLayout from "./layouts/dashboard";
 import Login from "./components/auth/login";
 import LogOut from "./components/auth/logout";
@@ -12,14 +11,20 @@ import ProductsTable from "./components/dashboard/products/table";
 import ProductForm from "./components/dashboard/products/form";
 import OrdersTable from "./components/dashboard/orders/table";
 import OrdersForm from "./components/dashboard/orders/form";
+import AlumnsTable from "./components/dashboard/alumns/table";
+import ProtectedRoute from "./components/auth/protectedRoute";
 
 export function Router() {
   return (
     <Routes>
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<LogOut />} />
-      <Route element={<DashboardLayout />}>
-        <Route index element={<App />} />
+      <Route element={
+        <ProtectedRoute>
+          <DashboardLayout />
+        </ProtectedRoute>
+      }>
+        <Route index element={<AlumnsTable />} />
         <Route path="alumns/form" element={<AlumnForm />} />
         <Route path="alumns/form/:id" element={<AlumnForm />} />
         <Route path="orders" element={<OrdersTable />}></Route>

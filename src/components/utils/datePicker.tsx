@@ -104,7 +104,6 @@ const DatePicker = ({ value, onChange, id, name }: DatePickerProps) => {
 
   return (
     <div className="relative" ref={calendarRef}>
-      {/* Input and Trigger Button - Matches Flowbite style */}
       <div className="flex items-center bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
         <input
           type="text"
@@ -124,11 +123,8 @@ const DatePicker = ({ value, onChange, id, name }: DatePickerProps) => {
           <CalendarDaysIcon className="h-5 w-5" />
         </button>
       </div>
-
-      {/* Calendar Popover - Styled to match Flowbite dark theme */}
       {isOpen && (
         <div className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-4">
-          {/* Calendar Header */}
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={prevMonth}
@@ -148,8 +144,6 @@ const DatePicker = ({ value, onChange, id, name }: DatePickerProps) => {
               <ChevronRightIcon className="h-5 w-5" />
             </button>
           </div>
-
-          {/* Day headers */}
           <div className="grid grid-cols-7 gap-1 mb-2">
             {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
               <div key={day} className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 py-1">
@@ -157,8 +151,6 @@ const DatePicker = ({ value, onChange, id, name }: DatePickerProps) => {
               </div>
             ))}
           </div>
-
-          {/* Calendar days */}
           <div className="grid grid-cols-7 gap-1">
             {getDaysInMonth().map((day, index) => {
               const isSelected = selectedDate && day.date.toDateString() === selectedDate.toDateString();

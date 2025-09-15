@@ -1,17 +1,14 @@
 import { useEffect } from "react"
-import api from "../../services/api";
-import { useNavigate } from "react-router";
+import { useAuth } from "./useAuth";
+import { Navigate } from "react-router";
 
 export default function LogOut() {
-  const navigate = useNavigate();
+  const { logout } = useAuth()
 
   useEffect(() => {
-    localStorage.removeItem("id_token");
-    delete api.defaults.headers.common["Authorization"];
-    navigate("/login", { replace: true })
-  }, [navigate])
+    logout();
+  }, [])
 
-  return (
-    <p>Login out</p>
-  )
+  return <Navigate to="/" replace />;
+
 }

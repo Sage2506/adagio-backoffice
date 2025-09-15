@@ -76,7 +76,7 @@ export function deleteAlumn(args: { id: number }): Promise<IPostAlumnDelete | IE
     if (response.status === OK) {
       return {
         success: true as const,
-        data: { successfull: true as const }
+        data: { successful: true as const }
       }
     } else {
       return {

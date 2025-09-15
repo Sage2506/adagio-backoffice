@@ -108,7 +108,7 @@ export default function AlumnsTable() {
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
       <div>
-        {errors.map(error => <p>{error.msj}</p>)}
+        {errors.map((error, idx) => <p key={error+'_'+idx}>{error.msj}</p>)}
       </div>
       <ConfirmationModal
         titleText="Delete Alumn"

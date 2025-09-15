@@ -53,7 +53,6 @@ export default function PaySubscriptionForm() {
   async function createPayment(data: IPaymentNew) {
     const response = await postPayment({ data })
     if (response.success) {
-      console.log("Success: ", response);
       setAlumnId('')
       setQuantity('')
       setSubscriptionId(0)
