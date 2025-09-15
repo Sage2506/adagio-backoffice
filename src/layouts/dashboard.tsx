@@ -5,6 +5,7 @@ import { AcademicCapIcon } from "@heroicons/react/16/solid";
 import { IdentificationIcon } from "@heroicons/react/16/solid";
 import { PresentationChartBarIcon } from "@heroicons/react/16/solid";
 import { BuildingStorefrontIcon } from "@heroicons/react/16/solid";
+import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/16/solid";
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -59,20 +60,20 @@ export default function DashboardLayout() {
                     </nav>
                     <div className="fixed bottom-0 left-0 right-0 flex md:hidden justify-around bg-white shadow-lg">
                       <NavLink to="/" className={({ isActive }) => `p-3 text-gray-400 hover:text-blue-500 ${isActive ? "bg-gray-700 text-white" : ""}`}>
-                        <AcademicCapIcon className="w-5 h-5"/>
+                        <AcademicCapIcon className="w-5 h-5" />
                       </NavLink>
                       <NavLink to="/subscriptions" className={({ isActive }) => `p-3 text-gray-400 hover:text-blue-500 ${isActive ? "bg-gray-700 text-white" : ""}`}>
-                        <IdentificationIcon className="w-5 h-5"/>
+                        <IdentificationIcon className="w-5 h-5" />
                       </NavLink>
                       <NavLink to="/plans" className={({ isActive }) => `p-3 text-gray-400 hover:text-blue-500 ${isActive ? "bg-gray-700 text-white" : ""}`}>
-                        <PresentationChartBarIcon className="w-5 h-5"/>
+                        <PresentationChartBarIcon className="w-5 h-5" />
                       </NavLink>
                       <NavLink to="/products" className={({ isActive }) => `p-3 text-gray-400 hover:text-blue-500 ${isActive ? "bg-gray-700 text-white" : ""}`}>
-                        <BuildingStorefrontIcon className="w-5 h-5"/>
+                        <BuildingStorefrontIcon className="w-5 h-5" />
                       </NavLink>
-                      <NavLink to="/logout" className={({ isActive }) => `p-3 text-gray-400 hover:text-blue-500 ${isActive ? "bg-gray-700 text-white" : ""}`}>
-                        <AcademicCapIcon className="w-5 h-5"/>
-                      </NavLink>
+                      <a onClick={handleLogout} className="p-3 text-gray-400 hover:text-blue-500">
+                        <ArrowRightStartOnRectangleIcon className="w-5 h-5" />
+                      </a>
                     </div>
                   </div>
                   <div className="flex justify-end md:flex-1"></div>
