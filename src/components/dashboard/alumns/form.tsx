@@ -203,10 +203,9 @@ export default function AlumnForm() {
           </div>
           <div className="py-2">
             <label htmlFor="birth_date" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Birth date</label>
-            {/* <Datepicker onChange={(value) => { setBirthDate(value?.toString() || "") }} value={new Date(birth_date)} id="birth_date" name="birth_date" /> */}
             <DatePicker
               value={birth_date ? new Date(birth_date) : null}
-              onChange={(date) => setBirthDate(date?.toString()|| '')}
+              onChange={(date) => setBirthDate(date?.toString() || '')}
               id="birth_date"
               name="birth_date"
             />

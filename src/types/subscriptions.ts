@@ -42,3 +42,7 @@ export interface IGetSubscriptionsResponse {
   links: ILinks
   pages: number[]
 }
+
+export interface IDueDate {
+  due_date: string
+}

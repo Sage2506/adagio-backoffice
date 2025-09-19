@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
+import type { IDueDate, ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import type { IPaymentNew } from "../../../types/payments";
 import { postPayment } from "../../../services/payment";
 import DatePicker from "../../utils/datePicker";
 import { Transition } from '@headlessui/react';
+import { putSubscriptionDueDate } from "../../../services/subscription";
 
 interface RegisterSubscriptionPaymentModalProps {
   isModalOpen: boolean;
@@ -21,8 +22,10 @@ export default function RegisterSubscriptionPaymentModal({
   const [quantity, setQuantity] = useState<string>(
     (subscription.plan.price - subscription.paid_amount).toString()
   );
-  const [due_date, setDueDate] = useState<string>(subscription.due_date);
-  // Close modal on Escape key press and prevent background scrolling
+  const [due_date, setDueDate] = useState<string>(() => {
+    return String(subscription.due_date);
+  });
+
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape" && !isLoading) {
@@ -46,7 +49,7 @@ export default function RegisterSubscriptionPaymentModal({
     submitData();
   }
 
-  function submitData() {
+  async function submitData() {
     const data: IPaymentNew = {
       payment: {
         alumn_id: subscription.alumn.id.toString(),
@@ -54,16 +57,30 @@ export default function RegisterSubscriptionPaymentModal({
       },
       payable_type: "subscription",
       payable_id: subscription.id.toString(),
-    };
-    registerPayment(data);
-  }
-
-  async function registerPayment(data: IPaymentNew) {
+    }
     setIsLoading(true);
     const response = await postPayment({ data });
     if (response.success) {
-      setIsLoading(false);
-      onSubscriptionPaid(true);
+      if (due_date !== subscription.due_date) {
+        changeDueDate()
+      } else {
+        setIsLoading(false);
+        onSubscriptionPaid(true);
+      }
+    } else {
+      setIsLoading(false)
+    }
+  }
+
+  async function changeDueDate() {
+    const data: IDueDate = {
+      due_date
+    }
+    const response = await putSubscriptionDueDate({ id: subscription.id.toString(), data })
+    setIsLoading(false)
+    onSubscriptionPaid(true);
+    if (!response.success) {
+      console.log("date not updated");
     }
   }
 
