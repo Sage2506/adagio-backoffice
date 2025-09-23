@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 
 interface IPaymentsModal {
   isModalOpen: boolean;
-  toggleModal: Function;
   payableId: number | null;
+  payableObject: string;
+  toggleModal: Function;
 }
 
 export default function PaymentsModal({ isModalOpen, toggleModal, payableId }: IPaymentsModal) {

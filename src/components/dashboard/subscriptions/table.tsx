@@ -16,7 +16,7 @@ export default function SubscriptionsTable() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSubscriptionPaymentModalOpen, setIsSubscriptionPaymentModalOpen] = useState<boolean>(false);
   const [isPaymentsModalOpen, setIsPaymentsModalOpen] = useState<boolean>(false);
-  const [selectedSubscription, setSelectedSubscription] = useState<ISubscriptionAlumnPlanRecord | null>();
+  const [selectedSubscription, setSelectedSubscription] = useState<ISubscriptionAlumnPlanRecord | null>(null);
   let [searchParams] = useSearchParams();
   const searchString = useMemo(() => searchParams.toString(), [searchParams]);
 
@@ -53,7 +53,7 @@ export default function SubscriptionsTable() {
 
   function subscriptionPaid(successful: boolean) {
     setIsSubscriptionPaymentModalOpen(false)
-    setSelectedSubscription(undefined);
+    setSelectedSubscription(null);
     if (successful) {
       loadSubscriptions();
     }
@@ -61,7 +61,7 @@ export default function SubscriptionsTable() {
 
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
-      <PaymentsModal isModalOpen={isPaymentsModalOpen} toggleModal={() => { setIsPaymentsModalOpen(!isPaymentsModalOpen); setSelectedSubscription(null) }} payableId={selectedSubscription ? selectedSubscription.id : null} />
+
       {selectedSubscription && <RegisterSubscriptionPaymentModal isModalOpen={isSubscriptionPaymentModalOpen} subscription={selectedSubscription} onSubscriptionPaid={((successful) => subscriptionPaid(successful))} />}
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -87,7 +87,12 @@ export default function SubscriptionsTable() {
           </tr>
         </thead>
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-          {subscriptions.map((subscription) => <SubscriptionsRow key={`subscription_${subscription.id}`} subscription={subscription} onClick={() => openPaySubscriptionModal(subscription)} showPaymentModal={showPaymentModal} />
+          {subscriptions.map((subscription) =>
+            <SubscriptionsRow
+              key={`subscription_${subscription.id}`}
+              subscription={subscription}
+              onClick={() => openPaySubscriptionModal(subscription)}
+              showPaymentModal={showPaymentModal} />
           )}
         </tbody>
       </table>
@@ -154,6 +159,12 @@ export default function SubscriptionsTable() {
           }
         </ul>
       </nav>
+      <PaymentsModal
+        isModalOpen={isPaymentsModalOpen}
+        payableId={selectedSubscription?.id ?? null}
+        payableObject={"subscription"}
+        toggleModal={() => { setIsPaymentsModalOpen(!isPaymentsModalOpen); setSelectedSubscription(null) }}
+      />
     </div>
   )
 }
