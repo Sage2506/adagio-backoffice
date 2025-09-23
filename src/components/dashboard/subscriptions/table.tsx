@@ -4,7 +4,8 @@ import { getSubscriptions } from "../../../services/subscription";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import type { ILinks } from "../../../types/common";
 import RegisterSubscriptionPaymentModal from "./registerSubscriptionPaymentModal";
-import SubscripcionsRow from "./row";
+import SubscriptionsRow from "./row";
+import PaymentsModal from "../payments/paymentsModal";
 
 
 export default function SubscriptionsTable() {
@@ -14,7 +15,8 @@ export default function SubscriptionsTable() {
   const [links, setLinks] = useState<ILinks>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSubscriptionPaymentModalOpen, setIsSubscriptionPaymentModalOpen] = useState<boolean>(false);
-  const [selectedSubscription, setSelectedSubscriptionId] = useState<ISubscriptionAlumnPlanRecord>();
+  const [isPaymentsModalOpen, setIsPaymentsModalOpen] = useState<boolean>(false);
+  const [selectedSubscription, setSelectedSubscription] = useState<ISubscriptionAlumnPlanRecord | null>();
   let [searchParams] = useSearchParams();
   const searchString = useMemo(() => searchParams.toString(), [searchParams]);
 
@@ -40,13 +42,18 @@ export default function SubscriptionsTable() {
   }
 
   function openPaySubscriptionModal(subscription: ISubscriptionAlumnPlanRecord) {
-    setSelectedSubscriptionId(subscription);
+    setSelectedSubscription(subscription);
     setIsSubscriptionPaymentModalOpen(true);
+  }
+
+  function showPaymentModal(subscription: ISubscriptionAlumnPlanRecord) {
+    setSelectedSubscription(subscription);
+    setIsPaymentsModalOpen(true);
   }
 
   function subscriptionPaid(successful: boolean) {
     setIsSubscriptionPaymentModalOpen(false)
-    setSelectedSubscriptionId(undefined);
+    setSelectedSubscription(undefined);
     if (successful) {
       loadSubscriptions();
     }
@@ -54,6 +61,7 @@ export default function SubscriptionsTable() {
 
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
+      <PaymentsModal isModalOpen={isPaymentsModalOpen} toggleModal={() => { setIsPaymentsModalOpen(!isPaymentsModalOpen); setSelectedSubscription(null) }} payableId={selectedSubscription ? selectedSubscription.id : null} />
       {selectedSubscription && <RegisterSubscriptionPaymentModal isModalOpen={isSubscriptionPaymentModalOpen} subscription={selectedSubscription} onSubscriptionPaid={((successful) => subscriptionPaid(successful))} />}
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -79,7 +87,7 @@ export default function SubscriptionsTable() {
           </tr>
         </thead>
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-          {subscriptions.map((subscription) => <SubscripcionsRow key={`subscription_${subscription.id}`} subscription={subscription} onClick={() => openPaySubscriptionModal(subscription)} />
+          {subscriptions.map((subscription) => <SubscriptionsRow key={`subscription_${subscription.id}`} subscription={subscription} onClick={() => openPaySubscriptionModal(subscription)} showPaymentModal={showPaymentModal} />
           )}
         </tbody>
       </table>
