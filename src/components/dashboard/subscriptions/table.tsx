@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { NavLink, useSearchParams } from "react-router";
-import { getSubscriptions } from "../../../services/subscription";
-import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
+import { getSubscriptions, putSubscription } from "../../../services/subscription";
+import type { ISubscriptionAlumnPlanRecord, ISubscriptionNew } from "../../../types/subscriptions";
 import type { ILinks } from "../../../types/common";
 import RegisterSubscriptionPaymentModal from "./registerSubscriptionPaymentModal";
 import SubscriptionsRow from "./row";
@@ -59,6 +59,20 @@ export default function SubscriptionsTable() {
     }
   }
 
+  async function suspendSubscription(subscription: ISubscriptionAlumnPlanRecord) {
+    const { plan_id, alumn_id } = subscription
+    const newSubscription: ISubscriptionNew = { plan_id: plan_id.toString(), alumn_id: alumn_id.toString(), status: 1 }
+    subscription.status = "cancelled"
+    setIsLoading(true)
+    const res = await putSubscription({ id: subscription.id.toString(), data: newSubscription })
+    if (res.success) {
+      loadSubscriptions();
+    } else {
+      subscription.status = "active"
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
 
@@ -69,10 +83,7 @@ export default function SubscriptionsTable() {
               ID
             </th>
             <th scope="col" className="px-6 py-3">
-              Name
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Last name
+              Full Name
             </th>
             <th scope="col" className="px-6 py-3">
               Plan
@@ -83,11 +94,15 @@ export default function SubscriptionsTable() {
             <th scope="col" className="px-6 py-3">
               Due Date
             </th>
+            <th scope="col" className="px-6 py-3">
+              Due Date
+            </th>
           </tr>
         </thead>
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
           {subscriptions.map((subscription) =>
             <SubscriptionsRow
+              suspendSubscription={suspendSubscription}
               key={`subscription_${subscription.id}`}
               subscription={subscription}
               onClick={() => openPaySubscriptionModal(subscription)}

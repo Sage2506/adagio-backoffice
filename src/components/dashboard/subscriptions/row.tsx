@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import { formatPrettyDateShort } from "../../../utils/numbers";
+import { PowerIcon } from "@heroicons/react/24/solid";
 
 interface ISubscriptionRow {
-  subscription: ISubscriptionAlumnPlanRecord;
-  showPaymentModal : Function;
   onClick: (e: React.MouseEvent<HTMLElement>) => void;
+  showPaymentModal: Function;
+  subscription: ISubscriptionAlumnPlanRecord;
+  suspendSubscription: Function;
 }
 
 const paidStatusStyle = "odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700";
 const pendingStatusStyle = "odd:bg-yellow-50 even:bg-yellow-100 border-b border-yellow-200 hover:bg-yellow-200 odd:dark:bg-yellow-900 even:dark:bg-yellow-800 dark:border-yellow-700 dark:hover:bg-yellow-600 even:dark:hover:bg-yellow-700";
 const lateStatusStyle = "odd:bg-red-100 even:bg-red-200 border-b border-red-300 hover:bg-red-200 odd:dark:bg-red-900 even:dark:bg-red-800 dark:border-red-700 dark:hover:bg-red-600 even:dark:hover:bg-red-700";
-export default function SubscriptionsRow({ subscription, onClick, showPaymentModal }: ISubscriptionRow) {
+export default function SubscriptionsRow({ subscription, onClick, showPaymentModal, suspendSubscription }: ISubscriptionRow) {
   const [dateStatusStyle, setDateStatusStyle] = useState<string>(paidStatusStyle)
   useEffect(() => {
     calculatePaymentStatus()
@@ -31,9 +33,14 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
     }
   }
 
-  function onShowPaymentsModal(e : React.MouseEvent<HTMLElement>){
+  function onShowPaymentsModal(e: React.MouseEvent<HTMLElement>) {
     e.stopPropagation();
     showPaymentModal(subscription)
+  }
+
+  function onSuspendSubsctiption(e: React.MouseEvent<HTMLElement>) {
+    e.stopPropagation();
+    suspendSubscription(subscription);
   }
 
   return (
@@ -42,10 +49,7 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
         {subscription.id}
       </th>
       <td className="px-6 py-4 capitalize">
-        {subscription.alumn.name}
-      </td>
-      <td className="px-6 py-4 capitalize">
-        {subscription.alumn.last_name}
+        {subscription.alumn.name + ' ' + subscription.alumn.last_name}
       </td>
       <td className="px-6 py-4 capitalize">
         {subscription.plan.name}
@@ -59,6 +63,27 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
       </td>
       <td className="px-6 py-4">
         {formatPrettyDateShort(subscription.due_date)}
+      </td>
+      <td className="px-6 py-4">
+        <div>
+          <button
+            type="button"
+            className={`
+        p-2 rounded-md transition-all duration-150 ease-in-out
+        ${subscription.status === "active"
+                ? 'bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700'
+                : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'
+              }
+        border border-transparent hover:border-opacity-30
+        ${subscription.status === "active" ? 'hover:border-green-300' : 'hover:border-gray-300'}
+        focus:outline-none focus:ring-1 focus:ring-opacity-50
+        ${subscription.status === "active" ? 'focus:ring-green-400' : 'focus:ring-gray-400'}
+      `}
+            onClick={(e) => { onSuspendSubsctiption(e) }}
+          >
+            <PowerIcon className="w-5 h-5" />
+          </button>
+        </div>
       </td>
     </tr >
   );
