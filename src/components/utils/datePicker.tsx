@@ -11,9 +11,10 @@ interface DatePickerProps {
   onChange?: (date: Date | null) => void;
   id?: string;
   name?: string;
+  placeholder?: string;
 }
 
-const DatePicker = ({ value, onChange, id, name }: DatePickerProps) => {
+const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(value || null);
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -109,7 +110,7 @@ const DatePicker = ({ value, onChange, id, name }: DatePickerProps) => {
           type="text"
           readOnly
           value={formatDate(selectedDate)}
-          placeholder="Select date"
+          placeholder={placeholder || "Select date"}
           className="flex-grow outline-none bg-transparent dark:bg-gray-700"
           onClick={() => setIsOpen(!isOpen)}
           id={id}

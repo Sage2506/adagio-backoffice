@@ -21,13 +21,14 @@ export default function RegisterSubscriptionPaymentModal({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [quantity, setQuantity] = useState<string>('');
   const [due_date, setDueDate] = useState<string>('');
+  const [paid_at, setPaidAt] = useState<string>('');
 
-  useEffect(()=>{
-    if(subscription){
+  useEffect(() => {
+    if (subscription) {
       setQuantity((subscription.plan.price - subscription.paid_amount).toString())
       setDueDate(subscription.due_date)
     }
-  },[subscription])
+  }, [subscription])
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -35,7 +36,6 @@ export default function RegisterSubscriptionPaymentModal({
         onSubscriptionPaid(false);
       }
     };
-
     if (isOpen) {
       document.addEventListener("keydown", handleEscape);
       document.body.style.overflow = "hidden";
@@ -53,19 +53,22 @@ export default function RegisterSubscriptionPaymentModal({
   }
 
   async function submitData() {
-    if(subscription){
+    if (subscription) {
       const data: IPaymentNew = {
         payment: {
           alumn_id: subscription.alumn.id.toString(),
           quantity,
         },
-        payable_type: "subscription",
         payable_id: subscription.id.toString(),
+        payable_type: "subscription",
+      }
+      if(paid_at !== ''){
+        data.payment['paid_at'] = paid_at
       }
       setIsLoading(true);
       const response = await postPayment({ data });
       if (response.success) {
-        if (due_date !== subscription.due_date) {
+        if (due_date !== subscription.due_date && due_date !== '') {
           changeDueDate()
         } else {
           setIsLoading(false);
@@ -78,7 +81,7 @@ export default function RegisterSubscriptionPaymentModal({
   }
 
   async function changeDueDate() {
-    if(subscription){
+    if (subscription) {
       const data: IDueDate = {
         due_date
       }
@@ -166,19 +169,17 @@ export default function RegisterSubscriptionPaymentModal({
                     id="quantity"
                     name="quantity"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="$ 0.00"
+                    placeholder="$0.00"
                     required
                     pattern="^\d+(\.\d{1,2})?$"
                     step="0.01"
-                    min="0"
-                  />
+                    min="0" />
                 </div>
 
                 <div>
                   <label
                     htmlFor="due_date"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                     Due Date
                   </label>
                   <DatePicker
@@ -187,6 +188,19 @@ export default function RegisterSubscriptionPaymentModal({
                     id="due_date"
                     name="due_date"
                   />
+                </div>
+                <div>
+                  <label
+                    htmlFor="paid_at"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    Paid Date
+                  </label>
+                  <DatePicker
+                    placeholder="Select a paid date"
+                    value={paid_at ? new Date(paid_at) : null}
+                    onChange={(date) => setPaidAt(date?.toISOString().split("T")[0] || "")}
+                    id="paid_at"
+                    name="paid_at"/>
                 </div>
               </form>
             </div>
@@ -197,16 +211,14 @@ export default function RegisterSubscriptionPaymentModal({
                 type="button"
                 onClick={submitData}
                 disabled={isLoading}
-                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50 disabled:cursor-not-allowed">
                 {isLoading ? "Processing..." : "Pay"}
               </button>
               <button
                 type="button"
                 onClick={() => onSubscriptionPaid(false)}
                 disabled={isLoading}
-                className="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+                className="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
                 Cancel
               </button>
             </div>

@@ -7,6 +7,7 @@ export interface IPaymentNew {
     alumn_id: string
     quantity: string
     created_at?: string
+    paid_at?: string
   }
   payable_type: 'subscription' | 'order'
   payable_id: string
@@ -22,8 +23,9 @@ export interface IGetPaymentsResponse {
 export interface IPaymentRecord {
   id: number
   alumn_id: number
-  quantity: number
   created_at: string
+  paid_at: string
+  quantity: number
   updated_at: string
   user_email: string
 }

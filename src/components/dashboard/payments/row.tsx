@@ -13,7 +13,7 @@ export default function PaymentsRow({payment}: IPaymentsRow) {
         {payment.id}
       </th>
       <td className="px-6 py-4 capitalize">
-        {formatPrettyLongDateShort(payment.created_at)}
+        {formatPrettyLongDateShort(payment.paid_at)}
       </td>
       <td className="px-6 py-4 capitalize">
         {payment.quantity}
