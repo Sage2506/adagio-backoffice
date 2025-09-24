@@ -6,6 +6,7 @@ import { postPayment } from "../../../services/payment";
 import DatePicker from "../../utils/datePicker";
 import { Transition, TransitionChild } from '@headlessui/react';
 import { putSubscriptionDueDate } from "../../../services/subscription";
+import { parseDateToYYYYMMDD } from "../../../utils/stringFormatters";
 
 interface RegisterSubscriptionPaymentModalProps {
   isOpen: boolean;
@@ -20,13 +21,13 @@ export default function RegisterSubscriptionPaymentModal({
 }: RegisterSubscriptionPaymentModalProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [quantity, setQuantity] = useState<string>('');
-  const [due_date, setDueDate] = useState<string>('');
-  const [paid_at, setPaidAt] = useState<string>('');
+  const [due_date, setDueDate] = useState<Date | null>(null);
+  const [paid_at, setPaidAt] = useState<Date | null>(null);
 
   useEffect(() => {
     if (subscription) {
       setQuantity((subscription.plan.price - subscription.paid_amount).toString())
-      setDueDate(subscription.due_date)
+      setDueDate(new Date(subscription.due_date))
     }
   }, [subscription])
 
@@ -62,13 +63,13 @@ export default function RegisterSubscriptionPaymentModal({
         payable_id: subscription.id.toString(),
         payable_type: "subscription",
       }
-      if(paid_at !== ''){
-        data.payment['paid_at'] = paid_at
+      if (!!paid_at) {
+        data.payment['paid_at'] = parseDateToYYYYMMDD(paid_at)
       }
       setIsLoading(true);
       const response = await postPayment({ data });
       if (response.success) {
-        if (due_date !== subscription.due_date && due_date !== '') {
+        if (parseDateToYYYYMMDD(due_date) !== '' && parseDateToYYYYMMDD(due_date) !== subscription.due_date) {
           changeDueDate()
         } else {
           setIsLoading(false);
@@ -83,7 +84,7 @@ export default function RegisterSubscriptionPaymentModal({
   async function changeDueDate() {
     if (subscription) {
       const data: IDueDate = {
-        due_date
+        due_date: parseDateToYYYYMMDD(due_date)
       }
       const response = await putSubscriptionDueDate({ id: subscription.id.toString(), data })
       setIsLoading(false)
@@ -183,8 +184,8 @@ export default function RegisterSubscriptionPaymentModal({
                     Due Date
                   </label>
                   <DatePicker
-                    value={due_date ? new Date(due_date) : null}
-                    onChange={(date) => setDueDate(date?.toISOString().split("T")[0] || "")}
+                    value={due_date}
+                    onChange={(date) => setDueDate(date)}
                     id="due_date"
                     name="due_date"
                   />
@@ -197,10 +198,10 @@ export default function RegisterSubscriptionPaymentModal({
                   </label>
                   <DatePicker
                     placeholder="Select a paid date"
-                    value={paid_at ? new Date(paid_at) : null}
-                    onChange={(date) => setPaidAt(date?.toISOString().split("T")[0] || "")}
+                    value={paid_at}
+                    onChange={(date) => setPaidAt(date)}
                     id="paid_at"
-                    name="paid_at"/>
+                    name="paid_at" />
                 </div>
               </form>
             </div>
