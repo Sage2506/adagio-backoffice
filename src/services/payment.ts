@@ -1,8 +1,21 @@
 import type { IErrorResponse } from "../types/errors";
-import type { IPaymentNew, IPaymentRecord, IPostPaymentResponse } from "../types/payments";
-import api, { CREATED } from "./api";
+import type { IGetPaymentsResponse, IPaymentNew, IPaymentRecord, IPostPaymentResponse } from "../types/payments";
+import api, { CREATED, OK } from "./api";
 
 const path = "/payments";
+
+export function getPayments(args: { params?: string }): Promise<IGetPaymentsResponse | IErrorResponse> {
+  return api.get<IGetPaymentsResponse>(`${path}?${args.params}`).then(response => {
+    if (response.status === OK) {
+      const { data, links, pages } = response.data
+      return { success: true as const, data, links, pages };
+    } else {
+      return { success: false as const, errors: [{ msj: response.status.toString() }] };
+    }
+  }).catch(error => {
+    return { success: false as const, errors: [{ msj: error.message }] }
+  })
+}
 
 export function postPayment(args: { data: IPaymentNew }): Promise<IPostPaymentResponse | IErrorResponse> {
   return api.post<IPaymentRecord>(path, args.data).then(response => {

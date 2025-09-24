@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useSearchParams } from "react-router";
 import type { IOrderRecord } from "../../../types/orders";
 import type { ILinks } from "../../../types/common";
 import { getOrders } from "../../../services/order";
-import { formatPrice } from "../../../services/numbers";
+import { formatPrice } from "../../../utils/numbers";
 
 export default function OrdersTable() {
   const navigate = useNavigate()

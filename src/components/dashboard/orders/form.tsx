@@ -5,7 +5,7 @@ import type { IAlumnRecord } from "../../../types/alumns";
 import type { IProductRecord } from "../../../types/products";
 import SearchCombobox from "../../utils/searchCombobox";
 import { getProducts } from "../../../services/product";
-import { formatPrice } from "../../../services/numbers";
+import { formatPrice } from "../../../utils/numbers";
 import type { IOrderNew } from "../../../types/orders";
 import { postOrder } from "../../../services/order";
 import { useNavigate } from "react-router";

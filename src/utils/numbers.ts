@@ -14,3 +14,14 @@ export const formatPrettyDateShort = (dateString: string): string => {
     return `${day}-${month}-${year}`;
 }
 
+export const formatPrettyLongDateShort = (dateString: string): string => {
+    if (!dateString) return "N/A"
+    const date = new Date(dateString)
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = date.toLocaleString('default', { month: 'short', timeZone: 'UTC' });
+    const year = String(date.getUTCFullYear());
+    return `${day}-${month}-${year}`;
+}
+
+
+

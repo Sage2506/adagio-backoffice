@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useSearchParams } from "react-router";
 import type { IProductRecord } from "../../../types/products";
 import type { ILinks } from "../../../types/common";
 import { getProducts } from "../../../services/product";
-import { formatPrice } from "../../../services/numbers";
+import { formatPrice } from "../../../utils/numbers";
 
 export default function ProductsTable() {
   const navigate = useNavigate()

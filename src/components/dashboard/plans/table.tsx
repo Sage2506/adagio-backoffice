@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useSearchParams } from "react-router";
 import type { IPlanRecord } from "../../../types/plans";
 import type { ILinks } from "../../../types/common";
 import { getPlans } from "../../../services/plan";
-import { formatPrice } from "../../../services/numbers";
+import { formatPrice } from "../../../utils/numbers";
 
 export default function PlansTable() {
   const navigate = useNavigate()

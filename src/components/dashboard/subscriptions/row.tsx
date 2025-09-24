@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
-import { formatPrettyDateShort } from "../../../services/numbers";
+import { formatPrettyDateShort } from "../../../utils/numbers";
 
 interface ISubscriptionRow {
   subscription: ISubscriptionAlumnPlanRecord;

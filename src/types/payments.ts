@@ -1,4 +1,5 @@
 import type { IAlumnRecord } from "./alumns"
+import type { ILinks } from "./common"
 import type { IPlanRecord } from "./plans"
 
 export interface IPaymentNew {
@@ -9,6 +10,13 @@ export interface IPaymentNew {
   }
   payable_type: 'subscription' | 'order'
   payable_id: string
+}
+
+export interface IGetPaymentsResponse {
+  success: true,
+  data: IPaymentRecord[]
+  links: ILinks
+  pages: number[]
 }
 
 export interface IPaymentRecord {

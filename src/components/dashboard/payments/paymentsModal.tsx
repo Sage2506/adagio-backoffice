@@ -1,26 +1,48 @@
-import { Transition } from "@headlessui/react";
+import { Transition, TransitionChild } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/16/solid";
 import { useEffect, useState } from "react";
+import type { IPaymentRecord } from "../../../types/payments";
+import { getPayments } from "../../../services/payment";
+import { buildSnakeCaseParams } from "../../../utils/stringFormatters";
+import PaymentsRow from "./row";
 
 interface IPaymentsModal {
-  isModalOpen: boolean;
+  isOpen: boolean;
   payableId: number | null;
-  payableObject: string;
+  payableType: string;
   toggleModal: Function;
 }
 
-export default function PaymentsModal({ isModalOpen, toggleModal, payableId }: IPaymentsModal) {
+export default function PaymentsModal({ isOpen, toggleModal, payableId, payableType }: IPaymentsModal) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [payments, setPayments] = useState<IPaymentRecord[]>([])
 
   useEffect(() => {
-    console.log("payments modal loades");
+    if (!isOpen || payableId === null) {
+      setPayments([]);
+      return;
+    }
+    fetchPayments();
+  }, [isOpen, payableId]);
 
-  }, [payableId]);
+  async function fetchPayments() {
+    if (!!payableId) {
+      setIsLoading(true);
+      getPayments({ params: buildSnakeCaseParams({ payableType, payableId }) }).then(response => {
+        if (response.success) {
+          console.log("response payments: ", response.data)
+          setPayments(response.data);
+        }
+      }).finally(() => {
+        setIsLoading(false);
+      })
+    }
+  }
 
   return (
-    <Transition show={isModalOpen}>
+    <Transition show={isOpen}>
       {/* Backdrop with transition */}
-      <Transition.Child
+      <TransitionChild
         enter="ease-out duration-300"
         enterFrom="opacity-0"
         enterTo="opacity-100"
@@ -30,12 +52,12 @@ export default function PaymentsModal({ isModalOpen, toggleModal, payableId }: I
       >
         <div
           className="fixed inset-0 bg-gray-900 bg-opacity-50 dark:bg-opacity-80 z-40"
-          onClick={() => toggleModal()}
+
         />
-      </Transition.Child>
+      </TransitionChild>
 
       {/* Modal with transition */}
-      <Transition.Child
+      <TransitionChild
         enter="ease-out duration-300"
         enterFrom="opacity-0 scale-95"
         enterTo="opacity-100 scale-100"
@@ -43,15 +65,14 @@ export default function PaymentsModal({ isModalOpen, toggleModal, payableId }: I
         leaveFrom="opacity-100 scale-100"
         leaveTo="opacity-0 scale-95"
       >
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => toggleModal()}>
           <div
             className="relative bg-white rounded-lg shadow dark:bg-gray-800 w-full max-w-md"
-            onClick={() => toggleModal()}
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Pagos de Objeto
+                Lista de pagos
               </h3>
               <button
                 type="button"
@@ -66,6 +87,26 @@ export default function PaymentsModal({ isModalOpen, toggleModal, payableId }: I
 
             {/* Body */}
             <div className="p-4 md:p-5">
+              <table className="w-full">
+                <thead>
+                  <tr>
+                    <th scope="col" className="px-6 py-3">
+                      ID
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Date
+                    </th>
+                    <th scope="col" className="px-6 py-3">
+                      Total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
+                  {payments.map(payment =>
+                    <PaymentsRow key={`payment_${payment.id}`} payment={payment} />
+                  )}
+                </tbody>
+              </table>
             </div>
 
             {/* Footer */}
@@ -81,7 +122,7 @@ export default function PaymentsModal({ isModalOpen, toggleModal, payableId }: I
             </div>
           </div>
         </div>
-      </Transition.Child>
+      </TransitionChild>
     </Transition>
   );
 };
