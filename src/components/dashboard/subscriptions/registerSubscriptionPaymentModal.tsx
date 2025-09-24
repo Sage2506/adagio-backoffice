@@ -4,27 +4,30 @@ import type { IDueDate, ISubscriptionAlumnPlanRecord } from "../../../types/subs
 import type { IPaymentNew } from "../../../types/payments";
 import { postPayment } from "../../../services/payment";
 import DatePicker from "../../utils/datePicker";
-import { Transition } from '@headlessui/react';
+import { Transition, TransitionChild } from '@headlessui/react';
 import { putSubscriptionDueDate } from "../../../services/subscription";
 
 interface RegisterSubscriptionPaymentModalProps {
-  isModalOpen: boolean;
+  isOpen: boolean;
   onSubscriptionPaid: (successful: boolean) => void;
-  subscription: ISubscriptionAlumnPlanRecord;
+  subscription: ISubscriptionAlumnPlanRecord | null;
 }
 
 export default function RegisterSubscriptionPaymentModal({
-  isModalOpen,
+  isOpen,
   onSubscriptionPaid,
   subscription,
 }: RegisterSubscriptionPaymentModalProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [quantity, setQuantity] = useState<string>(
-    (subscription.plan.price - subscription.paid_amount).toString()
-  );
-  const [due_date, setDueDate] = useState<string>(() => {
-    return String(subscription.due_date);
-  });
+  const [quantity, setQuantity] = useState<string>('');
+  const [due_date, setDueDate] = useState<string>('');
+
+  useEffect(()=>{
+    if(subscription){
+      setQuantity((subscription.plan.price - subscription.paid_amount).toString())
+      setDueDate(subscription.due_date)
+    }
+  },[subscription])
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -33,7 +36,7 @@ export default function RegisterSubscriptionPaymentModal({
       }
     };
 
-    if (isModalOpen) {
+    if (isOpen) {
       document.addEventListener("keydown", handleEscape);
       document.body.style.overflow = "hidden";
     }
@@ -42,7 +45,7 @@ export default function RegisterSubscriptionPaymentModal({
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "unset";
     };
-  }, [isModalOpen, isLoading, onSubscriptionPaid]);
+  }, [isOpen, isLoading, onSubscriptionPaid]);
 
   function formSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -50,46 +53,50 @@ export default function RegisterSubscriptionPaymentModal({
   }
 
   async function submitData() {
-    const data: IPaymentNew = {
-      payment: {
-        alumn_id: subscription.alumn.id.toString(),
-        quantity,
-      },
-      payable_type: "subscription",
-      payable_id: subscription.id.toString(),
-    }
-    setIsLoading(true);
-    const response = await postPayment({ data });
-    if (response.success) {
-      if (due_date !== subscription.due_date) {
-        changeDueDate()
-      } else {
-        setIsLoading(false);
-        onSubscriptionPaid(true);
+    if(subscription){
+      const data: IPaymentNew = {
+        payment: {
+          alumn_id: subscription.alumn.id.toString(),
+          quantity,
+        },
+        payable_type: "subscription",
+        payable_id: subscription.id.toString(),
       }
-    } else {
-      setIsLoading(false)
+      setIsLoading(true);
+      const response = await postPayment({ data });
+      if (response.success) {
+        if (due_date !== subscription.due_date) {
+          changeDueDate()
+        } else {
+          setIsLoading(false);
+          onSubscriptionPaid(true);
+        }
+      } else {
+        setIsLoading(false)
+      }
     }
   }
 
   async function changeDueDate() {
-    const data: IDueDate = {
-      due_date
-    }
-    const response = await putSubscriptionDueDate({ id: subscription.id.toString(), data })
-    setIsLoading(false)
-    onSubscriptionPaid(true);
-    if (!response.success) {
-      console.log("date not updated");
+    if(subscription){
+      const data: IDueDate = {
+        due_date
+      }
+      const response = await putSubscriptionDueDate({ id: subscription.id.toString(), data })
+      setIsLoading(false)
+      onSubscriptionPaid(true);
+      if (!response.success) {
+        console.log("date not updated");
+      }
     }
   }
 
-  if (!isModalOpen) return null;
+  if (!isOpen) return null;
 
   return (
-    <Transition show={isModalOpen}>
+    <Transition show={isOpen}>
       {/* Backdrop with transition */}
-      <Transition.Child
+      <TransitionChild
         enter="ease-out duration-300"
         enterFrom="opacity-0"
         enterTo="opacity-100"
@@ -99,12 +106,12 @@ export default function RegisterSubscriptionPaymentModal({
       >
         <div
           className="fixed inset-0 bg-gray-900 bg-opacity-50 dark:bg-opacity-80 z-40"
-          onClick={() => onSubscriptionPaid(false)}
+
         />
-      </Transition.Child>
+      </TransitionChild>
 
       {/* Modal with transition */}
-      <Transition.Child
+      <TransitionChild
         enter="ease-out duration-300"
         enterFrom="opacity-0 scale-95"
         enterTo="opacity-100 scale-100"
@@ -112,7 +119,7 @@ export default function RegisterSubscriptionPaymentModal({
         leaveFrom="opacity-100 scale-100"
         leaveTo="opacity-0 scale-95"
       >
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => onSubscriptionPaid(false)}>
           <div
             className="relative bg-white rounded-lg shadow dark:bg-gray-800 w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
@@ -140,7 +147,7 @@ export default function RegisterSubscriptionPaymentModal({
                 className={`space-y-6 ${isLoading ? "opacity-50 pointer-events-none" : ""}`}
               >
                 <p className="capitalize text-gray-900 dark:text-white">
-                  {subscription.alumn.name} {subscription.alumn.last_name}
+                  {subscription?.alumn.name} {subscription?.alumn.last_name}
                 </p>
 
                 <div>
@@ -205,7 +212,7 @@ export default function RegisterSubscriptionPaymentModal({
             </div>
           </div>
         </div>
-      </Transition.Child>
+      </TransitionChild>
     </Transition>
   );
 }

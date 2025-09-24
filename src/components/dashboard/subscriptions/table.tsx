@@ -61,7 +61,7 @@ export default function SubscriptionsTable() {
 
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
-      {selectedSubscription && <RegisterSubscriptionPaymentModal isModalOpen={isSubscriptionPaymentModalOpen} subscription={selectedSubscription} onSubscriptionPaid={((successful) => subscriptionPaid(successful))} />}
+
       <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
@@ -158,6 +158,7 @@ export default function SubscriptionsTable() {
           }
         </ul>
       </nav>
+      <RegisterSubscriptionPaymentModal isOpen={isSubscriptionPaymentModalOpen} subscription={selectedSubscription ?? null} onSubscriptionPaid={((successful) => subscriptionPaid(successful))} />
       <PaymentsModal
         isOpen={isPaymentsModalOpen}
         payableId={selectedSubscription?.id ?? null}

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { Transition } from '@headlessui/react';
+import { Transition, TransitionChild } from '@headlessui/react';
 
 interface ConfirmationModalProps {
   titleText?: string;
@@ -41,7 +41,7 @@ export default function ConfirmationModal({
   return (
     <Transition show={isModalOpen}>
       {/* Backdrop with transition */}
-      <Transition.Child
+      <TransitionChild
         enter="ease-out duration-300"
         enterFrom="opacity-0"
         enterTo="opacity-100"
@@ -53,10 +53,10 @@ export default function ConfirmationModal({
           className="fixed inset-0 bg-gray-900 bg-opacity-50 dark:bg-opacity-80 z-40"
           onClick={() => onConfirmResponse(false)}
         />
-      </Transition.Child>
+      </TransitionChild>
 
       {/* Modal with transition */}
-      <Transition.Child
+      <TransitionChild
         enter="ease-out duration-300"
         enterFrom="opacity-0 scale-95"
         enterTo="opacity-100 scale-100"
@@ -110,7 +110,7 @@ export default function ConfirmationModal({
             </div>
           </div>
         </div>
-      </Transition.Child>
+      </TransitionChild>
     </Transition>
   );
 }
