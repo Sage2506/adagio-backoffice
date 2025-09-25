@@ -11,6 +11,8 @@ import type { IPostSubscriptionResponse, ISubscriptionRecord } from "../../../ty
 import { postSubscription, putSubscription } from "../../../services/subscription";
 import DatePicker from "../../utils/datePicker";
 import { parseDateToYYYYMMDD } from "../../../utils/stringFormatters";
+import type { IPaymentNew, IPostPaymentResponse } from "../../../types/payments";
+import { postPayment } from "../../../services/payment";
 export default function AlumnForm() {
   const navigate = useNavigate()
   const { id } = useParams();
@@ -38,7 +40,10 @@ export default function AlumnForm() {
   const [subscription_id, setSubscriptionId] = useState<string>("");
   const [subscribedAt, setSubscribedAt] = useState<Date | null>(null)
   const [isSubscriptionPaymentIncluded, setIsSubscriptionPaymentIncluded] = useState<boolean>(false);
+  const [subscriptionPayment, setSubscriptionPayment] = useState<string>('')
   const [isMonthlyPaymentIncluded, setIsMonthlyPaymentIncluded] = useState<boolean>(false);
+  const [monthlyPayment, setMonthlyPayment] = useState<string>('')
+
   useEffect(() => {
     loadFormData()
   }, []);
@@ -163,7 +168,11 @@ export default function AlumnForm() {
       Promise.all(promises)
         .then(res => {
           if (res[0].success && !id) {
-            navigate("/")
+            if (isSubscriptionPaymentIncluded || isMonthlyPaymentIncluded) {
+              createInitialPayments({ payableId: res[0].data.id, alumnId: response.data.id })
+            } else {
+              navigate("/")
+            }
           } else {
             if (res[0].success) {
               const subscriptionResponse = res[0].data as ISubscriptionRecord
@@ -182,10 +191,55 @@ export default function AlumnForm() {
         })
         .catch(error => {
           console.log(error);
-        }).finally(() => {
           setIsLoading(false)
-        });
+        })
     }
+  }
+
+  async function createInitialPayments(args: { payableId: number, alumnId: number }) {
+    const { alumnId, payableId } = args
+    const promises: Promise<IPostPaymentResponse | IErrorResponse>[] = [];
+    if (isSubscriptionPaymentIncluded) {
+      const subscriptionPaymentPayload: IPaymentNew = {
+        payment: {
+          alumn_id: alumnId.toString(),
+          quantity: subscriptionPayment,
+        },
+        payable_type: "subscription",
+        payable_id: payableId.toString(),
+      }
+      if (!!subscribedAt) {
+        subscriptionPaymentPayload.payment.paid_at = parseDateToYYYYMMDD(subscribedAt)
+      }
+      if (subscriptionPayment !== '') {
+        subscriptionPaymentPayload.paid_amount = subscriptionPayment
+      }
+      promises.push(postPayment({ data: subscriptionPaymentPayload }));
+    }
+    if (isMonthlyPaymentIncluded) {
+      const monthlyPaymentPayload: IPaymentNew = {
+        payment: {
+          alumn_id: alumnId.toString(),
+          quantity: subscriptionPayment,
+        },
+        payable_type: "subscription",
+        payable_id: payableId.toString(),
+      }
+      if (!!subscribedAt) {
+        monthlyPaymentPayload.payment.paid_at = parseDateToYYYYMMDD(subscribedAt)
+      }
+      if (monthlyPayment !== '') {
+        monthlyPaymentPayload.paid_amount = monthlyPayment
+      }
+      promises.push(postPayment({ data: monthlyPaymentPayload }))
+    }
+    Promise.all(promises).then(res => {
+      if (res[0].success && res[1].success) {
+        navigate("/")
+      }
+    }).finally(() => {
+      setIsLoading(false)
+    })
   }
 
   return (
@@ -281,36 +335,46 @@ export default function AlumnForm() {
           </div>
         </div>
         {/* special subscription settings */}
-        <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
-          <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">
-            Subscription special details
-          </div>
-          <div className="py-2">
-            <label htmlFor="subscribedAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Birth date</label>
-            <DatePicker
-              value={subscribedAt ? new Date(subscribedAt) : null}
-              onChange={(date) => setSubscribedAt(date)}
-              id="subscribedAt"
-              name="subscribedAt"
-            />
-          </div>
-          <div className="py-2">
-            <div className="flex items-start mb-6">
-              <div className="flex items-center h-5">
-                <input id="isSubscriptionPaymentIncluded" name="isSubscriptionPaymentIncluded" type="checkbox" checked={isSubscriptionPaymentIncluded} onChange={e => setIsSubscriptionPaymentIncluded(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
+        {!id &&
+          <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
+            <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">
+              Subscription special details
+            </div>
+            <div className="py-2">
+              <label htmlFor="subscribedAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subscription date</label>
+              <DatePicker
+                value={subscribedAt ? new Date(subscribedAt) : null}
+                onChange={(date) => setSubscribedAt(date)}
+                id="subscribedAt"
+                name="subscribedAt"
+              />
+            </div>
+            <div className="py-2">
+              <div className="flex items-start mb-6">
+                <div className="flex items-center h-5">
+                  <input id="isSubscriptionPaymentIncluded" name="isSubscriptionPaymentIncluded" type="checkbox" checked={isSubscriptionPaymentIncluded} onChange={e => setIsSubscriptionPaymentIncluded(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
+                </div>
+                <label htmlFor="isSubscriptionPaymentIncluded" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Create with subscription payment</label>
               </div>
-              <label htmlFor="isSubscriptionPaymentIncluded" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Create with subscription payment</label>
+            </div>
+            <div className="py-2">
+              <label htmlFor="subscriptionPayment" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subscription</label>
+              <input onChange={(e) => { setSubscriptionPayment(e.target.value) }} value={subscriptionPayment} type="tel" id="subscriptionPayment" name="subscriptionPayment" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="123-45-678" pattern="[0-9]{10}" />
+            </div>
+            <div className="py-2">
+              <div className="flex items-start mb-6">
+                <div className="flex items-center h-5">
+                  <input id="isMonthlyPaymentIncluded" name="isMonthlyPaymentIncluded" type="checkbox" checked={isMonthlyPaymentIncluded} onChange={e => setIsMonthlyPaymentIncluded(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
+                </div>
+                <label htmlFor="isMonthlyPaymentIncluded" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Create first monthly payment</label>
+              </div>
+            </div>
+            <div className="py-2">
+              <label htmlFor="monthlyPayment" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Monthly payment</label>
+              <input onChange={(e) => { setMonthlyPayment(e.target.value) }} value={monthlyPayment} type="tel" id="monthlyPayment" name="monthlyPayment" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="123-45-678" pattern="[0-9]{10}" />
             </div>
           </div>
-          <div className="py-2">
-            <div className="flex items-start mb-6">
-              <div className="flex items-center h-5">
-                <input id="isMonthlyPaymentIncluded" name="isMonthlyPaymentIncluded" type="checkbox" checked={isMonthlyPaymentIncluded} onChange={e => setIsMonthlyPaymentIncluded(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
-              </div>
-              <label htmlFor="isMonthlyPaymentIncluded" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Create first monthly payment</label>
-            </div>
-          </div>
-        </div>
+        }
       </div>
       <div className="flex items-start mb-6">
         <div className="flex items-center h-5">
