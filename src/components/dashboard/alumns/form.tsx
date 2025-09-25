@@ -10,13 +10,14 @@ import type { IPlanRecord } from "../../../types/plans";
 import type { IPostSubscriptionResponse, ISubscriptionRecord } from "../../../types/subscriptions";
 import { postSubscription, putSubscription } from "../../../services/subscription";
 import DatePicker from "../../utils/datePicker";
+import { parseDateToYYYYMMDD } from "../../../utils/stringFormatters";
 export default function AlumnForm() {
   const navigate = useNavigate()
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [name, setName] = useState<string>("")
   const [last_name, setLastName] = useState<string>("")
-  const [birth_date, setBirthDate] = useState<string>((new Date()).toString())
+  const [birth_date, setBirthDate] = useState<Date | null>(null)
   const [address, setAddress] = useState<string>("")
   const [phone_number, setPhoneNumber] = useState<string>("")
   const [email, setEmail] = useState<string>("")
@@ -35,7 +36,9 @@ export default function AlumnForm() {
   const [plansList, setPlansList] = useState<IPlanRecord[]>([]);
   const [plan_id, setPlanId] = useState<string>("");
   const [subscription_id, setSubscriptionId] = useState<string>("");
-
+  const [subscribedAt, setSubscribedAt] = useState<Date | null>(null)
+  const [isSubscriptionPaymentIncluded, setIsSubscriptionPaymentIncluded] = useState<boolean>(false);
+  const [isMonthlyPaymentIncluded, setIsMonthlyPaymentIncluded] = useState<boolean>(false);
   useEffect(() => {
     loadFormData()
   }, []);
@@ -69,7 +72,7 @@ export default function AlumnForm() {
         if (response.success) {
           const { name, last_name, email, birth_date, phone_number, address, special_med_conditions, guardians, plan_id, subscription_id, is_guardian_required_for_leaving } = response.data
           setAddress(address || "");
-          setBirthDate(birth_date ? birth_date + 'T00:00:00' : (new Date()).toString());
+          setBirthDate(birth_date ? new Date(birth_date + 'T00:00:00') : new Date());
           setEmail(email || "");
           setLastName(last_name || "");
           setName(name || "");
@@ -106,7 +109,7 @@ export default function AlumnForm() {
     const alumn: IAlumnNew = {
       name,
       last_name,
-      birth_date,
+      birth_date: parseDateToYYYYMMDD(birth_date),
       address,
       phone_number,
       email,
@@ -148,7 +151,7 @@ export default function AlumnForm() {
       const promises: Promise<IPostGuardianResponse | IPostSubscriptionResponse | IErrorResponse>[] = [];
       promises.push(subscription_id
         ? putSubscription({ id: subscription_id, data: { alumn_id: response.data.id.toString(), plan_id } })
-        : postSubscription({ data: { alumn_id: response.data.id.toString(), plan_id } }))
+        : postSubscription({ data: { alumn_id: response.data.id.toString(), plan_id, subscribed_at: subscribedAt ? parseDateToYYYYMMDD(subscribedAt) : undefined } }))
       promises.push((guardianId
         ? putGuardian({ id: guardianId, data: args.guardian })
         : postGuardian({ data: { ...args.guardian, alumn_id: response.data.id.toString() } })))
@@ -189,6 +192,7 @@ export default function AlumnForm() {
     <form onSubmit={event => formSubmit(event)}
       className={`py-6 px-6 space-y-6 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`} >
       <div className="grid gap-6 mb-5 md:grid-cols-2">
+        {/* Alumn information */}
         <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
           <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">
             Alumn
@@ -205,7 +209,7 @@ export default function AlumnForm() {
             <label htmlFor="birth_date" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Birth date</label>
             <DatePicker
               value={birth_date ? new Date(birth_date) : null}
-              onChange={(date) => setBirthDate(date?.toString() || '')}
+              onChange={(date) => setBirthDate(date)}
               id="birth_date"
               name="birth_date"
             />
@@ -223,6 +227,7 @@ export default function AlumnForm() {
             <input onChange={(e) => { setEmail(e.target.value) }} value={email} type="email" id="email" name="email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$" required />
           </div>
         </div>
+        {/* Guardian 1 information */}
         <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
           <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">Main guardian</div>
           <div className="py-2">
@@ -242,6 +247,7 @@ export default function AlumnForm() {
             <input onChange={(e) => { setGuardianEmail(e.target.value) }} value={guardian_email} type="email" id="guardian_email" name="guardian_email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required />
           </div>
         </div>
+        {/* Guardian 2 information */}
         <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
           <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">Secondary guardian</div>
           <div className="py-2">
@@ -261,6 +267,7 @@ export default function AlumnForm() {
             <input onChange={(e) => { setSecondaryGuardianEmail(e.target.value) }} value={secondary_guardian_email} type="email" id="secondary_guardian_email" name="secondary_guardian_email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" />
           </div>
         </div>
+        {/* special medication information */}
         <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
           <div className="py-2">
             <label htmlFor="special_med_conditions" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Special medical conditions</label>
@@ -271,6 +278,37 @@ export default function AlumnForm() {
             <select id="plan_id" name="plan_id" value={plan_id} onChange={e => setPlanId(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
               {plansList.map(plan => <option key={`plan_${plan.id}`} value={plan.id.toString()}>{plan.name}</option>)}
             </select>
+          </div>
+        </div>
+        {/* special subscription settings */}
+        <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
+          <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">
+            Subscription special details
+          </div>
+          <div className="py-2">
+            <label htmlFor="subscribedAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Birth date</label>
+            <DatePicker
+              value={subscribedAt ? new Date(subscribedAt) : null}
+              onChange={(date) => setSubscribedAt(date)}
+              id="subscribedAt"
+              name="subscribedAt"
+            />
+          </div>
+          <div className="py-2">
+            <div className="flex items-start mb-6">
+              <div className="flex items-center h-5">
+                <input id="isSubscriptionPaymentIncluded" name="isSubscriptionPaymentIncluded" type="checkbox" checked={isSubscriptionPaymentIncluded} onChange={e => setIsSubscriptionPaymentIncluded(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
+              </div>
+              <label htmlFor="isSubscriptionPaymentIncluded" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Create with subscription payment</label>
+            </div>
+          </div>
+          <div className="py-2">
+            <div className="flex items-start mb-6">
+              <div className="flex items-center h-5">
+                <input id="isMonthlyPaymentIncluded" name="isMonthlyPaymentIncluded" type="checkbox" checked={isMonthlyPaymentIncluded} onChange={e => setIsMonthlyPaymentIncluded(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
+              </div>
+              <label htmlFor="isMonthlyPaymentIncluded" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Create first monthly payment</label>
+            </div>
           </div>
         </div>
       </div>

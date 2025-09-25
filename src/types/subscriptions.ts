@@ -5,7 +5,8 @@ import type { IPlanRecord } from "./plans"
 export interface ISubscriptionNew {
   plan_id: string
   alumn_id: string
-  status: number
+  status?: number
+  subscribed_at?: string
 }
 export interface ISubscriptionRecord {
   plan_id: number
