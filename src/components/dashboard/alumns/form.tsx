@@ -48,6 +48,14 @@ export default function AlumnForm() {
     loadFormData()
   }, []);
 
+  useEffect(() => {
+    if (plan_id !== '' && plansList.length > 0) {
+      const selectedPlan = plansList.find(plan => plan.id.toString() === plan_id);
+      if (selectedPlan) {
+        setMonthlyPayment(selectedPlan.price.toString());
+      }
+    }
+  }, [plan_id])
   function loadFormData() {
     const promises = []
     promises.push(loadPlans());
@@ -193,6 +201,12 @@ export default function AlumnForm() {
           console.log(error);
           setIsLoading(false)
         })
+        .finally(()=> {
+          setIsLoading(false)
+        })
+    } else {
+      console.log("response: ",response.errors)
+      setIsLoading(false)
     }
   }
 
@@ -212,7 +226,7 @@ export default function AlumnForm() {
         subscriptionPaymentPayload.payment.paid_at = parseDateToYYYYMMDD(subscribedAt)
       }
       if (subscriptionPayment !== '') {
-        subscriptionPaymentPayload.paid_amount = subscriptionPayment
+        subscriptionPaymentPayload.paid_amount = "0"
       }
       promises.push(postPayment({ data: subscriptionPaymentPayload }));
     }
@@ -220,7 +234,7 @@ export default function AlumnForm() {
       const monthlyPaymentPayload: IPaymentNew = {
         payment: {
           alumn_id: alumnId.toString(),
-          quantity: subscriptionPayment,
+          quantity: monthlyPayment,
         },
         payable_type: "subscription",
         payable_id: payableId.toString(),
@@ -228,13 +242,16 @@ export default function AlumnForm() {
       if (!!subscribedAt) {
         monthlyPaymentPayload.payment.paid_at = parseDateToYYYYMMDD(subscribedAt)
       }
-      if (monthlyPayment !== '') {
-        monthlyPaymentPayload.paid_amount = monthlyPayment
-      }
       promises.push(postPayment({ data: monthlyPaymentPayload }))
     }
     Promise.all(promises).then(res => {
-      if (res[0].success && res[1].success) {
+      let responseSuccess: boolean = true
+      res.forEach( response => {
+        if(!response.success){
+          responseSuccess = false
+        }
+      })
+      if(responseSuccess) {
         navigate("/")
       }
     }).finally(() => {
@@ -328,7 +345,7 @@ export default function AlumnForm() {
             <input onChange={(e) => { setSpecialMedConditions(e.target.value) }} value={special_med_conditions} type="text" id="special_med_conditions" name="special_med_conditions" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Allergies" required />
           </div>
           <div className="py-2">
-            <label htmlFor="plan_id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select an option</label>
+            <label htmlFor="plan_id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select a Plan</label>
             <select id="plan_id" name="plan_id" value={plan_id} onChange={e => setPlanId(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
               {plansList.map(plan => <option key={`plan_${plan.id}`} value={plan.id.toString()}>{plan.name}</option>)}
             </select>
@@ -350,29 +367,33 @@ export default function AlumnForm() {
               />
             </div>
             <div className="py-2">
-              <div className="flex items-start mb-6">
+              <div className="flex items-start">
                 <div className="flex items-center h-5">
                   <input id="isSubscriptionPaymentIncluded" name="isSubscriptionPaymentIncluded" type="checkbox" checked={isSubscriptionPaymentIncluded} onChange={e => setIsSubscriptionPaymentIncluded(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
                 </div>
                 <label htmlFor="isSubscriptionPaymentIncluded" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Create with subscription payment</label>
               </div>
             </div>
+            {isSubscriptionPaymentIncluded &&
+              <div className="py-2">
+                <label htmlFor="subscriptionPayment" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subscription</label>
+                <input onChange={(e) => { setSubscriptionPayment(e.target.value) }} value={subscriptionPayment} type="tel" id="subscriptionPayment" name="subscriptionPayment" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" />
+              </div>
+            }
             <div className="py-2">
-              <label htmlFor="subscriptionPayment" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subscription</label>
-              <input onChange={(e) => { setSubscriptionPayment(e.target.value) }} value={subscriptionPayment} type="tel" id="subscriptionPayment" name="subscriptionPayment" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="123-45-678" pattern="[0-9]{10}" />
-            </div>
-            <div className="py-2">
-              <div className="flex items-start mb-6">
+              <div className="flex items-start">
                 <div className="flex items-center h-5">
                   <input id="isMonthlyPaymentIncluded" name="isMonthlyPaymentIncluded" type="checkbox" checked={isMonthlyPaymentIncluded} onChange={e => setIsMonthlyPaymentIncluded(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
                 </div>
-                <label htmlFor="isMonthlyPaymentIncluded" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Create first monthly payment</label>
+                <label htmlFor="isMonthlyPaymentIncluded" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Create with first monthly payment</label>
               </div>
             </div>
-            <div className="py-2">
-              <label htmlFor="monthlyPayment" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Monthly payment</label>
-              <input onChange={(e) => { setMonthlyPayment(e.target.value) }} value={monthlyPayment} type="tel" id="monthlyPayment" name="monthlyPayment" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="123-45-678" pattern="[0-9]{10}" />
-            </div>
+            {isMonthlyPaymentIncluded &&
+              <div className="py-2">
+                <label htmlFor="monthlyPayment" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Monthly payment</label>
+                <input onChange={(e) => { setMonthlyPayment(e.target.value) }} value={monthlyPayment} type="tel" id="monthlyPayment" name="monthlyPayment" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" />
+              </div>
+            }
           </div>
         }
       </div>
