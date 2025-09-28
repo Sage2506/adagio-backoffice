@@ -65,6 +65,9 @@ export default function PlansTable() {
               Name
             </th>
             <th scope="col" className="px-6 py-3">
+              Duration
+            </th>
+            <th scope="col" className="px-6 py-3">
               Price
             </th>
           </tr>
@@ -78,6 +81,9 @@ export default function PlansTable() {
               </th>
               <td className="px-6 py-4 capitalize">
                 {plan.name}
+              </td>
+              <td className="px-6 py-4 capitalize">
+                {plan.subscription_duration}
               </td>
               <td className="px-6 py-4">
                 {formatPrice(plan.price)}
