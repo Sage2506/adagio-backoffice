@@ -27,7 +27,6 @@ export default function RegisterSubscriptionPaymentModal({
   useEffect(() => {
     if (subscription) {
       setQuantity((subscription.plan.price - subscription.paid_amount).toString())
-      setDueDate(new Date(subscription.due_date))
     }
   }, [subscription])
 
@@ -69,7 +68,7 @@ export default function RegisterSubscriptionPaymentModal({
       setIsLoading(true);
       const response = await postPayment({ data });
       if (response.success) {
-        if (parseDateToYYYYMMDD(due_date) !== '' && parseDateToYYYYMMDD(due_date) !== subscription.due_date) {
+        if (!!due_date && parseDateToYYYYMMDD(due_date) !== '' && parseDateToYYYYMMDD(due_date) !== subscription.due_date) {
           changeDueDate()
         } else {
           setIsLoading(false);
