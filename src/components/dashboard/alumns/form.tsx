@@ -13,6 +13,7 @@ import DatePicker from "../../utils/datePicker";
 import { parseDateToYYYYMMDD } from "../../../utils/stringFormatters";
 import type { IPaymentNew, IPostPaymentResponse } from "../../../types/payments";
 import { postPayment } from "../../../services/payment";
+import { handlePriceInputChange } from "../../../utils/numbers";
 export default function AlumnForm() {
   const navigate = useNavigate()
   const { id } = useParams();
@@ -201,11 +202,11 @@ export default function AlumnForm() {
           console.log(error);
           setIsLoading(false)
         })
-        .finally(()=> {
+        .finally(() => {
           setIsLoading(false)
         })
     } else {
-      console.log("response: ",response.errors)
+      console.log("response: ", response.errors)
       setIsLoading(false)
     }
   }
@@ -246,12 +247,12 @@ export default function AlumnForm() {
     }
     Promise.all(promises).then(res => {
       let responseSuccess: boolean = true
-      res.forEach( response => {
-        if(!response.success){
+      res.forEach(response => {
+        if (!response.success) {
           responseSuccess = false
         }
       })
-      if(responseSuccess) {
+      if (responseSuccess) {
         navigate("/")
       }
     }).finally(() => {
@@ -377,7 +378,7 @@ export default function AlumnForm() {
             {isSubscriptionPaymentIncluded &&
               <div className="py-2">
                 <label htmlFor="subscriptionPayment" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subscription</label>
-                <input onChange={(e) => { setSubscriptionPayment(e.target.value) }} value={subscriptionPayment} type="tel" id="subscriptionPayment" name="subscriptionPayment" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" />
+                <input onChange={(e) => { handlePriceInputChange(e, setSubscriptionPayment) }} value={subscriptionPayment} type="text" id="subscriptionPayment" name="subscriptionPayment" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" />
               </div>
             }
             <div className="py-2">
@@ -391,7 +392,7 @@ export default function AlumnForm() {
             {isMonthlyPaymentIncluded &&
               <div className="py-2">
                 <label htmlFor="monthlyPayment" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Monthly payment</label>
-                <input onChange={(e) => { setMonthlyPayment(e.target.value) }} value={monthlyPayment} type="tel" id="monthlyPayment" name="monthlyPayment" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" />
+                <input onChange={(e) => { handlePriceInputChange(e, setMonthlyPayment) }} value={monthlyPayment} type="text" id="monthlyPayment" name="monthlyPayment" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" />
               </div>
             }
           </div>

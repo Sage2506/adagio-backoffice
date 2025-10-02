@@ -7,6 +7,7 @@ import DatePicker from "../../utils/datePicker";
 import { Transition, TransitionChild } from '@headlessui/react';
 import { putSubscriptionDueDate } from "../../../services/subscription";
 import { parseDateToYYYYMMDD } from "../../../utils/stringFormatters";
+import { handlePriceInputChange } from "../../../utils/numbers";
 
 interface RegisterSubscriptionPaymentModalProps {
   isOpen: boolean;
@@ -94,12 +95,12 @@ export default function RegisterSubscriptionPaymentModal({
     }
   }
 
-  function closeDialog(){
+  function closeDialog() {
     onSubscriptionPaid(false);
     resetState();
   }
 
-  function resetState(){
+  function resetState() {
     setDueDate(null)
     setPaidAt(null)
     setIsLoading(false)
@@ -174,7 +175,7 @@ export default function RegisterSubscriptionPaymentModal({
                   </label>
                   <input
                     onChange={(e) => {
-                      setQuantity(e.target.value);
+                      handlePriceInputChange(e, setQuantity)
                     }}
                     value={quantity}
                     type="number"

@@ -23,5 +23,17 @@ export const formatPrettyLongDateShort = (dateString: string): string => {
     return `${day}-${month}-${year}`;
 }
 
+export const handlePriceInputChange = (event : React.ChangeEvent<HTMLInputElement>, setState: Function) => {
+    const value = event.target.value;
+    if(value === ''){
+        setState('');
+        return;
+    }
+
+    const priceRegex = /^\d*\.?\d{0,2}$/;
+    if(priceRegex.test(value) ){
+        setState(value)
+    }
+}
 
 

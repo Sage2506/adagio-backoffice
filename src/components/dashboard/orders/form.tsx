@@ -5,7 +5,7 @@ import type { IAlumnRecord } from "../../../types/alumns";
 import type { IProductRecord } from "../../../types/products";
 import SearchCombobox from "../../utils/searchCombobox";
 import { getProducts } from "../../../services/product";
-import { formatPrice } from "../../../utils/numbers";
+import { formatPrice, handlePriceInputChange } from "../../../utils/numbers";
 import type { IOrderNew } from "../../../types/orders";
 import { postOrder } from "../../../services/order";
 import { useNavigate } from "react-router";
@@ -173,7 +173,7 @@ export default function OrdersForm() {
         <div>
           <label htmlFor="advance" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Anticipo</label>
           <div className="flex gap-4">
-            <input type="number" id="advance" name="advance" value={advance} onChange={(e) => setAdvance(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0" />
+            <input type="number" id="advance" name="advance" value={advance} onChange={(e) => {handlePriceInputChange(e, setAdvance)}} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0.0" />
             <div className={`flex items-center flex-column flex-wrap md:flex-row justify-between ${isLoading ? 'opacity-50 pointer-events-none' : ''
               }`}>
               <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-12">

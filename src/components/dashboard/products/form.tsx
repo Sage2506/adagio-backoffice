@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { getProduct, postProduct, putProduct } from "../../../services/product";
 import type { IProductNew } from "../../../types/products";
+import { handlePriceInputChange } from "../../../utils/numbers";
 
 export default function ProductForm() {
   const navigate = useNavigate()
@@ -77,7 +78,7 @@ export default function ProductForm() {
           </div>
           <div>
             <label htmlFor="price" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Price</label>
-            <input onChange={(e) => { setPrice(e.target.value) }} value={price} type="number" id="price" name="price" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="99.9" pattern="^\d+(\.\d{1,2})?$" required />
+            <input onChange={(e) => { handlePriceInputChange(e, setPrice)}} value={price} type="text" id="price" name="price" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="99.9" required />
           </div>
           <div>
             <label htmlFor="description" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
