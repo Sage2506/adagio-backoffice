@@ -6,12 +6,13 @@ export const formatPrice = (amount: number): string => {
 }
 
 export const formatPrettyDateShort = (dateString: string): string => {
-    if (!dateString) return "N/A"
-    const date = new Date(`${dateString}T00:00:00Z`)
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const month = date.toLocaleString('default', { month: 'short', timeZone: 'UTC' });
-    const year = String(date.getUTCFullYear());
-    return `${day}-${month}-${year}`;
+    if (!dateString) return "N/A";
+    // Extrae solo la parte de la fecha (YYYY-MM-DD)
+    const [year, month, day] = dateString.split('T')[0].split('-');
+    // Obtiene el nombre corto del mes
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
+    const monthShort = date.toLocaleString('default', { month: 'short' });
+    return `${day.padStart(2, '0')}-${monthShort}-${year}`;
 }
 
 export const formatPrettyLongDateShort = (dateString: string): string => {

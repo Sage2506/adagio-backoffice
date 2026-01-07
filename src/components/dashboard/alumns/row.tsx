@@ -24,6 +24,9 @@ export default function AlumnsRow({ alumn, handleDelete }: IAlumnsRow) {
       <td className="px-6 py-4 capitalize">
         {alumn.last_name}
       </td>
+      <td className="px-6 py-4 capitalize">
+        {alumn.birth_date}
+      </td>
       <td className="px-6 py-4">
         <button
           onClick={e => handleDelete(e, alumn)}

@@ -156,6 +156,9 @@ export default function AlumnsTable() {
               Last name
             </th>
             <th scope="col" className="px-6 py-3">
+              Birthday
+            </th>
+            <th scope="col" className="px-6 py-3">
               Actions
             </th>
           </tr>

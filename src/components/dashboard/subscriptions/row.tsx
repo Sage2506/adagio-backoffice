@@ -23,8 +23,8 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
     const today = new Date();
     const dueDate = new Date(subscription.due_date)
     const dueDatePlusFive = new Date(dueDate)
-    dueDate.setDate(dueDatePlusFive.getDate() + 5)
-    if (today > dueDatePlusFive) { // hoy es despues del due date
+    dueDatePlusFive.setDate(dueDatePlusFive.getDate() + 5)
+    if (today > dueDatePlusFive) {
       setDateStatusStyle(lateStatusStyle)
     } else if (today > dueDate) {
       setDateStatusStyle(pendingStatusStyle)
