@@ -6,7 +6,6 @@ import type { ILinks } from "../../../types/common";
 import ConfirmationModal from "../../utils/confirmationModal";
 import AlumnsRow from "./row";
 
-
 export default function AlumnsTable() {
   const navigate = useNavigate()
   const [alumns, setAlumns] = useState<IAlumnRecord[]>([]);
@@ -131,7 +130,7 @@ export default function AlumnsTable() {
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              id="table-search" className="block pt-2 ps-10 pb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for items" />
+              id="table-search" className="block pt-2 ps-10 pb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for alumns" />
           </div>
         </div>
         <div className="relative">
