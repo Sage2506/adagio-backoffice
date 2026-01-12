@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
 import { getSubscriptions, putSubscription } from "../../../services/subscription";
 import type { ISubscriptionAlumnPlanRecord, ISubscriptionNew } from "../../../types/subscriptions";
@@ -116,7 +117,32 @@ export default function SubscriptionsTable() {
               id="table-search" className="block pt-2 ps-10 pb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for alumns" />
           </div>
         </div>
-        <div className="relative">
+        <div className="relative flex flex-row gap-2 items-center">
+          <button
+            type="button"
+            className={`px-3 py-1.5 rounded-lg border text-sm font-medium focus:outline-none transition-colors duration-150 flex items-center gap-1 ${searchParams.get('include_inactive') === 'true' ? 'bg-blue-100 text-blue-700 border-blue-400' : 'bg-white text-gray-500 border-gray-300 dark:bg-gray-800 dark:text-white dark:border-gray-600'}`}
+            onClick={() => {
+              const newParams = new URLSearchParams(searchParams);
+              if (newParams.get('include_inactive') === 'true') {
+                newParams.delete('include_inactive');
+              } else {
+                newParams.set('include_inactive', 'true');
+              }
+              newParams.delete('page[page]'); // reset page
+              navigate(`?${newParams.toString()}`, { replace: true });
+            }}
+            title="Mostrar/ocultar suscripciones inactivas"
+          >
+            {searchParams.get('include_inactive') === 'true' ? (
+              <>
+                <EyeSlashIcon className="w-5 h-5" /> Disabled
+              </>
+            ) : (
+              <>
+                <EyeIcon className="w-5 h-5" /> Disabled
+              </>
+            )}
+          </button>
           <button onClick={() => navigate('/alumns/form')} className="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" type="button">
             Create
             <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
