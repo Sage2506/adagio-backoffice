@@ -72,8 +72,8 @@ export default function RegisterSubscriptionPaymentModal({
         if (!!due_date && parseDateToYYYYMMDD(due_date) !== '' && parseDateToYYYYMMDD(due_date) !== subscription.due_date) {
           changeDueDate()
         } else {
-          onSubscriptionPaid(true);
           resetState();
+          onSubscriptionPaid(true);
         }
       } else {
         setIsLoading(false)
