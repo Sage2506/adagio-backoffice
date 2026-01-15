@@ -83,8 +83,10 @@ export default function AlumnForm() {
     if (id) {
       setIsLoading(true);
       getAlumn({ id }).then(response => {
+        console.log("response alumn: ", response)
         if (response.success) {
-          const { name, last_name, email, birth_date, phone_number, address, special_med_conditions, guardians, plan_id, subscription_id, is_guardian_required_for_leaving } = response.data
+          const { guardians, alumn } = response.data
+          const { name, last_name, address, phone_number, email, birth_date, special_med_conditions, plan_id, subscription_id, is_guardian_required_for_leaving } = alumn;
           setAddress(address || "");
           setBirthDate(birth_date ? new Date(birth_date + 'T00:00:00') : new Date());
           setEmail(email || "");

@@ -85,16 +85,20 @@ export default function SubscriptionsTable() {
     }
   }
 
-  async function suspendSubscription(subscription: ISubscriptionAlumnPlanRecord) {
+  async function toggleSubscriptionStatus(subscription: ISubscriptionAlumnPlanRecord) {
     const { plan_id, alumn_id } = subscription
-    const newSubscription: ISubscriptionNew = { plan_id: plan_id.toString(), alumn_id: alumn_id.toString(), status: 1 }
-    subscription.status = "cancelled"
+    const newSubscription: ISubscriptionNew = {
+      plan_id: plan_id.toString(),
+      alumn_id: alumn_id.toString(),
+      status: subscription.status === "active" ? 1 : 0
+    }
+    subscription.status = subscription.status === "active" ? "cancelled" : "active"
     setIsLoading(true)
     const res = await putSubscription({ id: subscription.id.toString(), data: newSubscription })
     if (res.success) {
       loadSubscriptions();
     } else {
-      subscription.status = "active"
+      subscription.status = subscription.status === "active" ? "cancelled" : "active"
       setIsLoading(false);
     }
   }
@@ -202,7 +206,8 @@ export default function SubscriptionsTable() {
           <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
             {subscriptions.map((subscription) =>
               <SubscriptionsRow
-                suspendSubscription={suspendSubscription}
+                reloadSubscriptions={loadSubscriptions}
+                toggleSubscriptionStatus={toggleSubscriptionStatus}
                 key={`subscription_${subscription.id}`}
                 subscription={subscription}
                 onClick={() => openPaySubscriptionModal(subscription)}

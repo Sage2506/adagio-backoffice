@@ -28,22 +28,14 @@ export interface IAlumnRecord {
   is_guardian_required_for_leaving: boolean
 }
 
+export interface IAlumnWithPlanAndSubscriptionRecord extends IAlumnRecord {
+  plan_id: number | null
+  subscription_id: number | null
+}
+
 export interface IAlumnGuardiansRecord {
-  id: number
-  name: string
-  last_name: string
-  address: string
-  phone_number: string
-  email: string
-  is_active: boolean
-  created_at: string
-  updated_at: string
-  birth_date: string
-  special_med_conditions: string
-  is_guardian_required_for_leaving: boolean
   guardians: IGuadianRecord[]
-  plan_id: number
-  subscription_id: number
+  alumn: IAlumnWithPlanAndSubscriptionRecord
 }
 
 export interface IGetAlumnResponse {

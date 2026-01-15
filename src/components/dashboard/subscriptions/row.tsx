@@ -7,7 +7,8 @@ interface ISubscriptionRow {
   onClick: (e: React.MouseEvent<HTMLElement>) => void;
   showPaymentModal: Function;
   subscription: ISubscriptionAlumnPlanRecord;
-  suspendSubscription: Function;
+  toggleSubscriptionStatus: Function;
+  reloadSubscriptions?: () => void;
 }
 
 const paidStatusStyle = "odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700";
@@ -23,16 +24,16 @@ function getDateStatusStyle(subscription: ISubscriptionAlumnPlanRecord) {
   return paidStatusStyle;
 }
 
-export default function SubscriptionsRow({ subscription, onClick, showPaymentModal, suspendSubscription }: ISubscriptionRow) {
+export default function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubscriptionStatus }: ISubscriptionRow) {
 
   function onShowPaymentsModal(e: React.MouseEvent<HTMLElement>) {
     e.stopPropagation();
     showPaymentModal(subscription)
   }
 
-  function onSuspendSubsctiption(e: React.MouseEvent<HTMLElement>) {
+  async function onToggleSubscriptionStatus(e: React.MouseEvent<HTMLElement>) {
     e.stopPropagation();
-    suspendSubscription(subscription);
+    toggleSubscriptionStatus(subscription);
   }
 
   return (
@@ -71,7 +72,7 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
         focus:outline-none focus:ring-1 focus:ring-opacity-50
         ${subscription.status === "active" ? 'focus:ring-green-400' : 'focus:ring-gray-400'}
       `}
-            onClick={(e) => { onSuspendSubsctiption(e) }}
+            onClick={(e) => { onToggleSubscriptionStatus(e) }}
           >
             <PowerIcon className="w-5 h-5" />
           </button>
