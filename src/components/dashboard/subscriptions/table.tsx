@@ -194,17 +194,17 @@ export default function SubscriptionsTable() {
             </th>
           </tr>
         </thead>
-        {isLoading && subscriptions.length === 0 ? (
-          <tr>
-            <td colSpan={6} style={{ padding: 0, border: 'none' }}>
-              <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
-                <span className="text-lg text-gray-500">Loading...</span>
-              </div>
-            </td>
-          </tr>
-        ) : (
-          <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-            {subscriptions.map((subscription) =>
+        <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
+          {isLoading && subscriptions.length === 0 ? (
+            <tr>
+              <td colSpan={6} style={{ padding: 0, border: 'none' }}>
+                <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
+                  <span className="text-lg text-gray-500">Loading...</span>
+                </div>
+              </td>
+            </tr>
+          ) : (
+            subscriptions.map((subscription) =>
               <SubscriptionsRow
                 reloadSubscriptions={loadSubscriptions}
                 toggleSubscriptionStatus={toggleSubscriptionStatus}
@@ -212,9 +212,9 @@ export default function SubscriptionsTable() {
                 subscription={subscription}
                 onClick={() => openPaySubscriptionModal(subscription)}
                 showPaymentModal={showPaymentModal} />
-            )}
-          </tbody>
-        )}
+            )
+          )}
+        </tbody>
       </table>
       <nav
         className={`flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 ${isLoading ? 'opacity-50 pointer-events-none' : ''

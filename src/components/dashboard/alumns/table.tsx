@@ -83,10 +83,7 @@ export default function AlumnsTable() {
   function onConfirmResponse(accepted: boolean) {
     if (alumnToDelete) {
       if (accepted) {
-        console.log("You're going to delete: ", alumnToDelete.name + ' ' + alumnToDelete.last_name)
         eraseAlun();
-      } else {
-        console.log(alumnToDelete.name + ' ' + alumnToDelete.last_name + ' Wont be deleted');
       }
     }
     setIsModalOpen(false)
@@ -162,20 +159,19 @@ export default function AlumnsTable() {
             </th>
           </tr>
         </thead>
-
-        {isLoading && alumns.length === 0 ? (
-          <tr>
-            <td colSpan={5} style={{ padding: 0, border: 'none' }}>
-              <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
-                <span className="text-lg text-gray-500">Loading...</span>
-              </div>
-            </td>
-          </tr>
-        ) : (
-          <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-            {alumns.map((alumn) => <AlumnsRow key={'alumno' + alumn.id} alumn={alumn} handleDelete={handleDelete}/>)}
-          </tbody>
-        )}
+        <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
+          {isLoading && alumns.length === 0 ? (
+            <tr>
+              <td colSpan={5} style={{ padding: 0, border: 'none' }}>
+                <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
+                  <span className="text-lg text-gray-500">Loading...</span>
+                </div>
+              </td>
+            </tr>
+          ) : (
+            alumns.map((alumn) => <AlumnsRow key={'alumno' + alumn.id} alumn={alumn} handleDelete={handleDelete}/>)
+          )}
+        </tbody>
       </table>
       <nav
         className={`flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 ${isLoading ? 'opacity-50 pointer-events-none' : ''

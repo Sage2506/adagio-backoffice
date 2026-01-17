@@ -119,18 +119,17 @@ export default function ProductsTable() {
             </th>
           </tr>
         </thead>
-
-        {isLoading && products.length === 0 ? (
-          <tr>
-            <td colSpan={3} style={{ padding: 0, border: 'none' }}>
-              <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
-                <span className="text-lg text-gray-500">Loading...</span>
-              </div>
-            </td>
-          </tr>
-        ) : (
-          <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-            {products.map((product) =>
+        <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
+          {isLoading && products.length === 0 ? (
+            <tr>
+              <td colSpan={3} style={{ padding: 0, border: 'none' }}>
+                <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
+                  <span className="text-lg text-gray-500">Loading...</span>
+                </div>
+              </td>
+            </tr>
+          ) : (
+            products.map((product) =>
               <tr key={`product_${product.id}`} onClick={() => navigate(`/products/form/${product.id}`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   {product.id}
@@ -141,9 +140,9 @@ export default function ProductsTable() {
                 <td className="px-6 py-4">
                   {formatPrice(product.price)}
                 </td>
-              </tr>) }
-          </tbody>
-        )}
+              </tr>)
+          )}
+        </tbody>
       </table>
       <nav
         className={`flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 ${isLoading ? 'opacity-50 pointer-events-none' : ''

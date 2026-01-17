@@ -30,7 +30,6 @@ export default function PaymentsModal({ isOpen, toggleModal, payableId, payableT
       setIsLoading(true);
       getPayments({ params: buildSnakeCaseParams({ payableType, payableId }) }).then(response => {
         if (response.success) {
-          console.log("response payments: ", response.data)
           setPayments(response.data);
         }
       }).finally(() => {
@@ -102,8 +101,18 @@ export default function PaymentsModal({ isOpen, toggleModal, payableId, payableT
                   </tr>
                 </thead>
                 <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-                  {payments.map(payment =>
-                    <PaymentsRow key={`payment_${payment.id}`} payment={payment} />
+                  {isLoading && payments.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} style={{ padding: 0, border: 'none' }}>
+                        <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
+                          <span className="text-lg text-gray-500">Loading...</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    payments.map(payment =>
+                      <PaymentsRow key={`payment_${payment.id}`} payment={payment} />
+                    )
                   )}
                 </tbody>
               </table>

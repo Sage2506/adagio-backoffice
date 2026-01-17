@@ -83,7 +83,6 @@ export default function AlumnForm() {
     if (id) {
       setIsLoading(true);
       getAlumn({ id }).then(response => {
-        console.log("response alumn: ", response)
         if (response.success) {
           const { guardians, alumn } = response.data
           const { name, last_name, address, phone_number, email, birth_date, special_med_conditions, plan_id, subscription_id, is_guardian_required_for_leaving } = alumn;
@@ -93,24 +92,24 @@ export default function AlumnForm() {
           setLastName(last_name || "");
           setName(name || "");
           setPhoneNumber(phone_number || "");
-          setSpecialMedConditions(special_med_conditions);
+          setSpecialMedConditions(special_med_conditions || "");
           setIsGuardianRequiredForLeaving(!!is_guardian_required_for_leaving)
           if (plan_id) setPlanId(plan_id.toString());
           if (subscription_id) setSubscriptionId(subscription_id.toString())
           if (guardians.length > 0) {
             let guardian = guardians[0]
             setGuardianId(guardian.id);
-            setGuardianName(guardian.name);
-            setGuardianLastName(guardian.last_name)
-            setGuardianPhoneNumber(guardian.phone_number);
-            setGuardianEmail(guardian.email);
+            setGuardianName(guardian.name || "");
+            setGuardianLastName(guardian.last_name || "");
+            setGuardianPhoneNumber(guardian.phone_number || "");
+            setGuardianEmail(guardian.email || "");
             if (guardians.length > 1) {
               guardian = guardians[1]
               setSecondaryGuardianId(guardian.id);
-              setSecondaryGuardianName(guardian.name);
-              setSecondaryGuardianLastName(guardian.last_name)
-              setSecondaryGuardianPhoneNumber(guardian.phone_number);
-              setSecondaryGuardianEmail(guardian.email);
+              setSecondaryGuardianName(guardian.name || "");
+              setSecondaryGuardianLastName(guardian.last_name || "");
+              setSecondaryGuardianPhoneNumber(guardian.phone_number || "");
+              setSecondaryGuardianEmail(guardian.email || "");
             }
           }
         }
@@ -200,15 +199,13 @@ export default function AlumnForm() {
             }
           }
         })
-        .catch(error => {
-          console.log(error);
+        .catch(() => {
           setIsLoading(false)
         })
         .finally(() => {
           setIsLoading(false)
         })
     } else {
-      console.log("response: ", response.errors)
       setIsLoading(false)
     }
   }
