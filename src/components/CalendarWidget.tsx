@@ -1,6 +1,11 @@
 import React from "react";
 
-const CalendarWidget: React.FC = () => {
+interface CalendarWidgetProps {
+  selectedDates: Date[];
+  validateYear?: boolean;
+}
+
+const CalendarWidget: React.FC<CalendarWidgetProps> = ({ selectedDates, validateYear = true }) => {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
@@ -15,6 +20,16 @@ const CalendarWidget: React.FC = () => {
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ];
+
+  // Crear un Set con los días seleccionados para el mes actual
+  const selectedDays = new Set<number>();
+  selectedDates.forEach(date => {
+    const matchesMonth = date.getMonth() === month;
+    const matchesYear = validateYear ? date.getFullYear() === year : true;
+    if (matchesMonth && matchesYear) {
+      selectedDays.add(date.getDate());
+    }
+  });
 
   let days: (number | null)[] = Array(startDay).fill(null);
   for (let i = 1; i <= daysInMonth; i++) {
@@ -31,15 +46,26 @@ const CalendarWidget: React.FC = () => {
       <div className="text-center mb-2 font-semibold text-lg text-gray-700 dark:text-gray-200">
         {monthNames[month]} {year}
       </div>
+
       <div className="grid grid-cols-7 gap-1 text-xs">
-        {["D", "L", "M", "M", "J", "V", "S"].map((d) => (
-          <div key={d} className="font-bold text-gray-500 dark:text-gray-400 text-center">{d}</div>
+        {["D", "L", "M", "M", "J", "V", "S"].map((d, idx) => (
+          <div key={`day-${idx}`} className="font-bold text-gray-500 dark:text-gray-400 text-center">{d}</div>
         ))}
-        {days.map((day, idx) => (
-          <div key={idx} className="h-6 flex items-center justify-center text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded">
-            {day ? day : ""}
-          </div>
-        ))}
+        {days.map((day, idx) => {
+          const isSelected = day && selectedDays.has(day);
+          return (
+            <div
+              key={idx}
+              className={`h-6 flex items-center justify-center text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded ${
+                isSelected
+                  ? 'bg-pink-300 dark:bg-pink-600 font-bold border-pink-500'
+                  : 'bg-white dark:bg-gray-800'
+              }`}
+            >
+              {day ? day : ""}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

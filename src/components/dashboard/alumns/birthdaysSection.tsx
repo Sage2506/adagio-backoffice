@@ -1,0 +1,110 @@
+import React, { useEffect, useState } from "react";
+import { getBirthdaysOfMonth } from "../../../services/alumn";
+import type { IBirthdayAlumn } from "../../../types/alumns";
+import CalendarWidget from "../../CalendarWidget";
+
+// Helper para parsear fechas como locales sin conversión UTC
+const parseDateLocal = (dateString: string): Date => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, day); // month - 1 porque JavaScript usa 0-11
+};
+
+const BirthdaysSection: React.FC = () => {
+  const [birthdays, setBirthdays] = useState<IBirthdayAlumn[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const today = new Date();
+  const month = today.getMonth();
+
+  const monthNames = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+
+  useEffect(() => {
+    const fetchBirthdays = async () => {
+      setLoading(true);
+      setError(null);
+      const response = await getBirthdaysOfMonth({ month: month });
+      if (response.success) {
+        // Ordenar por día del mes (1-31) de menor a mayor
+        const sortedBirthdays = [...response.data].sort((a, b) => {
+          const dayA = parseDateLocal(a.birth_date).getDate();
+          const dayB = parseDateLocal(b.birth_date).getDate();
+          return dayA - dayB;
+        });
+        setBirthdays(sortedBirthdays);
+      } else {
+        setError("Error al cargar cumpleaños");
+      }
+      setLoading(false);
+    };
+
+    fetchBirthdays();
+  }, [month]);
+
+  // Extraer solo las fechas para el calendario
+  const birthdayDates = birthdays.map(birthday => parseDateLocal(birthday.birth_date));
+
+  if (loading) {
+    return (
+      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg p-4 w-full border border-gray-300 dark:border-gray-600">
+        <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+          Cargando...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg p-4 w-full border border-gray-300 dark:border-gray-600">
+        <div className="text-center text-red-500 py-8">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Calendario */}
+      <CalendarWidget selectedDates={birthdayDates} validateYear={false}/>
+      {/* Lista de cumpleaños del mes */}
+      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg p-4 w-full border border-gray-300 dark:border-gray-600">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">
+          Cumpleaños del mes 🎂
+        </h3>
+        {birthdays.length > 0 ? (
+          <ul className="space-y-2 max-h-full overflow-y-auto">
+            {birthdays.map((birthday, idx) => {
+              const birthDate = parseDateLocal(birthday.birth_date);
+              const day = birthDate.getDate();
+              const currentDay = today.getDate();
+              const isPast = day < currentDay;
+              return (
+                <li
+                  key={`${birthday.id}-${idx}`}
+                  className={`text-xs text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700 ${isPast ? 'opacity-50' : ''}`}
+                >
+                  <span className="font-semibold text-pink-600 dark:text-pink-400">
+                    {day} de {monthNames[month]}
+                  </span>
+                  <br />
+                  {birthday.name} {birthday.last_name}
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+            No hay cumpleaños este mes
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default BirthdaysSection;

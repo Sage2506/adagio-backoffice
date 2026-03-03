@@ -6,7 +6,7 @@ import { IdentificationIcon } from "@heroicons/react/16/solid";
 import { PresentationChartBarIcon } from "@heroicons/react/16/solid";
 import { BuildingStorefrontIcon } from "@heroicons/react/16/solid";
 import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/16/solid";
-import CalendarWidget from "../components/CalendarWidget";
+import BirthdaysSection from "../components/dashboard/alumns/birthdaysSection";
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -88,13 +88,12 @@ export default function DashboardLayout() {
             </div>
           </div>
           <div className="flex-1 flex flex-row">
-            <div className="hidden md:block md:w-1/4 p-4">
-              <CalendarWidget />
-            </div>
             <div className="flex-1">
               <Outlet />
             </div>
-
+            <div className="md:block md:w-1/4 p-4">
+              <BirthdaysSection />
+            </div>
           </div>
         </div>
 

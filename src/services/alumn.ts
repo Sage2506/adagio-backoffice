@@ -1,4 +1,4 @@
-import type { IAlumnGuardiansRecord, IAlumnNew, IAlumnRecord, IGetAlumnGuardiansResponse, IGetAlumnsResponse, IPostAlumnDelete, IPostAlumnResponse } from "../types/alumns";
+import type { IAlumnGuardiansRecord, IAlumnNew, IAlumnRecord, IBirthdayAlumn, IGetAlumnGuardiansResponse, IGetAlumnsResponse, IGetBirthdaysResponse, IPostAlumnDelete, IPostAlumnResponse } from "../types/alumns";
 import type { IErrorResponse } from "../types/errors";
 import api, { CREATED, type ISuccessfulDelete, OK } from "./api";
 
@@ -90,4 +90,17 @@ export function deleteAlumn(args: { id: number }): Promise<IPostAlumnDelete | IE
       errors: [{ msj: error.message }]
     };
   });
+}
+
+export function getBirthdaysOfMonth(args: { month: number }): Promise<IGetBirthdaysResponse | IErrorResponse> {
+  return api.get<IBirthdayAlumn[]>(`${path}/birthdays_by_month?month=${args.month}`).then(response => {
+    const { data, status } = response
+    if (status === OK) {
+      return { success: true as const, data };
+    } else {
+      return { success: false as const, errors: [{ msj: status.toString() }] };
+    }
+  }).catch(error => {
+    return { success: false as const, errors: [{ msj: error.message }] }
+  })
 }

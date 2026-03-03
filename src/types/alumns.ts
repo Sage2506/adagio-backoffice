@@ -64,3 +64,15 @@ export interface IPostAlumnDelete {
   success: true,
   data: ISuccessfulDelete
 }
+
+export interface IBirthdayAlumn {
+  id: number
+  name: string
+  last_name: string
+  birth_date: string
+}
+
+export interface IGetBirthdaysResponse {
+  success: true
+  data: IBirthdayAlumn[]
+}
