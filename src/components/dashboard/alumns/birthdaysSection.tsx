@@ -15,7 +15,8 @@ const BirthdaysSection: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const today = new Date();
-  const month = today.getMonth();
+  const [selectedMonth, setSelectedMonth] = useState<number>(today.getMonth());
+  const [selectedYear, setSelectedYear] = useState<number>(today.getFullYear());
 
   const monthNames = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -26,7 +27,7 @@ const BirthdaysSection: React.FC = () => {
     const fetchBirthdays = async () => {
       setLoading(true);
       setError(null);
-      const response = await getBirthdaysOfMonth({ month: month });
+      const response = await getBirthdaysOfMonth({ month: selectedMonth });
       if (response.success) {
         // Ordenar por día del mes (1-31) de menor a mayor
         const sortedBirthdays = [...response.data].sort((a, b) => {
@@ -42,7 +43,12 @@ const BirthdaysSection: React.FC = () => {
     };
 
     fetchBirthdays();
-  }, [month]);
+  }, [selectedMonth]);
+
+  const handleMonthChange = (month: number, year: number) => {
+    setSelectedMonth(month);
+    setSelectedYear(year);
+  };
 
   // Extraer solo las fechas para el calendario
   const birthdayDates = birthdays.map(birthday => parseDateLocal(birthday.birth_date));
@@ -70,7 +76,13 @@ const BirthdaysSection: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Calendario */}
-      <CalendarWidget selectedDates={birthdayDates} validateYear={false}/>
+      <CalendarWidget
+        selectedDates={birthdayDates}
+        validateYear={false}
+        month={selectedMonth}
+        year={selectedYear}
+        onMonthChange={handleMonthChange}
+      />
       {/* Lista de cumpleaños del mes */}
       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg p-4 w-full border border-gray-300 dark:border-gray-600">
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">
@@ -81,18 +93,22 @@ const BirthdaysSection: React.FC = () => {
             {birthdays.map((birthday, idx) => {
               const birthDate = parseDateLocal(birthday.birth_date);
               const day = birthDate.getDate();
-              const currentDay = today.getDate();
-              const isPast = day < currentDay;
+
+              // Crear fecha del cumpleaños en el año actual
+              const birthdayThisYear = new Date(today.getFullYear(), selectedMonth, day);
+              const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+              const isPast = birthdayThisYear.getTime() < todayDate.getTime();
+
               return (
                 <li
                   key={`${birthday.id}-${idx}`}
                   className={`text-xs text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700 ${isPast ? 'opacity-50' : ''}`}
                 >
                   <span className="font-semibold text-pink-600 dark:text-pink-400">
-                    {day} de {monthNames[month]}
+                    {day} de {monthNames[selectedMonth]}
                   </span>
                   <br />
-                  {birthday.name} {birthday.last_name}
+                  <p className="capitalize">{birthday.name} {birthday.last_name}</p>
                 </li>
               );
             })}
