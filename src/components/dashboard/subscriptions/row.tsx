@@ -1,7 +1,9 @@
+import { useState } from "react";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import { formatPrettyDateShort } from "../../../utils/numbers";
 import { PowerIcon } from "@heroicons/react/24/solid";
 import { getSubscriptionStatus } from "../../../utils/subscriptionStatus";
+import EditDueDateModal from "./editDueDateModal";
 
 interface ISubscriptionRow {
   onClick: (e: React.MouseEvent<HTMLElement>) => void;
@@ -24,7 +26,8 @@ function getDateStatusStyle(subscription: ISubscriptionAlumnPlanRecord) {
   return paidStatusStyle;
 }
 
-export default function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubscriptionStatus }: ISubscriptionRow) {
+export default function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubscriptionStatus, reloadSubscriptions }: ISubscriptionRow) {
+  const [isEditDueDateOpen, setIsEditDueDateOpen] = useState(false);
 
   function onShowPaymentsModal(e: React.MouseEvent<HTMLElement>) {
     e.stopPropagation();
@@ -37,6 +40,7 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
   }
 
   return (
+    <>
     <tr key={`subscription_${subscription.id}`} onClick={(e) => onClick(e)} className={getDateStatusStyle(subscription)}>
       <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white capitalize">
         {subscription.id}
@@ -55,7 +59,11 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
         </button>
       </td>
       <td className="px-6 py-4">
-        {formatPrettyDateShort(subscription.due_date)}
+        <button className="rounded-xs shadow-lg p-0.5" onClick={(e) => { e.stopPropagation(); setIsEditDueDateOpen(true); }}>
+          <p className="cursor-pointer hover:font-bold">
+            {formatPrettyDateShort(subscription.due_date)}
+          </p>
+        </button>
       </td>
       <td className="px-6 py-4">
         <div>
@@ -79,5 +87,14 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
         </div>
       </td>
     </tr >
+    <EditDueDateModal
+      isOpen={isEditDueDateOpen}
+      subscription={subscription}
+      onClose={(reloaded) => {
+        setIsEditDueDateOpen(false);
+        if (reloaded) reloadSubscriptions?.();
+      }}
+    />
+    </>
   );
 };
