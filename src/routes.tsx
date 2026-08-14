@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router";
+import LandingPage from "./pages/landing/LandingPage";
 import DashboardLayout from "./layouts/dashboard";
 import Login from "./components/auth/login";
 import LogOut from "./components/auth/logout";
@@ -17,9 +18,10 @@ import ProtectedRoute from "./components/auth/protectedRoute";
 export function Router() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="login" element={<Login />} />
       <Route path="logout" element={<LogOut />} />
-      <Route element={
+      <Route path="/dashboard" element={
         <ProtectedRoute>
           <DashboardLayout />
         </ProtectedRoute>

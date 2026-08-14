@@ -59,7 +59,7 @@ function Login() {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (
@@ -67,12 +67,11 @@ function Login() {
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form className="space-y-6" onSubmit={event => formSubmit(event)}>
           <div>
-            <p>Please sign in</p>
+            <p className="text-on-background">Please sign in</p>
           </div>
           <div>{errors.map((error, idx) => <p key={idx}>{error.msj}</p>)}</div>
           <div>
-            <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900 dark:hidden">Email address</label>
-            <label htmlFor="email" className="hidden text-sm/6 font-medium text-white-900 dark:block">Email address</label>
+            <label htmlFor="email" className="text-sm/6 font-medium text-on-background dark:block">Email address</label>
             <div className="mt-2">
               <input
                 type="text"
@@ -87,8 +86,7 @@ function Login() {
           </div>
           <div>
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900 dark:hidden">Password</label>
-              <label htmlFor="password" className="hidden text-sm/6 font-medium text-white-900 dark:block">Password</label>
+              <label htmlFor="password" className="text-sm/6 font-medium text-on-background">Password</label>
             </div>
             <div className="mt-2">
               <input
@@ -108,8 +106,7 @@ function Login() {
                 <input id="rememberMe" aria-describedby="rememberMe" type="checkbox" checked={rememberMe} onChange={() => { setRememberMe(!rememberMe) }} className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" />
               </div>
               <div className="ml-3 text-sm">
-                <label htmlFor="rememberMe" className="block text-sm/6 font-medium text-gray-900 dark:hidden">Remember me</label>
-                <label htmlFor="rememberMe" className="hidden text-sm/6 font-medium text-white-900 dark:block">Remember me</label>
+                <label htmlFor="rememberMe" className="text-sm/6 font-medium text-on-background">Remember me</label>
               </div>
             </div>
 

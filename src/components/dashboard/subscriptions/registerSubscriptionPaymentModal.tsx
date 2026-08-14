@@ -68,15 +68,10 @@ export default function RegisterSubscriptionPaymentModal({
       }
       setIsLoading(true);
       const response = await postPayment({ data });
+      setIsLoading(false);
       if (response.success) {
-        if (!!due_date && parseDateToYYYYMMDD(due_date) !== '' && parseDateToYYYYMMDD(due_date) !== subscription.due_date) {
-          changeDueDate()
-        } else {
           resetState();
           onSubscriptionPaid(true);
-        }
-      } else {
-        setIsLoading(false)
       }
     }
   }
