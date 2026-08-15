@@ -9,12 +9,12 @@ import { formatPrice, handlePriceInputChange } from "../../../utils/numbers";
 import type { IOrderNew } from "../../../types/orders";
 import { postOrder } from "../../../services/order";
 import { useNavigate } from "react-router";
+import { TrashIcon } from "@heroicons/react/16/solid";
+import { calculateOrderTotal, validateOrder, type OrderProductInput } from "./validation";
 
-interface Product {
+interface Product extends OrderProductInput {
   id: number
   name: string
-  quantity: string
-  price: number
 }
 
 export default function OrdersForm() {
@@ -25,10 +25,14 @@ export default function OrdersForm() {
   const [advancePercent, setAdvancePercent] = useState<20 | 30 | 50>()
   const [advance, setAdvance] = useState<string>('')
   const [description, setDescription] = useState<string>('')
+  const [errors, setErrors] = useState<{ msj: string }[]>([])
 
   function onOptionSelected(option: { id: string | number, label: string, value: IAlumnRecord } | null) {
     if (option && typeof option.id === "number") {
       setAlumnId(option.id)
+      setErrors([])
+    } else {
+      setAlumnId(0)
     }
   }
 
@@ -42,17 +46,27 @@ export default function OrdersForm() {
       }
       if (!productRepeated) {
         setProducts([...products, { id: option.value.id, name: option.value.name, quantity: "1", price: option.value.price }])
+        setErrors([])
       }
     }
   }
 
   function clearSelection() {
     setProducts([])
+    setAdvance('')
+    setAdvancePercent(undefined)
+  }
+
+  function removeProduct(productId: number) {
+    setProducts(products => products.filter(product => product.id !== productId))
+    setAdvance('')
+    setAdvancePercent(undefined)
   }
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>, productId: number) => {
     const inputValue = e.target.value;
     if (inputValue === '' || /^[1-9]\d*$/.test(inputValue)) {
+      setAdvancePercent(undefined)
       setProducts(products =>
         products.map(product =>
           product.id === productId
@@ -65,15 +79,14 @@ export default function OrdersForm() {
 
   function advanceSelected(percent: 20 | 30 | 50) {
     setAdvancePercent(percent);
-    let newAdvance = orderTotal() * percent / 100
-    newAdvance = Math.ceil(newAdvance);
+    const newAdvance = Math.round(orderTotal() * percent) / 100
     setAdvance(newAdvance.toString())
   }
 
   async function fetchAlumns(query: string) {
     const response = await getAlumns({ params: `q[full_name_cont]=${query}` })
     if (response.success) {
-      return response.data.map(alumn => ({ id: alumn.id, label: alumn.name + ' ' + alumn.last_name, value: alumn.id }))
+      return response.data.map(alumn => ({ id: alumn.id, label: alumn.name + ' ' + alumn.last_name, value: alumn }))
     }
     return []
   }
@@ -88,14 +101,22 @@ export default function OrdersForm() {
 
   function formSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (isLoading) return;
+
+    const validationErrors = validateOrder({ alumnId, products, advance })
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors.map(msj => ({ msj })))
+      return
+    }
+
+    const advanceAmount = advance.trim() === '' ? 0 : Number(advance)
     const data: IOrderNew = {
       order: {
         alumn_id: alumnId,
-        total: orderTotal(),
-        description,
-        paid_amount: parseInt(advance)
+        description: description.trim(),
+        paid_amount: advanceAmount
       },
-      products: products.map(product => ({ id: product.id, quantity: parseInt(product.quantity), price: product.price }))
+      products: products.map(product => ({ id: product.id, quantity: Number(product.quantity) }))
     }
     createOrder({ data })
   }
@@ -104,29 +125,28 @@ export default function OrdersForm() {
     setIsLoading(true)
     const response = await (postOrder(args))
     if (response.success) {
-      navigate("/orders")
+      navigate("/dashboard/orders")
+    } else {
+      setErrors(response.errors)
     }
     setIsLoading(false)
   }
 
   function orderTotal(): number {
-    if (products.length > 0) {
-      let acumulate = 0
-      products.forEach(product => {
-        if (product.quantity) {
-          acumulate += parseInt(product.quantity) * product.price * 100
-        }
-      })
-      return acumulate / 100;
-    }
-    return 0
+    return calculateOrderTotal(products)
   }
 
   return (
     <form onSubmit={event => formSubmit(event)} className={`py-6 px-6 space-y-6 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`} >
+      {errors.length > 0 && (
+        <div role="alert" className="border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-200">
+          {errors.map((error, index) => <p key={`${error.msj}_${index}`}>{error.msj}</p>)}
+        </div>
+      )}
       <AutocompleteCombobox
         fetchOptions={fetchAlumns}
         onSelect={(option) => onOptionSelected(option)}
+        onInputChange={() => setAlumnId(0)}
         placeholder="Search alumns..."
       />
       <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between">
@@ -156,6 +176,9 @@ export default function OrdersForm() {
             <th scope="col" className="px-6 py-3 capitalize">
               price
             </th>
+            <th scope="col" className="w-12 px-3 py-3">
+              <span className="sr-only">Remove</span>
+            </th>
           </tr>
         </thead>
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
@@ -163,9 +186,14 @@ export default function OrdersForm() {
             <th scope="col" className="px-6 py-3">{product.id}</th>
             <td scope="col" className="px-6 py-3">{product.name}</td>
             <td scope="col" className="px-6 py-3">
-              <input type="text" onChange={(e) => handleQuantityChange(e, product.id)} value={product.quantity} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0" />
+              <input type="number" min="1" step="1" onChange={(e) => handleQuantityChange(e, product.id)} value={product.quantity} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0" />
             </td>
-            <td scope="col" className="px-6 py-3">{product.price}</td>
+            <td scope="col" className="px-6 py-3">{formatPrice(product.price)}</td>
+            <td className="px-3 py-3">
+              <button type="button" onClick={() => removeProduct(product.id)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" title={`Remove ${product.name}`} aria-label={`Remove ${product.name}`}>
+                <TrashIcon className="h-5 w-5" />
+              </button>
+            </td>
           </tr>)}
         </tbody>
       </table>
@@ -173,7 +201,7 @@ export default function OrdersForm() {
         <div>
           <label htmlFor="advance" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Anticipo</label>
           <div className="flex gap-4">
-            <input type="number" id="advance" name="advance" value={advance} onChange={(e) => {handlePriceInputChange(e, setAdvance)}} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0.0" />
+            <input type="number" min="0" max={orderTotal()} step="0.01" id="advance" name="advance" value={advance} onChange={(e) => { setAdvancePercent(undefined); handlePriceInputChange(e, setAdvance) }} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0.00" />
             <div className={`flex items-center flex-column flex-wrap md:flex-row justify-between ${isLoading ? 'opacity-50 pointer-events-none' : ''
               }`}>
               <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-12">

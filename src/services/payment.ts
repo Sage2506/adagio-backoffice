@@ -1,3 +1,4 @@
+import axios from "axios";
 import type { IErrorResponse } from "../types/errors";
 import type { IGetPaymentsResponse, IPaymentNew, IPaymentRecord, IPostPaymentResponse } from "../types/payments";
 import api, { CREATED, OK } from "./api";
@@ -30,10 +31,28 @@ export function postPayment(args: { data: IPaymentNew }): Promise<IPostPaymentRe
         errors: [{ msj: response.status.toString() }]
       };
     }
-  }).catch((error: { message: string }) => {
-    return {
-      success: false as const,
-      errors: [{ msj: error.message }]
-    };
-  });
+  }).catch(formatPaymentError);
+}
+
+interface PaymentErrorPayload {
+  errors?: Record<string, string[]>
+  error?: string
+}
+
+function formatPaymentError(error: unknown): IErrorResponse {
+  if (axios.isAxiosError<PaymentErrorPayload>(error)) {
+    const payload = error.response?.data;
+    if (payload?.errors) {
+      return {
+        success: false,
+        errors: Object.entries(payload.errors).flatMap(([field, messages]) =>
+          messages.map(message => ({ msj: field === "base" ? message : `${field}: ${message}` }))
+        )
+      };
+    }
+
+    return { success: false, errors: [{ msj: payload?.error || error.message }] };
+  }
+
+  return { success: false, errors: [{ msj: "Unable to register payment" }] };
 }

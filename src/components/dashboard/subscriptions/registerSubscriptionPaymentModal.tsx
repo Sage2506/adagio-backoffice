@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import type { IDueDate, ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
+import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import type { IPaymentNew } from "../../../types/payments";
 import { postPayment } from "../../../services/payment";
 import DatePicker from "../../utils/datePicker";
 import { Transition, TransitionChild } from '@headlessui/react';
-import { putSubscriptionDueDate } from "../../../services/subscription";
 import { parseDateToYYYYMMDD } from "../../../utils/stringFormatters";
 import { handlePriceInputChange } from "../../../utils/numbers";
 
@@ -72,20 +71,6 @@ export default function RegisterSubscriptionPaymentModal({
       if (response.success) {
           resetState();
           onSubscriptionPaid(true);
-      }
-    }
-  }
-
-  async function changeDueDate() {
-    if (subscription) {
-      const data: IDueDate = {
-        due_date: parseDateToYYYYMMDD(due_date)
-      }
-      const response = await putSubscriptionDueDate({ id: subscription.id.toString(), data })
-      setIsLoading(false)
-      onSubscriptionPaid(true);
-      if (!response.success) {
-        console.log("date not updated");
       }
     }
   }

@@ -31,7 +31,7 @@ export default function DashboardLayout() {
     <div className="relative w-full flex flex-col">
       <div className="flex w-full">
         {/* Contenedor principal: barra de navegación y contenido */}
-        <div className="flex-1 flex flex-col">
+        <div className="min-w-0 flex-1 flex flex-col">
           <div className="top-0 z-10 md:h-16 md:pt-6">
             <div className="sm:px-8 top-(--header-top,--spacing(6)) w-full">
               <div className="mx-auto w-full max-w-7xl lg:px-8">
@@ -88,10 +88,10 @@ export default function DashboardLayout() {
             </div>
           </div>
           <div className="flex-1 flex flex-row">
-            <div className="flex-1">
+            <div className="min-w-0 flex-1">
               <Outlet />
             </div>
-            <div className="md:block md:w-1/4 p-4">
+            <div className="hidden p-4 md:block md:w-1/4">
               <BirthdaysSection />
             </div>
           </div>

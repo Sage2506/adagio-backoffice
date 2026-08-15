@@ -10,6 +10,7 @@ interface AutocompleteProps {
   fetchOptions: (query: string) => Promise<Option[]>;
   placeholder?: string;
   onSelect: (selectedOption: Option | null) => void;
+  onInputChange?: () => void;
   debounceDelay?: number;
 }
 
@@ -17,6 +18,7 @@ export default function AutocompleteCombobox({
   fetchOptions,
   placeholder = "Search...",
   onSelect,
+  onInputChange,
   debounceDelay = 300
 }: AutocompleteProps) {
   const [inputValue, setInputValue] = useState("");
@@ -122,6 +124,7 @@ export default function AutocompleteCombobox({
         value={inputValue}
         onChange={(e) => {
           setInputValue(e.target.value);
+          onInputChange?.();
           setIsOpen(true);
         }}
         onFocus={() => setIsOpen(true)}

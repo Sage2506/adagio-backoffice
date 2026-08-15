@@ -12,6 +12,7 @@ import ProductsTable from "./components/dashboard/products/table";
 import ProductForm from "./components/dashboard/products/form";
 import OrdersTable from "./components/dashboard/orders/table";
 import OrdersForm from "./components/dashboard/orders/form";
+import OrderDetail from "./components/dashboard/orders/detail";
 import AlumnsTable from "./components/dashboard/alumns/table";
 import ProtectedRoute from "./components/auth/protectedRoute";
 
@@ -31,6 +32,7 @@ export function Router() {
         <Route path="alumns/form/:id" element={<AlumnForm />} />
         <Route path="orders" element={<OrdersTable />}></Route>
         <Route path="orders/form" element={<OrdersForm />}></Route>
+        <Route path="orders/:id" element={<OrderDetail />}></Route>
         <Route path="plans" element={<PlansTable />}></Route>
         <Route path="plans/form" element={<PlanForm />}></Route>
         <Route path="plans/form/:id" element={<PlanForm />}></Route>

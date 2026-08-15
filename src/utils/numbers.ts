@@ -1,3 +1,5 @@
+import type { Dispatch, SetStateAction } from "react";
+
 export const formatPrice = (amount: number): string => {
     return Intl.NumberFormat('es-MX', {
         style: 'currency',
@@ -11,7 +13,7 @@ export const formatPrettyDateShort = (dateString: string): string => {
     const [year, month, day] = dateString.split('T')[0].split('-');
     // Obtiene el nombre corto del mes
     const date = new Date(Number(year), Number(month) - 1, Number(day));
-    const monthShort = date.toLocaleString('default', { month: 'short' });
+    const monthShort = date.toLocaleString('es-MX', { month: 'short' });
     return `${day.padStart(2, '0')}-${monthShort}-${year}`;
 }
 
@@ -24,7 +26,7 @@ export const formatPrettyLongDateShort = (dateString: string): string => {
     return `${day}-${month}-${year}`;
 }
 
-export const handlePriceInputChange = (event : React.ChangeEvent<HTMLInputElement>, setState: Function) => {
+export const handlePriceInputChange = (event: React.ChangeEvent<HTMLInputElement>, setState: Dispatch<SetStateAction<string>>) => {
     const value = event.target.value;
     if(value === ''){
         setState('');
