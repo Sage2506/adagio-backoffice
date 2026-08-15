@@ -67,45 +67,45 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   }
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg p-4 w-full border border-gray-300 dark:border-gray-600">
-      <div className="flex items-center justify-between mb-2">
+    <div className="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant p-6">
+      <div className="flex justify-between items-center mb-6">
         <button
           onClick={handlePreviousMonth}
-          className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+          className="text-on-surface-variant hover:text-primary cursor-pointer"
           aria-label="Mes anterior"
         >
-          <svg className="w-5 h-5 text-gray-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+          <span className="material-symbols-outlined"
+            data-icon="chevron_left">chevron_left</span>
         </button>
-        <div className="text-center font-semibold text-lg text-gray-700 dark:text-gray-200">
+        <h3 className="text-center font-semibold text-lg text-on-surface">
           {monthNames[month]} {year}
-        </div>
+        </h3>
         <button
           onClick={handleNextMonth}
-          className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+          className="text-on-surface-variant hover:text-primary cursor-pointer"
           aria-label="Mes siguiente"
         >
-          <svg className="w-5 h-5 text-gray-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          <span className="material-symbols-outlined"
+            data-icon="chevron_right">chevron_right</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 text-xs">
+      <div className="grid grid-cols-7 gap-1 text-center mb-2">
         {["D", "L", "M", "M", "J", "V", "S"].map((d, idx) => (
-          <div key={`day-${idx}`} className="font-bold text-gray-500 dark:text-gray-400 text-center">{d}</div>
+          <div key={`day-${idx}`} className="text-label-md font-label-md text-on-surface-variant">{d}</div>
         ))}
+      </div>
+      <div className="grid grid-cols-7 gap-1 text-center text-body-md font-body-md">
         {days.map((day, idx) => {
           const isSelected = day && selectedDays.has(day);
           return (
             <div
               key={idx}
-              className={`h-6 flex items-center justify-center text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded ${
-                isSelected
-                  ? 'bg-pink-300 dark:bg-pink-600 font-bold border-pink-500'
-                  : 'bg-white dark:bg-gray-800'
-              }`}
+              className={day ? `border cursor-pointer p-2  ${isSelected
+                  ? 'bg-primary-container border-primary font-bold rounded-md text-on-primary-container '
+                  : 'border-outline-variant hover:bg-surface-container rounded-md '
+                }` : 'p-2'}
+
             >
               {day ? day : ""}
             </div>
