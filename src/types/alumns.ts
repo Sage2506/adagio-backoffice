@@ -53,6 +53,7 @@ export interface IGetAlumnsResponse {
   data: IAlumnRecord[],
   links: ILinks,
   pages: number[]
+  total: number
 }
 
 export interface IPostAlumnResponse {

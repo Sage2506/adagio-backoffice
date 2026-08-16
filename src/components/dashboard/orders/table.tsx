@@ -49,51 +49,49 @@ export default function OrdersTable() {
   }, [queryString, requestedPage])
 
   return (
-    <div className="relative overflow-x-auto border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900 my-10 mx-6">
+    <div className="lg:ml-64 p-container-padding max-w-[1440px] mx-auto min-h-screen flex flex-col gap-stack-lg my-8">
       {errors.length > 0 && (
         <div role="alert" className="border-b border-red-200 bg-red-50 px-5 py-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
           {errors.map((error, index) => <p key={`${error.msj}_${index}`}>{error.msj}</p>)}
         </div>
       )}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 px-5 py-4 dark:border-gray-700">
-        <div>
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Orders</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Financial status and payment activity</p>
-        </div>
+      <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
+        <div />
         <div className="relative">
-          <button onClick={() => navigate('/dashboard/orders/form')} className="inline-flex items-center gap-2 bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700" type="button">
+          <button onClick={() => navigate('/dashboard/orders/form')} className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg flex items-center gap-2 hover:bg-surface-tint transition-colors shadow-sm whitespace-nowrap" type="button">
             <PlusIcon className="h-5 w-5" />
             Create
           </button>
         </div>
       </div>
-      <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          <tr>
-            <th scope="col" className="px-6 py-3 capitalize">
+      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-soft overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="border-b border-outline-variant bg-surface">
+            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
               Alumno
             </th>
-            <th scope="col" className="px-6 py-3 capitalize">
+            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
               Total
             </th>
-            <th scope="col" className="px-6 py-3 capitalize">
+            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
               Pagado
             </th>
-            <th scope="col" className="px-6 py-3 capitalize">
+            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
               Saldo
             </th>
-            <th scope="col" className="px-6 py-3 capitalize">
+            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
               Estado
             </th>
-            <th scope="col" className="px-6 py-3 capitalize">
+            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
               Fecha
             </th>
-            <th scope="col" className="px-6 py-3 text-right capitalize">
+            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider text-right">
               Acciones
             </th>
           </tr>
         </thead>
-        <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
+        <tbody className={isLoading ? "opacity-50 pointer-events-none" : "text-body-md font-body-md"}>
           {isLoading && orders.length === 0 ? (
             <tr>
               <td colSpan={7} style={{ padding: 0, border: 'none' }}>
@@ -137,18 +135,19 @@ export default function OrdersTable() {
           )}
         </tbody>
       </table>
+      </div>
       <nav
-        className={`flex items-center flex-column flex-wrap md:flex-row justify-between p-4 ${isLoading ? 'opacity-50 pointer-events-none' : ''
+        className={`flex gap-1 justify-end px-6 py-4 border-t border-outline-variant bg-surface ${isLoading ? 'opacity-50 pointer-events-none' : ''
           }`}
         aria-busy={isLoading}
         aria-live="polite"
         aria-label="Table navigation">
-        <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
+        <ul className="flex gap-1">
           {links &&
             <li>
               <NavLink
                 to={links.first.split('orders')[1]}
-                className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
                 First
               </NavLink>
             </li>
@@ -158,7 +157,7 @@ export default function OrdersTable() {
             <li>
               <NavLink
                 to={links.prev.split('orders')[1]}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
                 Previous
               </NavLink>
             </li>
@@ -171,9 +170,9 @@ export default function OrdersTable() {
 
                 to={`?page%5Bpage%5D=${page}`}
                 className={
-                  `flex items-center justify-center px-3 h-8 border ${currentPage === page
-                    ? 'text-blue-600 bg-blue-50 border-blue-300 dark:text-white dark:bg-blue-600 dark:border-blue-700'
-                    : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
+                  `px-3 py-1 rounded border ${currentPage === page
+                    ? 'border-primary bg-primary-container text-on-primary-container font-bold'
+                    : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
                   }`
                 }>
                 {page}
@@ -184,7 +183,7 @@ export default function OrdersTable() {
             <li>
               <NavLink
                 to={links.next.split('orders')[1]}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
                 Next
               </NavLink>
             </li>
@@ -193,7 +192,7 @@ export default function OrdersTable() {
             <li>
               <NavLink
                 to={links.last.split('orders')[1]}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
                 Last
               </NavLink>
             </li>

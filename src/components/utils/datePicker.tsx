@@ -144,13 +144,13 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
 
   return (
     <div className="relative" ref={calendarRef}>
-      <div className="flex items-center bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+      <div className="flex items-center w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-lowest text-on-surface focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all font-body-md">
         <input
           type="text"
           readOnly
           value={formatDate(selectedDate)}
           placeholder={placeholder || "Select date"}
-          className="flex-grow outline-none bg-transparent dark:bg-gray-700"
+          className="flex-grow outline-none bg-transparent"
           onClick={() => setIsOpen(!isOpen)}
           id={id}
           name={name}
@@ -158,18 +158,18 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
+          className="p-1 text-on-surface-variant hover:text-primary focus:outline-none focus:ring-1 focus:ring-primary rounded-lg"
         >
           <CalendarDaysIcon className="h-5 w-5" />
         </button>
       </div>
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-4">
+        <div className="absolute z-50 mt-1 w-full bg-surface-lowest border border-outline-variant rounded-lg shadow-soft p-4">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={currentView === 'days' ? prevMonth : prevYear}
               type="button"
-              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant hover:text-primary"
             >
               <ChevronLeftIcon className="h-5 w-5" />
             </button>
@@ -178,8 +178,8 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
               onClick={currentView === 'days' ? handleMonthClick : undefined}
               type="button"
               className={`
-                font-semibold text-gray-900 dark:text-white px-2 py-1 rounded
-                ${currentView === 'days' ? 'hover:bg-gray-100 dark:hover:bg-gray-600' : ''}
+                font-semibold text-on-surface px-2 py-1 rounded
+                ${currentView === 'days' ? 'hover:bg-surface-container' : ''}
               `}
             >
               {currentView === 'days' ? (
@@ -194,7 +194,7 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
             <button
               onClick={currentView === 'days' ? nextMonth : nextYear}
               type="button"
-              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              className="p-1 hover:bg-surface-container rounded-full text-on-surface-variant hover:text-primary"
             >
               <ChevronRightIcon className="h-5 w-5" />
             </button>

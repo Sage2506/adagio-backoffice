@@ -7,8 +7,8 @@ const path = "/alumns";
 export function getAlumns(args: { params?: string }): Promise<IGetAlumnsResponse | IErrorResponse> {
   return api.get<IGetAlumnsResponse>(`${path}?${args.params}`).then(response => {
     if (response.status === OK) {
-      const { data, links, pages } = response.data
-      return { success: true as const, data, links, pages };
+      const { data, links, pages, total } = response.data
+      return { success: true as const, data, links, pages, total };
     } else {
       return { success: false as const, errors: [{ msj: response.status.toString() }] };
     }

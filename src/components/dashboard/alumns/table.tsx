@@ -18,7 +18,7 @@ export default function AlumnsTable() {
   const [searchValue, setSearchValue] = useState('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [alumnToDelete, setAlumnToDelete] = useState<IAlumnRecord>();
-
+  const [totalEntries, setTotalEntries] = useState<number>(0);
   useEffect(() => {
     if (searchParams.has('page[page]')) {
       setCurrentPage(parseInt(searchParams.get('page[page]')!))
@@ -35,10 +35,11 @@ export default function AlumnsTable() {
     setIsLoading(true)
     getAlumns({ params: searchParams.toString() }).then(response => {
       if (response.success) {
-        const { data, pages, links } = response
+        const { data, pages, links, total } = response
         setAlumns(data);
         setPages(pages);
         setLinks(links);
+        setTotalEntries(total)
       } else {
         setErrors(response.errors)
       }
@@ -102,9 +103,9 @@ export default function AlumnsTable() {
   }
 
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
+    <div className="lg:ml-64 p-container-padding max-w-[1440px] mx-auto min-h-screen flex flex-col gap-stack-lg my-8">
       <div>
-        {errors.map((error, idx) => <p key={error+'_'+idx}>{error.msj}</p>)}
+        {errors.map((error, idx) => <p key={error + '_' + idx}>{error.msj}</p>)}
       </div>
       <ConfirmationModal
         titleText="Delete Alumn"
@@ -127,115 +128,111 @@ export default function AlumnsTable() {
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              id="table-search" className="block pt-2 ps-10 pb-2 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for alumns" />
+              id="table-search" className="w-full pl-10 pr-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-lowest text-body-md font-body-md outline-none transition-all shadow-sm" placeholder="Search for alumns" />
           </div>
         </div>
         <div className="relative">
-          <button onClick={() => navigate('/alumns/form')} className="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" type="button">
+          <button onClick={() => navigate('/dashboard/alumns/form')} className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg flex items-center gap-2 hover:bg-surface-tint transition-colors shadow-sm whitespace-nowrap" type="button">
             Create
-            <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7 7V5" />
             </svg>
           </button>
         </div>
       </div>
-      <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          <tr>
-            <th scope="col" className="px-6 py-3">
-              ID
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Name
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Last name
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Birthday
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-          {isLoading && alumns.length === 0 ? (
-            <tr>
-              <td colSpan={5} style={{ padding: 0, border: 'none' }}>
-                <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
-                  <span className="text-lg text-gray-500">Loading...</span>
-                </div>
-              </td>
+      <div
+        className="xl:col-span-8 2xl:col-span-9 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-soft overflow-hidden">
+        <div className="overflow-x-auto"></div>
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-outline-variant bg-surface">
+              <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                ID
+              </th>
+              <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                Name
+              </th>
+              <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                Last name
+              </th>
+              <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                Birthday
+              </th>
+              <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
-          ) : (
-            alumns.map((alumn) => <AlumnsRow key={'alumno' + alumn.id} alumn={alumn} handleDelete={handleDelete}/>)
-          )}
-        </tbody>
-      </table>
-      <nav
-        className={`flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 ${isLoading ? 'opacity-50 pointer-events-none' : ''
-          }`}
-        aria-busy={isLoading}
-        aria-live="polite"
-        aria-label="Table navigation">
-        <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
+          </thead>
+          <tbody className={isLoading ? "opacity-50 pointer-events-none" : "text-body-md font-body-md"}>
+            {isLoading && alumns.length === 0 ? (
+              <tr>
+                <td colSpan={5} style={{ padding: 0, border: 'none' }}>
+                  <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
+                    <span className="text-lg text-gray-500">Loading...</span>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              alumns.map((alumn) => <AlumnsRow key={'alumno' + alumn.id} alumn={alumn} handleDelete={handleDelete} />)
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div className="px-6 py-4 flex items-center justify-between border-t border-outline-variant bg-surface">
+        <div className="text-label-md font-label-md text-on-surface-variant">Showing {(currentPage - 1) * 10 + 1} to {(currentPage -1 ) * 10 + alumns.length } of {totalEntries} entries</div>
+        <nav
+          className={`flex gap-1 ${isLoading ? 'opacity-50 pointer-events-none' : ''
+            }`}
+          aria-busy={isLoading}
+          aria-live="polite"
+          aria-label="Table navigation">
           {links &&
-            <li>
-              <NavLink
-                to={links.first.split('alumns')[1]}
-                className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                First
-              </NavLink>
-            </li>
+            <NavLink
+              to={links.first.split('alumns')[1]}
+              className={
+                `px-3 py-1 rounded border ${currentPage === 1
+                  ? 'border-primary bg-primary-container text-on-primary-container font-bold'
+                  : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
+                }`}>
+              First
+            </NavLink>
           }
-
           {links?.prev &&
-            <li>
-              <NavLink
-                to={links.prev.split('alumns')[1]}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                Previous
-              </NavLink>
-            </li>
+            <NavLink
+              to={links.prev.split('alumns')[1]}
+              className="px-3 py-1 rounded border">
+              Previous
+            </NavLink>
           }
-
           {pages.map(page =>
-            <li key={`page_${page}`}>
-              <a
-                aria-current={currentPage === page ? 'page' : 'false'}
-                onClick={() => setPage(page)}
-                className={
-                  `flex items-center justify-center px-3 h-8 border ${currentPage === page
-                    ? 'text-blue-600 bg-blue-50 border-blue-300 dark:text-white dark:bg-blue-600 dark:border-blue-700'
-                    : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
-                  }`
-                }>
-                {page}
-              </a>
-            </li>
+            <a key={`page_${page}`}
+              aria-current={currentPage === page ? 'page' : 'false'}
+              onClick={() => setPage(page)}
+              className={
+                `px-3 py-1 rounded border ${currentPage === page
+                  ? 'border-primary bg-primary-container text-on-primary-container font-bold'
+                  : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
+                }`
+              }>
+              {page}
+            </a>
           )}
-
           {links?.next &&
-            <li>
-              <NavLink
-                to={links.next.split('alumns')[1]}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                Next
-              </NavLink>
-            </li>
+            <NavLink
+              to={links.next.split('alumns')[1]}
+              className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
+              Next
+            </NavLink>
           }
           {links &&
-            <li>
-              <NavLink
-                to={links.last.split('alumns')[1]}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                Last
-              </NavLink>
-            </li>
+            <NavLink
+              to={links.last.split('alumns')[1]}
+              className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
+              Last
+            </NavLink>
           }
-        </ul>
-      </nav>
-    </div>
+        </nav>
+      </div>
+    </div >
   )
 }

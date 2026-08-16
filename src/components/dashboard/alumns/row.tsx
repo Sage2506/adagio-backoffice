@@ -14,20 +14,20 @@ export default function AlumnsRow({ alumn, handleDelete }: IAlumnsRow) {
 
   }, []);
   return (
-    <tr key={`alumn_${alumn.id}`} onClick={() => navigate(`/alumns/form/${alumn.id}`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700 capitalize"}>
-      <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white capitalize">
+    <tr key={`alumn_${alumn.id}`} onClick={() => navigate(`/alumns/form/${alumn.id}`)} className={"border-b border-outline-variant hover:bg-surface-container-low transition-colors group"}>
+      <th scope="row" className="py-4 px-6 font-bold text-on-surface">
         {alumn.id}
       </th>
-      <td className="px-6 py-4 capitalize">
+      <td className="py-4 px-6">
         {alumn.name}
       </td>
-      <td className="px-6 py-4 capitalize">
+      <td className="py-4 px-6 text-on-surface-variant">
         {alumn.last_name}
       </td>
-      <td className="px-6 py-4 capitalize">
+      <td className="py-4 px-6 text-on-surface-variant">
         {alumn.birth_date}
       </td>
-      <td className="px-6 py-4">
+      <td className="py-4 px-6 text-center">
         <button
           onClick={e => handleDelete(e, alumn)}
           className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 dark:hover:text-red-400 dark:hover:bg-red-900 rounded-full transition-colors duration-200"

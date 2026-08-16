@@ -39,7 +39,7 @@ export default function PlansTable() {
   }
 
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
+    <div className="lg:ml-64 p-container-padding max-w-[1440px] mx-auto min-h-screen flex flex-col gap-stack-lg my-8">
       <div>
         {errors.map(error => <p>{error.msj}</p>)}
       </div>
@@ -47,32 +47,33 @@ export default function PlansTable() {
         <div>
         </div>
         <div className="relative">
-          <button id="dropdownRadioButton" onClick={() => navigate('/plans/form')} className="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" type="button">
+          <button id="dropdownRadioButton" onClick={() => navigate('/plans/form')} className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg flex items-center gap-2 hover:bg-surface-tint transition-colors shadow-sm whitespace-nowrap" type="button">
             Create
-            <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7 7V5" />
             </svg>
           </button>
         </div>
       </div>
-      <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          <tr>
-            <th scope="col" className="px-6 py-3">
+      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-soft overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="border-b border-outline-variant bg-surface">
+            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
               ID
             </th>
-            <th scope="col" className="px-6 py-3">
+            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
               Name
             </th>
-            <th scope="col" className="px-6 py-3">
+            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
               Duration
             </th>
-            <th scope="col" className="px-6 py-3">
+            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
               Price
             </th>
           </tr>
         </thead>
-        <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
+        <tbody className={isLoading ? "opacity-50 pointer-events-none" : "text-body-md font-body-md"}>
           {isLoading && plans.length === 0 ? (
             <tr>
               <td colSpan={4} style={{ padding: 0, border: 'none' }}>
@@ -100,18 +101,19 @@ export default function PlansTable() {
           )}
         </tbody>
       </table>
+      </div>
       <nav
-        className={`flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 ${isLoading ? 'opacity-50 pointer-events-none' : ''
+        className={`flex gap-1 justify-end px-6 py-4 border-t border-outline-variant bg-surface ${isLoading ? 'opacity-50 pointer-events-none' : ''
           }`}
         aria-busy={isLoading}
         aria-live="polite"
         aria-label="Table navigation">
-        <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
+        <ul className="flex gap-1">
           {links &&
             <li>
               <NavLink
                 to={links.first.split('plans')[1]}
-                className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
                 First
               </NavLink>
             </li>
@@ -121,7 +123,7 @@ export default function PlansTable() {
             <li>
               <NavLink
                 to={links.prev.split('plans')[1]}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
                 Previous
               </NavLink>
             </li>
@@ -134,9 +136,9 @@ export default function PlansTable() {
 
                 to={`?page%5Bpage%5D=${page}`}
                 className={
-                  `flex items-center justify-center px-3 h-8 border ${currentPage === page
-                    ? 'text-blue-600 bg-blue-50 border-blue-300 dark:text-white dark:bg-blue-600 dark:border-blue-700'
-                    : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
+                  `px-3 py-1 rounded border ${currentPage === page
+                    ? 'border-primary bg-primary-container text-on-primary-container font-bold'
+                    : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
                   }`
                 }>
                 {page}
@@ -147,7 +149,7 @@ export default function PlansTable() {
             <li>
               <NavLink
                 to={links.next.split('plans')[1]}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
                 Next
               </NavLink>
             </li>
@@ -156,7 +158,7 @@ export default function PlansTable() {
             <li>
               <NavLink
                 to={links.last.split('plans')[1]}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
                 Last
               </NavLink>
             </li>

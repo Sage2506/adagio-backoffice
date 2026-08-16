@@ -14,6 +14,7 @@ import { parseDateToYYYYMMDD } from "../../../utils/stringFormatters";
 import type { IPaymentNew, IPostPaymentResponse } from "../../../types/payments";
 import { postPayment } from "../../../services/payment";
 import { handlePriceInputChange } from "../../../utils/numbers";
+import { ArrowLeftIcon, HeartIcon, UserGroupIcon, UserIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 export default function AlumnForm() {
   const navigate = useNavigate()
   const { id } = useParams();
@@ -222,7 +223,7 @@ export default function AlumnForm() {
         payable_type: "subscription",
         payable_id: payableId.toString(),
       }
-      if (!!subscribedAt) {
+      if (subscribedAt) {
         subscriptionPaymentPayload.payment.paid_at = parseDateToYYYYMMDD(subscribedAt)
       }
       if (subscriptionPayment !== '') {
@@ -239,7 +240,7 @@ export default function AlumnForm() {
         payable_type: "subscription",
         payable_id: payableId.toString(),
       }
-      if (!!subscribedAt) {
+      if (subscribedAt) {
         monthlyPaymentPayload.payment.paid_at = parseDateToYYYYMMDD(subscribedAt)
       }
       promises.push(postPayment({ data: monthlyPaymentPayload }))
@@ -259,151 +260,85 @@ export default function AlumnForm() {
     })
   }
 
+  const fieldClass = "w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-lowest text-on-surface focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md outline-none";
+  const compactFieldClass = "w-full px-3 py-2 rounded-md border border-outline-variant bg-surface-lowest text-on-surface text-sm focus:ring-1 focus:ring-primary focus:border-primary transition-all font-body-md outline-none";
+  const labelClass = "block text-label-md font-label-md text-on-surface-variant";
+
   return (
-    <form onSubmit={event => formSubmit(event)}
-      className={`py-6 px-6 space-y-6 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`} >
-      <div className="grid gap-6 mb-5 md:grid-cols-2">
-        {/* Alumn information */}
-        <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
-          <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">
-            Alumn
-          </div>
-          <div className="py-2">
-            <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First name</label>
-            <input onChange={(e) => { setName(e.target.value) }} value={name} type="text" id="name" name="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
-          </div>
-          <div className="py-2">
-            <label htmlFor="last_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last name</label>
-            <input onChange={(e) => { setLastName(e.target.value) }} value={last_name} type="text" id="last_name" name="last_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Doe" required />
-          </div>
-          <div className="py-2">
-            <label htmlFor="birth_date" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Birth date</label>
-            <DatePicker
-              value={birth_date ? new Date(birth_date) : null}
-              onChange={(date) => setBirthDate(date)}
-              id="birth_date"
-              name="birth_date"
-            />
-          </div>
-          <div className="py-2">
-            <label htmlFor="address" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Address</label>
-            <input onChange={(e) => { setAddress(e.target.value) }} value={address} type="text" id="address" name="address" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Street ##" required />
-          </div>
-          <div className="py-2">
-            <label htmlFor="phone_number" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone number</label>
-            <input onChange={(e) => { setPhoneNumber(e.target.value) }} value={phone_number} type="tel" id="phone_number" name="phone_number" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="123-45-6789" pattern="[0-9]{10}" required />
-          </div>
-          <div className="py-2">
-            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email address</label>
-            <input onChange={(e) => { setEmail(e.target.value) }} value={email} type="email" id="email" name="email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$" required />
-          </div>
+    <form onSubmit={event => formSubmit(event)} className={`lg:ml-64 p-container-padding max-w-[1440px] mx-auto min-h-screen flex flex-col gap-stack-lg my-8 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+      <header className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-headline-lg text-on-surface">{id ? 'Edit Alumn' : 'Create Alumn'}</h1>
+          <p className="text-body-md font-body-md text-on-surface-variant mt-1">{id ? `${name} ${last_name}`.trim() : 'Add a new student and their contacts.'}</p>
         </div>
-        {/* Guardian 1 information */}
-        <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
-          <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">Main guardian</div>
-          <div className="py-2">
-            <label htmlFor="guardian_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First name</label>
-            <input onChange={(e) => { setGuardianName(e.target.value) }} value={guardian_name} type="text" id="guardian_name" name="guardian_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" required />
-          </div>
-          <div className="py-2">
-            <label htmlFor="guardian_last_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last name</label>
-            <input onChange={(e) => { setGuardianLastName(e.target.value) }} value={guardian_last_name} type="text" id="guardian_last_name" name="guardian_last_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Doe" required />
-          </div>
-          <div className="py-2">
-            <label htmlFor="guardian_phone_number" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone number</label>
-            <input onChange={(e) => { setGuardianPhoneNumber(e.target.value) }} value={guardian_phone_number} type="tel" id="guardian_phone_number" name="guardian_phone_number" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="123-45-678" pattern="[0-9]{10}" required />
-          </div>
-          <div className="py-2">
-            <label htmlFor="guardian_email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email address</label>
-            <input onChange={(e) => { setGuardianEmail(e.target.value) }} value={guardian_email} type="email" id="guardian_email" name="guardian_email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required />
-          </div>
+        <div className="flex gap-3">
+          <button type="button" onClick={() => navigate('/dashboard')} className="px-6 py-2 rounded-lg border border-outline text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors">Cancel</button>
+          <button type="submit" disabled={isLoading} className={`px-6 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-surface-tint transition-colors shadow-soft ${isLoading ? 'cursor-progress opacity-70' : ''}`}>{id ? 'Save Changes' : 'Create Alumn'}</button>
         </div>
-        {/* Guardian 2 information */}
-        <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
-          <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">Secondary guardian</div>
-          <div className="py-2">
-            <label htmlFor="secondary_guardian_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First name</label>
-            <input onChange={(e) => { setSecondaryGuardianName(e.target.value) }} value={secondary_guardian_name} type="text" id="secondary_guardian_name" name="secondary_guardian_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="John" />
-          </div>
-          <div className="py-2">
-            <label htmlFor="secondary_guardian_last_name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last name</label>
-            <input onChange={(e) => { setSecondaryGuardianLastName(e.target.value) }} value={secondary_guardian_last_name} type="text" id="secondary_guardian_last_name" name="secondary_guardian_last_name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Doe" />
-          </div>
-          <div className="py-2">
-            <label htmlFor="secondary_guardian_phone_number" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Phone number</label>
-            <input onChange={(e) => { setSecondaryGuardianPhoneNumber(e.target.value) }} value={secondary_guardian_phone_number} type="tel" id="secondary_guardian_phone_number" name="secondary_guardian_phone_number" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="123-45-678" pattern="[0-9]{10}" />
-          </div>
-          <div className="py-2">
-            <label htmlFor="secondary_guardian_email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email address</label>
-            <input onChange={(e) => { setSecondaryGuardianEmail(e.target.value) }} value={secondary_guardian_email} type="email" id="secondary_guardian_email" name="secondary_guardian_email" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" />
-          </div>
+      </header>
+
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-gutter">
+        <div className="xl:col-span-8 flex flex-col gap-gutter">
+          <section className="bg-surface-lowest rounded-xl shadow-soft border border-surface-variant p-6 sm:p-8">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-surface-variant">
+              <div className="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center"><UserIcon className="w-5 h-5" /></div>
+              <h2 className="text-headline-md text-on-surface">Alumn Details</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-stack-md">
+              <div className="space-y-2"><label htmlFor="name" className={labelClass}>First name</label><input onChange={e => setName(e.target.value)} value={name} type="text" id="name" name="name" className={fieldClass} placeholder="John" required /></div>
+              <div className="space-y-2"><label htmlFor="last_name" className={labelClass}>Last name</label><input onChange={e => setLastName(e.target.value)} value={last_name} type="text" id="last_name" name="last_name" className={fieldClass} placeholder="Doe" required /></div>
+              <div className="space-y-2 md:col-span-2"><label htmlFor="birth_date" className={labelClass}>Birth date</label><DatePicker value={birth_date ? new Date(birth_date) : null} onChange={date => setBirthDate(date)} id="birth_date" name="birth_date" /></div>
+              <div className="space-y-2 md:col-span-2"><label htmlFor="address" className={labelClass}>Address</label><input onChange={e => setAddress(e.target.value)} value={address} type="text" id="address" name="address" className={fieldClass} placeholder="Street ##" required /></div>
+              <div className="space-y-2"><label htmlFor="phone_number" className={labelClass}>Phone number</label><input onChange={e => setPhoneNumber(e.target.value)} value={phone_number} type="tel" id="phone_number" name="phone_number" className={fieldClass} placeholder="123-45-6789" pattern="[0-9]{10}" required /></div>
+              <div className="space-y-2"><label htmlFor="email" className={labelClass}>Email address</label><input onChange={e => setEmail(e.target.value)} value={email} type="email" id="email" name="email" className={fieldClass} placeholder="john.doe@company.com" pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$" required /></div>
+            </div>
+          </section>
+
+          <section className="bg-surface-lowest rounded-xl shadow-soft border border-surface-variant p-6 sm:p-8">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-surface-variant">
+              <div className="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center"><HeartIcon className="w-5 h-5" /></div>
+              <h2 className="text-headline-md text-on-surface">Program &amp; Health</h2>
+            </div>
+            <div className="space-y-stack-md">
+              <div className="space-y-2"><label htmlFor="plan_id" className={labelClass}>Select a Plan</label><select id="plan_id" name="plan_id" value={plan_id} onChange={e => setPlanId(e.target.value)} className={fieldClass} required>{plansList.map(plan => <option key={`plan_${plan.id}`} value={plan.id.toString()}>{plan.name}</option>)}</select></div>
+              <div className="space-y-2"><label htmlFor="special_med_conditions" className={labelClass}>Special medical conditions</label><textarea onChange={e => setSpecialMedConditions(e.target.value)} value={special_med_conditions} id="special_med_conditions" name="special_med_conditions" className={`${fieldClass} resize-none`} rows={3} placeholder="Allergies" required /><p className="text-xs text-on-surface-variant">Note any allergies or conditions instructors should be aware of.</p></div>
+              <label className="flex items-start gap-3 rounded-lg bg-surface-container-low p-4 cursor-pointer"><input id="is_guardian_required_for_leaving" name="is_guardian_required_for_leaving" type="checkbox" checked={is_guardian_required_for_leaving} onChange={e => setIsGuardianRequiredForLeaving(e.target.checked)} className="mt-0.5 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" /><span className="text-body-md text-on-surface">The student may leave the installations without a guardian.</span></label>
+            </div>
+          </section>
+
+          {!id && <section className="bg-surface-lowest rounded-xl shadow-soft border border-surface-variant p-6 sm:p-8">
+            <h2 className="text-headline-md text-on-surface mb-6">Subscription details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-stack-md">
+              <div className="space-y-2 md:col-span-2"><label htmlFor="subscribedAt" className={labelClass}>Subscription date</label><DatePicker value={subscribedAt ? new Date(subscribedAt) : null} onChange={date => setSubscribedAt(date)} id="subscribedAt" name="subscribedAt" /></div>
+              <label className="flex items-center gap-3 text-body-md text-on-surface cursor-pointer"><input id="isSubscriptionPaymentIncluded" name="isSubscriptionPaymentIncluded" type="checkbox" checked={isSubscriptionPaymentIncluded} onChange={e => setIsSubscriptionPaymentIncluded(e.target.checked)} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />Create with subscription payment</label>
+              <label className="flex items-center gap-3 text-body-md text-on-surface cursor-pointer"><input id="isMonthlyPaymentIncluded" name="isMonthlyPaymentIncluded" type="checkbox" checked={isMonthlyPaymentIncluded} onChange={e => setIsMonthlyPaymentIncluded(e.target.checked)} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />Create with first monthly payment</label>
+              {isSubscriptionPaymentIncluded && <div className="space-y-2"><label htmlFor="subscriptionPayment" className={labelClass}>Subscription</label><input onChange={e => handlePriceInputChange(e, setSubscriptionPayment)} value={subscriptionPayment} type="text" id="subscriptionPayment" name="subscriptionPayment" className={fieldClass} placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" /></div>}
+              {isMonthlyPaymentIncluded && <div className="space-y-2"><label htmlFor="monthlyPayment" className={labelClass}>Monthly payment</label><input onChange={e => handlePriceInputChange(e, setMonthlyPayment)} value={monthlyPayment} type="text" id="monthlyPayment" name="monthlyPayment" className={fieldClass} placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" /></div>}
+            </div>
+          </section>}
         </div>
-        {/* special medication information */}
-        <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
-          <div className="py-2">
-            <label htmlFor="special_med_conditions" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Special medical conditions</label>
-            <input onChange={(e) => { setSpecialMedConditions(e.target.value) }} value={special_med_conditions} type="text" id="special_med_conditions" name="special_med_conditions" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Allergies" required />
-          </div>
-          <div className="py-2">
-            <label htmlFor="plan_id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select a Plan</label>
-            <select id="plan_id" name="plan_id" value={plan_id} onChange={e => setPlanId(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-              {plansList.map(plan => <option key={`plan_${plan.id}`} value={plan.id.toString()}>{plan.name}</option>)}
-            </select>
-          </div>
-        </div>
-        {/* special subscription settings */}
-        {!id &&
-          <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
-            <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">
-              Subscription special details
+
+        <aside className="xl:col-span-4 flex flex-col gap-gutter">
+          <section className="bg-surface-bright rounded-xl shadow-soft border border-surface-variant p-6">
+            <div className="flex items-center gap-3 mb-5 pb-3 border-b border-surface-variant"><div className="w-8 h-8 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center"><UserGroupIcon className="w-[18px] h-[18px]" /></div><h2 className="text-headline-sm text-on-surface">Main Guardian</h2></div>
+            <div className="space-y-stack-sm">
+              <div className="space-y-1"><label htmlFor="guardian_name" className={labelClass}>First name</label><input onChange={e => setGuardianName(e.target.value)} value={guardian_name} type="text" id="guardian_name" name="guardian_name" className={compactFieldClass} placeholder="John" required /></div>
+              <div className="space-y-1"><label htmlFor="guardian_last_name" className={labelClass}>Last name</label><input onChange={e => setGuardianLastName(e.target.value)} value={guardian_last_name} type="text" id="guardian_last_name" name="guardian_last_name" className={compactFieldClass} placeholder="Doe" required /></div>
+              <div className="space-y-1"><label htmlFor="guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => setGuardianPhoneNumber(e.target.value)} value={guardian_phone_number} type="tel" id="guardian_phone_number" name="guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" required /></div>
+              <div className="space-y-1"><label htmlFor="guardian_email" className={labelClass}>Email address</label><input onChange={e => setGuardianEmail(e.target.value)} value={guardian_email} type="email" id="guardian_email" name="guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required /></div>
             </div>
-            <div className="py-2">
-              <label htmlFor="subscribedAt" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subscription date</label>
-              <DatePicker
-                value={subscribedAt ? new Date(subscribedAt) : null}
-                onChange={(date) => setSubscribedAt(date)}
-                id="subscribedAt"
-                name="subscribedAt"
-              />
+          </section>
+          <section className="bg-surface-bright rounded-xl shadow-soft border border-surface-variant p-6">
+            <div className="flex items-center gap-3 mb-5 pb-3 border-b border-surface-variant"><div className="w-8 h-8 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center"><UserPlusIcon className="w-[18px] h-[18px]" /></div><h2 className="text-headline-sm text-on-surface">Secondary Guardian</h2></div>
+            <div className="space-y-stack-sm">
+              <div className="space-y-1"><label htmlFor="secondary_guardian_name" className={labelClass}>First name</label><input onChange={e => setSecondaryGuardianName(e.target.value)} value={secondary_guardian_name} type="text" id="secondary_guardian_name" name="secondary_guardian_name" className={compactFieldClass} placeholder="John" /></div>
+              <div className="space-y-1"><label htmlFor="secondary_guardian_last_name" className={labelClass}>Last name</label><input onChange={e => setSecondaryGuardianLastName(e.target.value)} value={secondary_guardian_last_name} type="text" id="secondary_guardian_last_name" name="secondary_guardian_last_name" className={compactFieldClass} placeholder="Doe" /></div>
+              <div className="space-y-1"><label htmlFor="secondary_guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => setSecondaryGuardianPhoneNumber(e.target.value)} value={secondary_guardian_phone_number} type="tel" id="secondary_guardian_phone_number" name="secondary_guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" /></div>
+              <div className="space-y-1"><label htmlFor="secondary_guardian_email" className={labelClass}>Email address</label><input onChange={e => setSecondaryGuardianEmail(e.target.value)} value={secondary_guardian_email} type="email" id="secondary_guardian_email" name="secondary_guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" /></div>
             </div>
-            <div className="py-2">
-              <div className="flex items-start">
-                <div className="flex items-center h-5">
-                  <input id="isSubscriptionPaymentIncluded" name="isSubscriptionPaymentIncluded" type="checkbox" checked={isSubscriptionPaymentIncluded} onChange={e => setIsSubscriptionPaymentIncluded(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
-                </div>
-                <label htmlFor="isSubscriptionPaymentIncluded" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Create with subscription payment</label>
-              </div>
-            </div>
-            {isSubscriptionPaymentIncluded &&
-              <div className="py-2">
-                <label htmlFor="subscriptionPayment" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subscription</label>
-                <input onChange={(e) => { handlePriceInputChange(e, setSubscriptionPayment) }} value={subscriptionPayment} type="text" id="subscriptionPayment" name="subscriptionPayment" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" />
-              </div>
-            }
-            <div className="py-2">
-              <div className="flex items-start">
-                <div className="flex items-center h-5">
-                  <input id="isMonthlyPaymentIncluded" name="isMonthlyPaymentIncluded" type="checkbox" checked={isMonthlyPaymentIncluded} onChange={e => setIsMonthlyPaymentIncluded(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
-                </div>
-                <label htmlFor="isMonthlyPaymentIncluded" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Create with first monthly payment</label>
-              </div>
-            </div>
-            {isMonthlyPaymentIncluded &&
-              <div className="py-2">
-                <label htmlFor="monthlyPayment" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Monthly payment</label>
-                <input onChange={(e) => { handlePriceInputChange(e, setMonthlyPayment) }} value={monthlyPayment} type="text" id="monthlyPayment" name="monthlyPayment" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" />
-              </div>
-            }
-          </div>
-        }
+          </section>
+        </aside>
       </div>
-      <div className="flex items-start mb-6">
-        <div className="flex items-center h-5">
-          <input id="is_guardian_required_for_leaving" name="is_guardian_required_for_leaving" type="checkbox" checked={is_guardian_required_for_leaving} onChange={e => setIsGuardianRequiredForLeaving(e.target.checked)} className="w-4 h-4 border border-gray-300 rounded-sm bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800" />
-        </div>
-        <label htmlFor="is_guardian_required_for_leaving" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">The student may leave the installations wihout a guardian.</label>
-      </div>
-      <button type="submit" disabled={isLoading} className={`text-white ${isLoading ? "bg-gray-400 cursor-progress" : "bg-blue-700 hover:bg-blue-800 cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700"} focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center  dark:focus:ring-blue-800`}>Submit</button>
     </form>
   );
 }
