@@ -15,7 +15,8 @@ export default function LandingPage() {
             {/* Hero Section */}
             <section className="relative h-screen flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 w-full h-full">
-                    <div className="bg-cover bg-center w-full h-full opacity-60" data-alt="A graceful young ballet dancer leaping in mid-air in a brightly lit, spacious dance studio with high windows. The aesthetic is elegant and airy, using soft natural light. The color palette is minimal with pristine whites, soft cream, and subtle hints of magenta in the dancer's attire, embodying a classic and welcoming mood." style={{ backgroundImage: "url('./bailarina-principal.jpg')" }}></div>
+                    <div className="bg-cover bg-center w-full h-full opacity-60 dark:hidden" data-alt="A graceful young ballet dancer leaping in mid-air in a brightly lit, spacious dance studio with high windows. The aesthetic is elegant and airy, using soft natural light. The color palette is minimal with pristine whites, soft cream, and subtle hints of magenta in the dancer's attire, embodying a classic and welcoming mood." style={{ backgroundImage: "url('./bailarina-principal.jpg')" }}></div>
+                    <div className="bg-cover bg-center w-full h-full opacity-60 hidden dark:block" data-alt="A graceful young ballet dancer leaping in mid-air in a brightly lit, spacious dance studio with high windows. The aesthetic is elegant and airy, using soft natural light. The color palette is minimal with pristine whites, soft cream, and subtle hints of magenta in the dancer's attire, embodying a classic and welcoming mood." style={{ backgroundImage: "url('./bailarina-principal-dark.jpg')" }}></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent"></div>
                 </div>
                 <div className="relative z-10 text-center max-w-container-max px-margin-mobile md:px-margin-desktop mx-auto mt-20">
@@ -153,8 +154,7 @@ export default function LandingPage() {
             <section className="py-section-gap bg-surface-container-highest">
                 <div className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto flex flex-col md:flex-row items-center gap-gutter">
                     <div className="space-y-8">
-                        <h2 className="font-headline-md text-headline-md text-on-background">Mientras ellas bailan, tú
-                            también te mueves</h2>
+                        <h2 className="font-headline-md text-headline-md text-on-background">Ellas bailan y tú también te mueves!</h2>
                         <p className="font-body-lg text-body-lg text-on-surface-variant">
                             Aprovecha el tiempo y cuida de ti. Ofrecemos clases diseñadas para adultos en horarios
                             convenientes.
@@ -194,8 +194,46 @@ export default function LandingPage() {
                     </div>
                     <div className="w-full md:w-1/2">
                         <div className="relative rounded-2xl overflow-hidden aspect-[4/3] shadow-sm">
-                            <div className="bg-cover bg-center w-full h-full" data-alt="A group of adult women taking a serene yoga class in a light-filled room. The sun shines softly through the windows, highlighting a relaxed and welcoming community atmosphere. The aesthetic is light, airy, and calming, with a color palette of soft creams, whites, and muted blush." style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAKpRkwKIitUxhC5LzRZ8-DhGLHIGnmnbiuGNo4aUSagd5Lvbdl3jC64B8dy9qDlwJDDVzXzFpiZW3RXzptrYCu_UvVk0gLw1ESXDk3Z6e6_DjjEcX1wBJLW1SksRWMAyGzbFyEQ4kUQHOkatMv5qEepyppXFr4dKAwc6uzVZ6JXgnrasuYwkbbUOs9UcULwxxQ9BHL8t0IvW5nk1-XnVdzq2mpCnIiTcUOiGAJzC8zeNqFg09u4MJz')" }}></div>
+                            <div className="bg-cover bg-center w-full h-full" data-alt="A group of adult women taking a serene yoga class in a light-filled room. The sun shines softly through the windows, highlighting a relaxed and welcoming community atmosphere. The aesthetic is light, airy, and calming, with a color palette of soft creams, whites, and muted blush." style={{ backgroundImage: "url('/claseAdultos.jpg')" }}></div>
                         </div>
+                    </div>
+                </div>
+            </section>
+            {/* Galeria */}
+            <section className="py-16 bg-surface">
+                <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+                    <div className="text-center mb-12">
+                        <h2 className="font-headline-md text-headline-md text-primary mb-2">Únete a nuestra comunidad</h2>
+                        <p className="font-body-lg text-body-lg text-on-surface-variant">Síguenos en Instagram</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <a href="https://www.instagram.com/p/DZsdBRzhc8Q" target="_blank"
+                            rel="noopener noreferrer" className="relative aspect-square rounded-2xl overflow-hidden group">
+                            <img src="https://instagram.fcul2-1.fna.fbcdn.net/v/t51.82787-15/726432404_18112098992312942_4601579448816723080_n.webp?stp=dst-webp_s750x750_sh2.08&_nc_cat=101&ig_cache_key=MzkyMTYzNzAwNjcxOTE3NjQ2NA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=XYI3TeV3JcwQ7kNvwGn44sc&_nc_oc=AdoS7qeEadyrmiL9U-DCG7kzYDyVpNetA8QiLFmhTTI6_mGO5z688o360rqTwzvJnEU&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fcul2-1.fna&_nc_gid=9LniKFU68ACoxyaS8TCDlg&_nc_ss=7a22e&oh=00_AQFxX0CW3DpVzKyU37CTYyYBny0kUgTqRS28iwCpHfwHeQ&oe=6A87F8AC"
+                                alt="Instagram post 1" className="w-full h-full object-cover"/>
+                                <div
+                                    className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <span className="text-white font-bold">Ver en Instagram</span>
+                                </div>
+                        </a>
+                        <a href="https://www.instagram.com/p/DTLdugSEQHx" target="_blank"
+                            rel="noopener noreferrer" className="relative aspect-square rounded-2xl overflow-hidden group">
+                            <img src="https://instagram.fcul2-1.fna.fbcdn.net/v/t51.82787-15/612661851_18094145774312942_2854689488168497787_n.webp?stp=dst-webp_s750x750_sh2.08&_nc_cat=110&ig_cache_key=MzgwNDI2NTA0OTM1MjExMDU3Nw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=fo1aeS2HgxIQ7kNvwEFSeK1&_nc_oc=AdrDW0Pz_ysg5YS5B5YyNzHYp3sBMbCVI4exHCe0pzyaSgJ3BN3Dc6p1yMS31IDwl5k&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fcul2-1.fna&_nc_gid=VVqNpCSwNEqRSO0JgigbnQ&_nc_ss=7a22e&oh=00_AQFVNFhui6TSqxLGwDnOcMdz4DhBRMrBd_gMH6ZhAySM9A&oe=6A881E07"
+                                alt="Instagram post 2" className="w-full h-full object-cover"/>
+                                <div
+                                    className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <span className="text-white font-bold">Ver en Instagram</span>
+                                </div>
+                        </a>
+                        <a href="https://www.instagram.com/p/DbBqtTShDKZ" target="_blank"
+                            rel="noopener noreferrer" className="relative aspect-square rounded-2xl overflow-hidden group">
+                            <img src="https://instagram.fcul2-1.fna.fbcdn.net/v/t51.82787-15/751563707_18116124041312942_4839258940002108305_n.webp?_nc_cat=103&ig_cache_key=Mzk0NTYyMjU3OTU5NDkzMjg4OQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=1lTsBJFB24gQ7kNvwGcOHvH&_nc_oc=AdpctLVcNvEi0uxwe7RvPzASjvDN1Ep7tXqbKL-Kmec1ExtNB80BL_OCY7gFHYlQAmw&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fcul2-1.fna&_nc_gid=bNAFeUqsB5OnDPTfopr3MQ&_nc_ss=7a22e&oh=00_AQEuD5zYzy0vdpBcvdq_D6-I45ZBwYYhU2TwE7BJQm3JTA&oe=6A8815A1"
+                                alt="Instagram post 3" className="w-full h-full object-cover"/>
+                                <div
+                                    className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <span className="text-white font-bold">Ver en Instagram</span>
+                                </div>
+                        </a>
                     </div>
                 </div>
             </section>
