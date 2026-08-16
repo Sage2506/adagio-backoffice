@@ -60,7 +60,7 @@ export default function PaySubscriptionForm() {
   }
 
   return (
-    <form onSubmit={e => formSubmit(e)} className={`py-6 px-6 space-y-6 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`} >
+    <form onSubmit={e => formSubmit(e)} className={`w-full min-w-0 flex flex-col gap-stack-md ${isLoading ? 'opacity-50 pointer-events-none' : ''}`} >
       <div>
         <p>
           Subscription

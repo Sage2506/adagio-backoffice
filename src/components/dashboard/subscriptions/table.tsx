@@ -19,7 +19,7 @@ export default function SubscriptionsTable() {
   const [isSubscriptionPaymentModalOpen, setIsSubscriptionPaymentModalOpen] = useState<boolean>(false);
   const [isPaymentsModalOpen, setIsPaymentsModalOpen] = useState<boolean>(false);
   const [selectedSubscription, setSelectedSubscription] = useState<ISubscriptionAlumnPlanRecord | null>(null);
-  let [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [searchValue, setSearchValue] = useState('');
   const searchString = useMemo(() => searchParams.toString(), [searchParams]);
 
@@ -104,11 +104,17 @@ export default function SubscriptionsTable() {
   }
 
   return (
-    <div className="lg:ml-64 p-container-padding max-w-[1440px] mx-auto min-h-screen flex flex-col gap-stack-lg my-8">
-      <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
+    <div className="w-full min-w-0 flex flex-col gap-stack-md">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-sm">
         <div>
+          <h2 className="text-headline-lg font-headline-lg text-on-surface mb-1">Subscriptions Management</h2>
+          <p className="text-body-md font-body-md text-on-surface-variant">Manage recurring student payments and statuses.</p>
+        </div>
+      </header>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-sm w-full">
+        <div className="w-full md:w-80">
           <label htmlFor="table-search" className="sr-only">Search</label>
-          <div className="relative mt-1 flex gap-2 items-center">
+          <div className="relative flex items-center">
             <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
               <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
@@ -118,10 +124,10 @@ export default function SubscriptionsTable() {
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              id="table-search" className="w-full pl-10 pr-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-lowest text-body-md font-body-md outline-none transition-all shadow-sm" placeholder="Search for alumns" />
+              id="table-search" className="w-full pl-10 pr-10 py-2 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-lowest text-body-md font-body-md outline-none transition-all" placeholder="Search for alumns" />
             <button
               type="button"
-              className="ml-2 px-2 py-1 rounded-lg border text-sm font-medium bg-white text-gray-500 border-gray-300 dark:bg-gray-800 dark:text-white dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="absolute right-1 p-2 rounded-md text-on-surface-variant hover:bg-surface-container focus:outline-none focus:ring-1 focus:ring-primary"
               title="Limpiar búsqueda"
               onClick={() => {
                 setSearchValue('');
@@ -137,10 +143,10 @@ export default function SubscriptionsTable() {
             </button>
           </div>
         </div>
-        <div className="relative flex flex-row gap-2 items-center">
+        <div className="flex items-center gap-3 shrink-0">
           <button
             type="button"
-            className={`px-3 py-1.5 rounded-lg border text-sm font-medium focus:outline-none transition-colors duration-150 flex items-center gap-1 ${searchParams.get('include_inactive') === 'true' ? 'bg-blue-100 text-blue-700 border-blue-400' : 'bg-white text-gray-500 border-gray-300 dark:bg-gray-800 dark:text-white dark:border-gray-600'}`}
+            className={`px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 ${searchParams.get('include_inactive') === 'true' ? 'bg-primary-container text-on-primary-container border-primary-container' : 'bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container'}`}
             onClick={() => {
               const newParams = new URLSearchParams(searchParams);
               if (newParams.get('include_inactive') === 'true') {
@@ -165,7 +171,8 @@ export default function SubscriptionsTable() {
           </button>
         </div>
       </div>
-      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-soft overflow-x-auto">
+      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-soft overflow-hidden">
+      <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-outline-variant bg-surface">
@@ -281,6 +288,7 @@ export default function SubscriptionsTable() {
           }
         </ul>
       </nav>
+      </div>
       <RegisterSubscriptionPaymentModal isOpen={isSubscriptionPaymentModalOpen} subscription={selectedSubscription ?? null} onSubscriptionPaid={((successful) => subscriptionPaid(successful))} />
       <PaymentsModal
         isOpen={isPaymentsModalOpen}

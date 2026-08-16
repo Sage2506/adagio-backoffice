@@ -142,7 +142,7 @@ export default function OrdersForm() {
   const sectionTitleClass = "text-headline-sm text-on-surface flex items-center gap-2";
 
   return (
-    <form onSubmit={event => formSubmit(event)} className={`lg:ml-64 p-container-padding max-w-[1440px] mx-auto min-h-screen font-body-md my-8 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+    <form onSubmit={event => formSubmit(event)} className={`w-full min-w-0 flex flex-col gap-stack-md font-body-md ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
       <header className="mb-stack-md flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div>
           <h1 className="text-headline-md text-on-surface">Create Order</h1>

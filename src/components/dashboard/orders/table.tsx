@@ -49,7 +49,7 @@ export default function OrdersTable() {
   }, [queryString, requestedPage])
 
   return (
-    <div className="lg:ml-64 p-container-padding max-w-[1440px] mx-auto min-h-screen flex flex-col gap-stack-lg my-8">
+    <div className="w-full min-w-0 flex flex-col gap-stack-md">
       {errors.length > 0 && (
         <div role="alert" className="border-b border-red-200 bg-red-50 px-5 py-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
           {errors.map((error, index) => <p key={`${error.msj}_${index}`}>{error.msj}</p>)}

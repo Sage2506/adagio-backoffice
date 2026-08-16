@@ -85,12 +85,12 @@ export default function OrderDetail() {
   }
 
   if (isLoading && !order) {
-    return <div className="flex min-h-[60vh] items-center justify-center text-gray-500">Loading order...</div>;
+    return <div className="flex w-full min-h-[60vh] items-center justify-center text-gray-500">Loading order...</div>;
   }
 
   if (!order) {
     return (
-      <div className="mx-6 my-10 border border-red-200 bg-red-50 p-6 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
+      <div className="w-full border border-red-200 bg-red-50 p-6 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
         <ExclamationCircleIcon className="mb-3 h-8 w-8" />
         <p>{errors[0]?.msj || "Order not found"}</p>
       </div>
@@ -100,7 +100,7 @@ export default function OrderDetail() {
   const isPaid = order.status === "paid";
 
   return (
-    <main className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6">
+    <main className="w-full min-w-0 flex flex-col gap-stack-md">
       <button type="button" onClick={() => navigate("/dashboard/orders")} className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
         <ArrowLeftIcon className="h-4 w-4" />
         Back to orders

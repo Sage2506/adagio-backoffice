@@ -63,6 +63,10 @@
     --spacing-margin-mobile: 20px;
     --spacing-unit: 8px;
     --spacing-gutter: 24px;
+    --spacing-container-padding: 32px;
+    --spacing-stack-sm: 12px;
+    --spacing-stack-md: 24px;
+    --spacing-stack-lg: 48px;
 
     /* ===== FONT FAMILIES ===== */
     --font-display-lg: "Playfair Display", serif;

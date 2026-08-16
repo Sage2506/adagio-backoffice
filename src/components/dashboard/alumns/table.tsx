@@ -103,7 +103,7 @@ export default function AlumnsTable() {
   }
 
   return (
-    <div className="lg:ml-64 p-container-padding max-w-[1440px] mx-auto min-h-screen flex flex-col gap-stack-lg my-8">
+    <div className="w-full min-w-0 flex flex-col gap-stack-md">
       <div>
         {errors.map((error, idx) => <p key={error + '_' + idx}>{error.msj}</p>)}
       </div>

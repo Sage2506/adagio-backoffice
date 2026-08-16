@@ -70,7 +70,7 @@ export default function ProductForm() {
   const labelClass = "block text-label-md font-label-md text-on-surface-variant";
 
   return (
-    <form onSubmit={event => formSubmit(event)} className={`lg:ml-64 p-container-padding max-w-[1440px] mx-auto min-h-screen flex flex-col gap-stack-lg my-8 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+    <form onSubmit={event => formSubmit(event)} className={`w-full min-w-0 flex flex-col gap-stack-md ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
       <header className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-headline-lg text-on-surface">{id ? 'Edit Product' : 'Create Product'}</h1>

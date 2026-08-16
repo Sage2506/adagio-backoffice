@@ -25,78 +25,7 @@ export default function DashboardLayout() {
 
 
     return (
-        // <div className="relative w-full flex flex-col">
-        //   <div className="flex w-full">
-        //     {/* Contenedor principal: barra de navegación y contenido */}
-        //     <div className="min-w-0 flex-1 flex flex-col">
-        //       <div className="top-0 z-10 md:h-16 md:pt-6">
-        //         <div className="sm:px-8 top-(--header-top,--spacing(6)) w-full">
-        //           <div className="mx-auto w-full max-w-7xl lg:px-8">
-        //             <div className="relative px-4 sm:px-8 lg:px-12">
-        //               <div className="mx-auto max-w-2xl lg:max-w-5xl">
-        //                 <div className="relative flex gap-4">
-        //                   <div className="flex flex-1"></div>
-        //                   <div className="flex flex-1 justify-end md:justify-center">
-        //                     <nav className="pointer-events-auto hidden md:block">
-        //                       <ul className="flex rounded-full bg-white/90 px-3 text-sm font-medium text-zinc-800 shadow-lg ring-1 shadow-zinc-800/5 ring-zinc-900/5 backdrop-blur-sm dark:bg-zinc-800/90 dark:text-zinc-200 dark:ring-white/10">
-        //                         <li>
-        //                           <NavLink to={'/dashboard'} end className={({ isActive }) => `relative block px-3 py-2 transition hover:text-teal-500 dark:hover:text-teal-400 capitalize ${isActive ? "rounded-full bg-gray-600" : ""}`}>alumns</NavLink>
-        //                         </li>
-        //                         <li>
-        //                           <NavLink to={'/dashboard/subscriptions'} className={({ isActive }) => `relative block px-3 py-2 transition hover:text-teal-500 dark:hover:text-teal-400 capitalize ${isActive ? "rounded-full bg-gray-600" : ""}`}>subscriptions</NavLink>
-        //                         </li>
-        //                         <li>
-        //                           <NavLink to={'/dashboard/plans'} className={({ isActive }) => `relative block px-3 py-2 transition hover:text-teal-500 dark:hover:text-teal-400 capitalize ${isActive ? "rounded-full bg-gray-600" : ""}`}>plan</NavLink>
-        //                         </li>
-        //                         <li>
-        //                           <NavLink to={'/dashboard/products'} className={({ isActive }) => `relative block px-3 py-2 transition hover:text-teal-500 dark:hover:text-teal-400 capitalize ${isActive ? "rounded-full bg-gray-600" : ""}`}>products</NavLink>
-        //                         </li>
-        //                         <li>
-        //                           <NavLink to={'/dashboard/orders'} className={({ isActive }) => `relative block px-3 py-2 transition hover:text-teal-500 dark:hover:text-teal-400 capitalize ${isActive ? "rounded-full bg-gray-600" : ""}`}>orders</NavLink>
-        //                         </li>
-        //                         <li>
-        //                           <a className="relative block px-3 py-2 transition hover:text-teal-500 dark:hover:text-teal-400 capitalize " onClick={handleLogout}>logout</a>
-        //                         </li>
-        //                       </ul>
-        //                     </nav>
-        //                     <div className="fixed bottom-0 left-0 right-0 flex md:hidden justify-around bg-white shadow-lg">
-        //                       <NavLink to="/dashboard" end className={({ isActive }) => `p-3 text-gray-400 hover:text-blue-500 ${isActive ? "bg-gray-700 text-white" : ""}`}>
-        //                         <AcademicCapIcon className="w-5 h-5" />
-        //                       </NavLink>
-        //                       <NavLink to="/dashboard/subscriptions" className={({ isActive }) => `p-3 text-gray-400 hover:text-blue-500 ${isActive ? "bg-gray-700 text-white" : ""}`}>
-        //                         <IdentificationIcon className="w-5 h-5" />
-        //                       </NavLink>
-        //                       <NavLink to="/dashboard/plans" className={({ isActive }) => `p-3 text-gray-400 hover:text-blue-500 ${isActive ? "bg-gray-700 text-white" : ""}`}>
-        //                         <PresentationChartBarIcon className="w-5 h-5" />
-        //                       </NavLink>
-        //                       <NavLink to="/dashboard/products" className={({ isActive }) => `p-3 text-gray-400 hover:text-blue-500 ${isActive ? "bg-gray-700 text-white" : ""}`}>
-        //                         <BuildingStorefrontIcon className="w-5 h-5" />
-        //                       </NavLink>
-        //                       <a onClick={handleLogout} className="p-3 text-gray-400 hover:text-blue-500">
-        //                         <ArrowRightStartOnRectangleIcon className="w-5 h-5" />
-        //                       </a>
-        //                     </div>
-        //                   </div>
-        //                   <div className="flex justify-end md:flex-1"></div>
-        //                 </div>
-        //               </div>
-        //             </div>
-        //           </div>
-        //         </div>
-        //       </div>
-        //       <div className="flex-1 flex flex-row">
-        //         <div className="min-w-0 flex-1">
-        //           <Outlet />
-        //         </div>
-        //         <div className="hidden p-4 md:block md:w-1/4">
-        //           <BirthdaysSection />
-        //         </div>
-        //       </div>
-        //     </div>
-
-        //   </div>
-        // </div>
-        <div className="flex bg-background min-h-screen font-body-md text-on-surface w-full">
+        <div className="min-h-screen bg-background font-body-md text-on-surface w-full">
             {/* SideNavBar */}
             <nav
                 className="hidden lg:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-bright dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline py-stack-md z-50">
@@ -179,7 +108,7 @@ export default function DashboardLayout() {
                     </button>
                 </div>
             </aside>
-            <main className="flex-1 pt-20 pb-24 lg:pt-0 lg:pb-0 p-container-padding max-w-[1440px] mx-auto w-full">
+            <main className="w-full pt-20 pb-24 p-container-padding lg:ml-64 lg:w-[calc(100%-256px)] lg:pt-8 lg:pb-8 xl:w-[calc(100%-696px)]">
                 <Outlet />
             </main>
             <nav aria-label="Mobile primary navigation" className="lg:hidden fixed bottom-0 left-0 z-50 flex h-20 w-full items-center justify-around border-t border-outline-variant bg-surface px-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
@@ -196,9 +125,9 @@ export default function DashboardLayout() {
                     <span className="text-[10px] font-label-md">Orders</span>
                 </NavLink>
             </nav>
-            <div className="hidden md:block md:w-1/4 my-8">
+            <aside className="hidden xl:block fixed right-0 top-0 h-screen w-[440px] overflow-y-auto border-l border-outline-variant p-container-padding">
                 <BirthdaysSection />
-            </div>
+            </aside>
         </div>
     )
 }

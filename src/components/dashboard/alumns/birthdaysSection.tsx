@@ -55,8 +55,8 @@ const BirthdaysSection: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg p-4 w-full border border-gray-300 dark:border-gray-600">
-        <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+      <div className="bg-surface-container-lowest rounded-xl shadow-soft p-6 w-full border border-outline-variant">
+        <div className="text-center text-on-surface-variant py-8">
           Cargando...
         </div>
       </div>
@@ -65,8 +65,8 @@ const BirthdaysSection: React.FC = () => {
 
   if (error) {
     return (
-      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg p-4 w-full border border-gray-300 dark:border-gray-600">
-        <div className="text-center text-red-500 py-8">
+      <div className="bg-surface-container-lowest rounded-xl shadow-soft p-6 w-full border border-outline-variant">
+        <div className="text-center text-error py-8">
           {error}
         </div>
       </div>
@@ -74,7 +74,7 @@ const BirthdaysSection: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="w-full space-y-stack-md">
       {/* Calendario */}
       <CalendarWidget
         selectedDates={birthdayDates}
@@ -84,12 +84,12 @@ const BirthdaysSection: React.FC = () => {
         onMonthChange={handleMonthChange}
       />
       {/* Lista de cumpleaños del mes */}
-      <div className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg p-4 w-full border border-gray-300 dark:border-gray-600">
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-3">
+      <div className="bg-surface-container-lowest rounded-xl shadow-soft p-6 w-full border border-outline-variant">
+        <h3 className="text-headline-sm text-on-surface mb-4">
           Cumpleaños del mes 🎂
         </h3>
         {birthdays.length > 0 ? (
-          <ul className="space-y-2 max-h-full overflow-y-auto">
+          <ul className="space-y-3 max-h-full overflow-y-auto">
             {birthdays.map((birthday, idx) => {
               const birthDate = parseDateLocal(birthday.birth_date);
               const day = birthDate.getDate();
@@ -102,9 +102,9 @@ const BirthdaysSection: React.FC = () => {
               return (
                 <li
                   key={`${birthday.id}-${idx}`}
-                  className={`text-xs text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700 ${isPast ? 'opacity-50' : ''}`}
+                  className={`text-body-md text-on-surface bg-surface-bright p-3 rounded-lg border border-outline-variant ${isPast ? 'opacity-50' : ''}`}
                 >
-                  <span className="font-semibold text-pink-600 dark:text-pink-400">
+                  <span className="text-label-md font-label-md font-bold text-primary">
                     {day} de {monthNames[selectedMonth]}
                   </span>
                   <br />
@@ -114,7 +114,7 @@ const BirthdaysSection: React.FC = () => {
             })}
           </ul>
         ) : (
-          <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+          <p className="text-body-md text-on-surface-variant italic">
             No hay cumpleaños este mes
           </p>
         )}

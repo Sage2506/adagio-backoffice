@@ -14,7 +14,7 @@ import { parseDateToYYYYMMDD } from "../../../utils/stringFormatters";
 import type { IPaymentNew, IPostPaymentResponse } from "../../../types/payments";
 import { postPayment } from "../../../services/payment";
 import { handlePriceInputChange } from "../../../utils/numbers";
-import { ArrowLeftIcon, HeartIcon, UserGroupIcon, UserIcon, UserPlusIcon } from "@heroicons/react/24/outline";
+import { HeartIcon, UserGroupIcon, UserIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 export default function AlumnForm() {
   const navigate = useNavigate()
   const { id } = useParams();
@@ -265,7 +265,7 @@ export default function AlumnForm() {
   const labelClass = "block text-label-md font-label-md text-on-surface-variant";
 
   return (
-    <form onSubmit={event => formSubmit(event)} className={`lg:ml-64 p-container-padding max-w-[1440px] mx-auto min-h-screen flex flex-col gap-stack-lg my-8 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+    <form onSubmit={event => formSubmit(event)} className={`w-full min-w-0 flex flex-col gap-stack-md ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
       <header className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-headline-lg text-on-surface">{id ? 'Edit Alumn' : 'Create Alumn'}</h1>
