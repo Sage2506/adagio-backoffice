@@ -1,13 +1,13 @@
-import './App.css'
-import AlumnsTable from './components/dashboard/alumns/table'
+import { BrowserRouter } from 'react-router'
+import { Router } from './routes'
 
 function App() {
 
 
   return (
-    <div>
-      <AlumnsTable />
-    </div>
+    <BrowserRouter>
+      <Router />
+    </BrowserRouter>
   )
 }
 

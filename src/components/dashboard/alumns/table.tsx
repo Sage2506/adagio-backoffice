@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { getAlumns, } from "../../../services/alumn";
+import { deleteAlumn, getAlumns, } from "../../../services/alumn";
 import { NavLink, useNavigate, useSearchParams } from "react-router";
-import type { IAlumnRecord, ILinks } from "../../../types/alumns";
-
+import type { IAlumnRecord } from "../../../types/alumns";
+import type { ILinks } from "../../../types/common";
+import ConfirmationModal from "../../utils/confirmationModal";
+import AlumnsRow from "./row";
 
 export default function AlumnsTable() {
   const navigate = useNavigate()
@@ -12,22 +14,32 @@ export default function AlumnsTable() {
   const [links, setLinks] = useState<ILinks>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
-  let [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
+  const [searchValue, setSearchValue] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [alumnToDelete, setAlumnToDelete] = useState<IAlumnRecord>();
+  const [totalEntries, setTotalEntries] = useState<number>(0);
   useEffect(() => {
+    if (searchParams.has('page[page]')) {
+      setCurrentPage(parseInt(searchParams.get('page[page]')!))
+    } else {
+      setCurrentPage(1)
+    }
+    if (searchParams.has('q[full_name_cont]')) {
+      setSearchValue(searchParams.get('q[full_name_cont]')!)
+    }
     loadAlumns();
   }, [searchParams.toString()])
 
   async function loadAlumns() {
-    if (searchParams.has('page[page]')) {
-      setCurrentPage(parseInt(searchParams.get('page[page]')!))
-    }
     setIsLoading(true)
     getAlumns({ params: searchParams.toString() }).then(response => {
       if (response.success) {
-        const { data, pages, links } = response
+        const { data, pages, links, total } = response
         setAlumns(data);
         setPages(pages);
         setLinks(links);
+        setTotalEntries(total)
       } else {
         setErrors(response.errors)
       }
@@ -36,95 +48,191 @@ export default function AlumnsTable() {
     })
   }
 
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter') {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('page[page]')
+      if (searchValue.trim()) {
+        newParams.set('q[full_name_cont]', searchValue.trim());
+      } else {
+        newParams.delete('q[full_name_cont]');
+      }
+      navigate(`?${newParams.toString()}`, { replace: true });
+    }
+  };
+
+  function setPage(page: number) {
+    const newParams = new URLSearchParams(searchParams)
+    newParams.set('page[page]', page.toString());
+    navigate(`?${newParams.toString()}`, { replace: true });
+  }
+
+  function resetPager() {
+    if (currentPage === 1) {
+      loadAlumns();
+    } else {
+      setPage(1)
+    }
+  }
+
+  function handleDelete(e: React.FormEvent, alumn: IAlumnRecord) {
+    e.stopPropagation()
+    setAlumnToDelete(alumn)
+    setIsModalOpen(true);
+  }
+
+  function onConfirmResponse(accepted: boolean) {
+    if (alumnToDelete) {
+      if (accepted) {
+        eraseAlun();
+      }
+    }
+    setIsModalOpen(false)
+  }
+
+  async function eraseAlun() {
+    if (alumnToDelete) {
+      setIsLoading(true)
+      const response = await deleteAlumn({ id: alumnToDelete.id })
+      if (response.success) {
+        resetPager()
+      } else {
+        setIsLoading(false)
+      }
+    }
+  }
+
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg my-10 mx-6">
-      <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          <tr>
-            <th scope="col" className="px-6 py-3">
-              Name
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Last name
-            </th>
-          </tr>
-        </thead>
-
-        <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-          {alumns.map((alumn) =>
-            <tr key={`alumn_${alumn.id}`} onClick={() => navigate(`/alumn/${alumn.id}/edit`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
-              <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                {alumn.name}
+    <div className="w-full min-w-0 flex flex-col gap-stack-md">
+      <div>
+        {errors.map((error, idx) => <p key={error + '_' + idx}>{error.msj}</p>)}
+      </div>
+      <ConfirmationModal
+        titleText="Delete Alumn"
+        bodyText={`You're about to erase alumn ${alumnToDelete?.name + " " + alumnToDelete?.last_name}, are you sure?`}
+        confirmText="Yes"
+        rejectText="No"
+        isModalOpen={isModalOpen}
+        onConfirmResponse={((accepted: boolean) => onConfirmResponse(accepted))}
+      />
+      <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
+        <div>
+          <label htmlFor="table-search" className="sr-only">Search</label>
+          <div className="relative mt-1">
+            <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
+              <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+              </svg>
+            </div>
+            <input type="text"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              id="table-search" className="w-full pl-10 pr-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-lowest text-body-md font-body-md outline-none transition-all shadow-sm" placeholder="Search for alumns" />
+          </div>
+        </div>
+        <div className="relative">
+          <button onClick={() => navigate('/dashboard/alumns/form')} className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg flex items-center gap-2 hover:bg-surface-tint transition-colors shadow-sm whitespace-nowrap" type="button">
+            Create
+            <svg className="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7 7V5" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div
+        className="xl:col-span-8 2xl:col-span-9 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-soft overflow-hidden">
+        <div className="overflow-x-auto"></div>
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-outline-variant bg-surface">
+              <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                ID
               </th>
-              <td className="px-6 py-4">
-                {alumn.last_name}
-              </td>
-            </tr>)}
-        </tbody>
-      </table>
-      <nav
-        className={`flex items-center flex-column flex-wrap md:flex-row justify-between pt-4 ${isLoading ? 'opacity-50 pointer-events-none' : ''
-          }`}
-        aria-busy={isLoading}
-        aria-live="polite"
-        aria-label="Table navigation">
-        <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
+              <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                Name
+              </th>
+              <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                Last name
+              </th>
+              <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                Birthday
+              </th>
+              <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className={isLoading ? "opacity-50 pointer-events-none" : "text-body-md font-body-md"}>
+            {isLoading && alumns.length === 0 ? (
+              <tr>
+                <td colSpan={5} style={{ padding: 0, border: 'none' }}>
+                  <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
+                    <span className="text-lg text-gray-500">Loading...</span>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              alumns.map((alumn) => <AlumnsRow key={'alumno' + alumn.id} alumn={alumn} handleDelete={handleDelete} />)
+            )}
+          </tbody>
+        </table>
+      </div>
+      <div className="px-6 py-4 flex items-center justify-between border-t border-outline-variant bg-surface">
+        <div className="text-label-md font-label-md text-on-surface-variant">Showing {(currentPage - 1) * 10 + 1} to {(currentPage -1 ) * 10 + alumns.length } of {totalEntries} entries</div>
+        <nav
+          className={`flex gap-1 ${isLoading ? 'opacity-50 pointer-events-none' : ''
+            }`}
+          aria-busy={isLoading}
+          aria-live="polite"
+          aria-label="Table navigation">
           {links &&
-            <li>
-              <NavLink
-                to={links.first.split('alumns')[1]}
-                className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                First
-              </NavLink>
-            </li>
+            <NavLink
+              to={links.first.split('alumns')[1]}
+              className={
+                `px-3 py-1 rounded border ${currentPage === 1
+                  ? 'border-primary bg-primary-container text-on-primary-container font-bold'
+                  : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
+                }`}>
+              First
+            </NavLink>
           }
-
           {links?.prev &&
-            <li>
-              <NavLink
-                to={links.prev.split('alumns')[1]}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                Previous
-              </NavLink>
-            </li>
+            <NavLink
+              to={links.prev.split('alumns')[1]}
+              className="px-3 py-1 rounded border">
+              Previous
+            </NavLink>
           }
-
           {pages.map(page =>
-            <li key={`page_${page}`}>
-              <NavLink
-                aria-current={currentPage === page ? 'page' : 'false'}
-
-                to={`?page%5Bpage%5D=${page}`}
-                className={
-                  `flex items-center justify-center px-3 h-8 border ${currentPage === page
-                    ? 'text-blue-600 bg-blue-50 border-blue-300 dark:text-white dark:bg-blue-600 dark:border-blue-700'
-                    : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
-                  }`
-                }>
-                {page}
-              </NavLink>
-            </li>
+            <a key={`page_${page}`}
+              aria-current={currentPage === page ? 'page' : 'false'}
+              onClick={() => setPage(page)}
+              className={
+                `px-3 py-1 rounded border ${currentPage === page
+                  ? 'border-primary bg-primary-container text-on-primary-container font-bold'
+                  : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
+                }`
+              }>
+              {page}
+            </a>
           )}
           {links?.next &&
-            <li>
-              <NavLink
-                to={links.next.split('alumns')[1]}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                Next
-              </NavLink>
-            </li>
+            <NavLink
+              to={links.next.split('alumns')[1]}
+              className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
+              Next
+            </NavLink>
           }
           {links &&
-            <li>
-              <NavLink
-                to={links.last.split('alumns')[1]}
-                className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                Last
-              </NavLink>
-            </li>
+            <NavLink
+              to={links.last.split('alumns')[1]}
+              className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
+              Last
+            </NavLink>
           }
-        </ul>
-      </nav>
-    </div>
+        </nav>
+      </div>
+    </div >
   )
 }

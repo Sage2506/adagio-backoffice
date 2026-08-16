@@ -1,17 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { logIn } from "../../services/user";
-import { useNavigate } from "react-router";
+import { Navigate } from "react-router";
+import { useAuth } from "./useAuth";
+import { LoadingSpinner } from "../utils/loadingSpiner";
 
 function Login() {
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("id_token");
-    if (token) { navigate("/", { replace: true }) }
-  }, [navigate]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { isAuthenticated, isLoading: authLoading, login } = useAuth();
 
   function formSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -39,13 +38,28 @@ function Login() {
   }
 
   async function postLogIn(data: { email: string, password: string }) {
-    const response = await logIn({ user: data})
-    if (response.success) {
-      navigate("/");
-    } else {
-      setErrors(response.errors)
+    try {
+      setIsLoading(true);
+      const response = await logIn({ user: data })
+      if (response.success) {
+        login(response.id_token, rememberMe)
+      } else {
+        setErrors(response.errors)
+      }
+    } catch (err: any) {
+      setErrors([{ msj: (err.response?.data?.message || 'Login failed') }]);
+    } finally {
+      setIsLoading(false)
     }
 
+  }
+
+  if (authLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (
@@ -53,12 +67,11 @@ function Login() {
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form className="space-y-6" onSubmit={event => formSubmit(event)}>
           <div>
-            <p>Please sign in</p>
+            <p className="text-on-background">Please sign in</p>
           </div>
           <div>{errors.map((error, idx) => <p key={idx}>{error.msj}</p>)}</div>
           <div>
-            <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900 dark:hidden">Email address</label>
-            <label htmlFor="email" className="hidden text-sm/6 font-medium text-white-900 dark:block">Email address</label>
+            <label htmlFor="email" className="text-sm/6 font-medium text-on-background dark:block">Email address</label>
             <div className="mt-2">
               <input
                 type="text"
@@ -73,8 +86,7 @@ function Login() {
           </div>
           <div>
             <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900 dark:hidden">Password</label>
-              <label htmlFor="password" className="hidden text-sm/6 font-medium text-white-900 dark:block">Password</label>
+              <label htmlFor="password" className="text-sm/6 font-medium text-on-background">Password</label>
             </div>
             <div className="mt-2">
               <input
@@ -88,7 +100,18 @@ function Login() {
                 onChange={(e) => { setPassword(e.target.value) }} />
             </div>
           </div>
-          <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign in</button>
+          <div className="flex items-center justify-between">
+            <div className="flex items-start">
+              <div className="flex items-center h-5">
+                <input id="rememberMe" aria-describedby="rememberMe" type="checkbox" checked={rememberMe} onChange={() => { setRememberMe(!rememberMe) }} className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" />
+              </div>
+              <div className="ml-3 text-sm">
+                <label htmlFor="rememberMe" className="text-sm/6 font-medium text-on-background">Remember me</label>
+              </div>
+            </div>
+
+          </div>
+          <button type="submit" disabled={isLoading || authLoading} className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{isLoading ? 'Logging in...' : 'Login'}</button>
         </form>
       </div>
     </div>

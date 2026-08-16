@@ -1,5 +1,11 @@
-import type { ILinks } from "./alumns"
+import type { ILinks } from "./common"
 
+export interface IPlanNew {
+  name: string
+  price: string
+  subscription_duration: string
+  tolerance_days: string
+}
 export interface IPlanRecord {
   id: number
   name: string
@@ -12,8 +18,13 @@ export interface IPlanRecord {
 }
 
 export interface IGetPlansResponse {
-  success: boolean
+  success: true
   data: IPlanRecord[]
   links: ILinks
   pages: number[]
+}
+
+export interface IGetPlanResponse {
+  success: true
+  data: IPlanRecord
 }

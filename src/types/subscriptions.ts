@@ -1,9 +1,12 @@
-import type { IAlumnRecord, ILinks } from "./alumns"
+import type { IAlumnRecord } from "./alumns"
+import type { ILinks } from "./common"
 import type { IPlanRecord } from "./plans"
 
 export interface ISubscriptionNew {
   plan_id: string
   alumn_id: string
+  status?: number
+  subscribed_at?: string
 }
 export interface ISubscriptionRecord {
   plan_id: number
@@ -21,12 +24,13 @@ export interface ISubscriptionAlumnPlanRecord {
   alumn_id: number
   id: number
   due_date: string
-  status: number
+  status: string
   last_payment_date: string
   created_at: string
   updated_at: string
   alumn: IAlumnRecord
-  plan: IPlanRecord
+  plan: IPlanRecord,
+  paid_amount: number
 }
 
 export interface IPostSubscriptionResponse {
@@ -39,4 +43,8 @@ export interface IGetSubscriptionsResponse {
   data: ISubscriptionAlumnPlanRecord[]
   links: ILinks
   pages: number[]
+}
+
+export interface IDueDate {
+  due_date: string
 }

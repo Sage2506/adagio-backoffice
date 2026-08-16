@@ -1,3 +1,5 @@
+import type { ISuccessfulDelete } from "../services/api"
+import type { ILinks } from "./common"
 import type { IGuadianRecord } from "./guardians"
 
 export interface IAlumnNew {
@@ -26,29 +28,14 @@ export interface IAlumnRecord {
   is_guardian_required_for_leaving: boolean
 }
 
-export interface IAlumnGuardiansRecord {
-  id: number
-  name: string
-  last_name: string
-  address: string
-  phone_number: string
-  email: string
-  is_active: boolean
-  created_at: string
-  updated_at: string
-  birth_date: string
-  special_med_conditions: string
-  is_guardian_required_for_leaving: boolean
-  guardians: IGuadianRecord[]
-  plan_id: number
-  subscription_id: number
+export interface IAlumnWithPlanAndSubscriptionRecord extends IAlumnRecord {
+  plan_id: number | null
+  subscription_id: number | null
 }
 
-export interface ILinks {
-  first: string
-  last: string
-  prev?: string
-  next?: string
+export interface IAlumnGuardiansRecord {
+  guardians: IGuadianRecord[]
+  alumn: IAlumnWithPlanAndSubscriptionRecord
 }
 
 export interface IGetAlumnResponse {
@@ -66,9 +53,27 @@ export interface IGetAlumnsResponse {
   data: IAlumnRecord[],
   links: ILinks,
   pages: number[]
+  total: number
 }
 
 export interface IPostAlumnResponse {
   success: true,
   data: IAlumnRecord
+}
+
+export interface IPostAlumnDelete {
+  success: true,
+  data: ISuccessfulDelete
+}
+
+export interface IBirthdayAlumn {
+  id: number
+  name: string
+  last_name: string
+  birth_date: string
+}
+
+export interface IGetBirthdaysResponse {
+  success: true
+  data: IBirthdayAlumn[]
 }

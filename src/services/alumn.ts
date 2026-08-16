@@ -1,14 +1,14 @@
-import type { IAlumnGuardiansRecord, IAlumnNew, IAlumnRecord, IGetAlumnGuardiansResponse, IGetAlumnsResponse, IPostAlumnResponse } from "../types/alumns";
+import type { IAlumnGuardiansRecord, IAlumnNew, IAlumnRecord, IBirthdayAlumn, IGetAlumnGuardiansResponse, IGetAlumnsResponse, IGetBirthdaysResponse, IPostAlumnDelete, IPostAlumnResponse } from "../types/alumns";
 import type { IErrorResponse } from "../types/errors";
-import api, { CREATED, OK } from "./api";
+import api, { CREATED, type ISuccessfulDelete, OK } from "./api";
 
 const path = "/alumns";
 
 export function getAlumns(args: { params?: string }): Promise<IGetAlumnsResponse | IErrorResponse> {
   return api.get<IGetAlumnsResponse>(`${path}?${args.params}`).then(response => {
     if (response.status === OK) {
-      const { data, links, pages } = response.data
-      return { success: true as const, data, links, pages };
+      const { data, links, pages, total } = response.data
+      return { success: true as const, data, links, pages, total };
     } else {
       return { success: false as const, errors: [{ msj: response.status.toString() }] };
     }
@@ -69,4 +69,38 @@ export function putAlumn(args: { id: string, data: IAlumnNew }): Promise<IPostAl
       errors: [{ msj: error.message }]
     };
   });
+}
+
+export function deleteAlumn(args: { id: number }): Promise<IPostAlumnDelete | IErrorResponse> {
+  return api.delete<ISuccessfulDelete>(`${path}/${args.id}`).then(response => {
+    if (response.status === OK) {
+      return {
+        success: true as const,
+        data: { successful: true as const }
+      }
+    } else {
+      return {
+        success: false as const,
+        errors: [{ msj: response.status.toString() }]
+      };
+    }
+  }).catch((error: { message: string }) => {
+    return {
+      success: false as const,
+      errors: [{ msj: error.message }]
+    };
+  });
+}
+
+export function getBirthdaysOfMonth(args: { month: number }): Promise<IGetBirthdaysResponse | IErrorResponse> {
+  return api.get<IBirthdayAlumn[]>(`${path}/birthdays_by_month?month=${args.month}`).then(response => {
+    const { data, status } = response
+    if (status === OK) {
+      return { success: true as const, data };
+    } else {
+      return { success: false as const, errors: [{ msj: status.toString() }] };
+    }
+  }).catch(error => {
+    return { success: false as const, errors: [{ msj: error.message }] }
+  })
 }

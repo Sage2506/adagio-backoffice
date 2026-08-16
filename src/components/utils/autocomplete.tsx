@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-interface Option {
+export interface Option {
   id: string | number;
   label: string;
   value: any
@@ -10,6 +10,7 @@ interface AutocompleteProps {
   fetchOptions: (query: string) => Promise<Option[]>;
   placeholder?: string;
   onSelect: (selectedOption: Option | null) => void;
+  onInputChange?: () => void;
   debounceDelay?: number;
 }
 
@@ -17,7 +18,8 @@ export default function AutocompleteCombobox({
   fetchOptions,
   placeholder = "Search...",
   onSelect,
-  debounceDelay = 300,
+  onInputChange,
+  debounceDelay = 300
 }: AutocompleteProps) {
   const [inputValue, setInputValue] = useState("");
   const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
@@ -122,6 +124,7 @@ export default function AutocompleteCombobox({
         value={inputValue}
         onChange={(e) => {
           setInputValue(e.target.value);
+          onInputChange?.();
           setIsOpen(true);
         }}
         onFocus={() => setIsOpen(true)}
