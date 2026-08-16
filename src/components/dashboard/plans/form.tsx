@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import { getPlan, postPlan, putPlan } from "../../../services/plan";
 import type { IPlanNew } from "../../../types/plans";
 import { handlePriceInputChange } from "../../../utils/numbers";
+import { RectangleStackIcon } from "@heroicons/react/24/outline";
 
 export default function PlanForm() {
   const navigate = useNavigate()
@@ -69,32 +70,43 @@ export default function PlanForm() {
       }
     }
   }
+  const fieldClass = "w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-lowest text-on-surface focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md outline-none";
+  const labelClass = "block text-label-md font-label-md text-on-surface-variant";
+
   return (
-    <form onSubmit={event => formSubmit(event)} className={`py-6 px-6 space-y-6 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
-      <div className="grid gap-6 mb-5 md:grid-cols-2">
-        <div className="rounded-sm bg-gray-50 dark:bg-gray-800 py-4 px-4">
-          <div className="block mb-2 text-2xl font-semibold text-gray-900 dark:text-white">
-            Plan
+    <form onSubmit={event => formSubmit(event)} className={`lg:ml-64 p-container-padding max-w-[1440px] mx-auto min-h-screen flex flex-col gap-stack-lg my-8 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+      <header className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-headline-lg text-on-surface">{id ? 'Edit Plan' : 'Create Plan'}</h1>
+          <p className="text-body-md font-body-md text-on-surface-variant mt-1">{id ? name : 'Configure a new subscription plan.'}</p>
+        </div>
+        <button type="submit" disabled={isLoading} className={`px-6 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-surface-tint transition-colors shadow-soft ${isLoading ? 'cursor-progress opacity-70' : ''}`}>{id ? 'Save Changes' : 'Create Plan'}</button>
+      </header>
+
+      <section className="w-full max-w-3xl bg-surface-lowest rounded-xl shadow-soft border border-surface-variant p-6 sm:p-8">
+        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-surface-variant">
+          <div className="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center"><RectangleStackIcon className="w-5 h-5" /></div>
+          <h2 className="text-headline-md text-on-surface">Plan Details</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-stack-md">
+          <div className="space-y-2 md:col-span-2">
+            <label htmlFor="name" className={labelClass}>Name</label>
+            <input onChange={e => setName(e.target.value)} value={name} type="text" id="name" name="name" className={fieldClass} placeholder="Ballet" required />
           </div>
-          <div>
-            <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
-            <input onChange={(e) => { setName(e.target.value) }} value={name} type="text" id="name" name="name" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Ballet" required />
+          <div className="space-y-2">
+            <label htmlFor="price" className={labelClass}>Price</label>
+            <input onChange={e => handlePriceInputChange(e, setPrice)} value={price} type="text" id="price" name="price" className={fieldClass} placeholder="99.9" required />
           </div>
-          <div>
-            <label htmlFor="price" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Price</label>
-            <input onChange={(e) => { handlePriceInputChange(e, setPrice) }} value={price} type="text" id="price" name="price" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="99.9" required />
+          <div className="space-y-2">
+            <label htmlFor="subscription_duration" className={labelClass}>Duration</label>
+            <input onChange={e => setSubscriptionDuration(e.target.value)} value={subscription_duration} type="text" id="subscription_duration" name="subscription_duration" className={fieldClass} placeholder="30 days" pattern="^\d+$" required />
           </div>
-          <div>
-            <label htmlFor="subscription_duration" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Duration</label>
-            <input onChange={(e) => { setSubscriptionDuration(e.target.value) }} value={subscription_duration} type="text" id="subscription_duration" name="subscription_duration" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="30 days" pattern="^\d+$" required />
-          </div>
-          <div>
-            <label htmlFor="tolerance_days" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tolerance Days</label>
-            <input onChange={(e) => { setToleranceDays(e.target.value) }} value={tolerance_days} type="text" id="tolerance_days" name="tolerance_days" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="5 days" pattern="^\d+$" required />
+          <div className="space-y-2">
+            <label htmlFor="tolerance_days" className={labelClass}>Tolerance Days</label>
+            <input onChange={e => setToleranceDays(e.target.value)} value={tolerance_days} type="text" id="tolerance_days" name="tolerance_days" className={fieldClass} placeholder="5 days" pattern="^\d+$" required />
           </div>
         </div>
-      </div>
-      <button type="submit" disabled={isLoading} className={`text-white ${isLoading ? "bg-gray-400 cursor-progress" : "bg-blue-700 hover:bg-blue-800 cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700"} focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center  dark:focus:ring-blue-800`}>Submit</button>
+      </section>
     </form>
   );
 };

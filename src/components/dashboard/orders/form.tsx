@@ -10,6 +10,7 @@ import type { IOrderNew } from "../../../types/orders";
 import { postOrder } from "../../../services/order";
 import { useNavigate } from "react-router";
 import { TrashIcon } from "@heroicons/react/16/solid";
+import { ArrowPathIcon, BanknotesIcon, ShoppingCartIcon, UserIcon } from "@heroicons/react/24/outline";
 import { calculateOrderTotal, validateOrder, type OrderProductInput } from "./validation";
 
 interface Product extends OrderProductInput {
@@ -136,110 +137,74 @@ export default function OrdersForm() {
     return calculateOrderTotal(products)
   }
 
+  const fieldClass = "w-full px-4 py-3 rounded-lg border border-outline-variant bg-surface-lowest text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all text-body-md font-body-md";
+  const labelClass = "block text-label-md font-label-md text-on-surface-variant mb-2";
+  const sectionTitleClass = "text-headline-sm text-on-surface flex items-center gap-2";
+
   return (
-    <form onSubmit={event => formSubmit(event)} className={`py-6 px-6 space-y-6 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`} >
+    <form onSubmit={event => formSubmit(event)} className={`lg:ml-64 p-container-padding max-w-[1440px] mx-auto min-h-screen font-body-md my-8 ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+      <header className="mb-stack-md flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+        <div>
+          <h1 className="text-headline-md text-on-surface">Create Order</h1>
+          <p className="text-body-md text-on-surface-variant mt-1">Process a new transaction or product sale.</p>
+        </div>
+        <button type="submit" disabled={isLoading} className={`bg-primary text-on-primary font-bold px-6 py-3 rounded-lg hover:bg-surface-tint transition-colors shadow-sm whitespace-nowrap ${isLoading ? 'cursor-progress opacity-70' : ''}`}>Submit order</button>
+      </header>
+
       {errors.length > 0 && (
-        <div role="alert" className="border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-200">
+        <div role="alert" className="mb-stack-md rounded-lg border border-error-container bg-error-container px-4 py-3 text-body-md text-on-error-container">
           {errors.map((error, index) => <p key={`${error.msj}_${index}`}>{error.msj}</p>)}
         </div>
       )}
-      <AutocompleteCombobox
-        fetchOptions={fetchAlumns}
-        onSelect={(option) => onOptionSelected(option)}
-        onInputChange={() => setAlumnId(0)}
-        placeholder="Search alumns..."
-      />
-      <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between">
-        <div>
-        </div>
-        <div className="relative">
-          <button typeof="button" id="dropdownRadioButton" onClick={() => clearSelection()} className="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700" type="button">
-            Clear selection
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-            </svg>
-          </button>
-        </div>
-      </div>
-      <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          <tr>
-            <th scope="col" className="px-6 py-3 capitalize">
-              id
-            </th>
-            <th scope="col" className="px-6 py-3 capitalize">
-              name
-            </th>
-            <th scope="col" className="px-6 py-3 capitalize">
-              quantity
-            </th>
-            <th scope="col" className="px-6 py-3 capitalize">
-              price
-            </th>
-            <th scope="col" className="w-12 px-3 py-3">
-              <span className="sr-only">Remove</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody className={isLoading ? "opacity-50 pointer-events-none" : ""}>
-          {products.map((product) => <tr key={`product_${product.id}`} className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700 capitalize">
-            <th scope="col" className="px-6 py-3">{product.id}</th>
-            <td scope="col" className="px-6 py-3">{product.name}</td>
-            <td scope="col" className="px-6 py-3">
-              <input type="number" min="1" step="1" onChange={(e) => handleQuantityChange(e, product.id)} value={product.quantity} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0" />
-            </td>
-            <td scope="col" className="px-6 py-3">{formatPrice(product.price)}</td>
-            <td className="px-3 py-3">
-              <button type="button" onClick={() => removeProduct(product.id)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" title={`Remove ${product.name}`} aria-label={`Remove ${product.name}`}>
-                <TrashIcon className="h-5 w-5" />
-              </button>
-            </td>
-          </tr>)}
-        </tbody>
-      </table>
-      <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between">
-        <div>
-          <label htmlFor="advance" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Anticipo</label>
-          <div className="flex gap-4">
-            <input type="number" min="0" max={orderTotal()} step="0.01" id="advance" name="advance" value={advance} onChange={(e) => { setAdvancePercent(undefined); handlePriceInputChange(e, setAdvance) }} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0.00" />
-            <div className={`flex items-center flex-column flex-wrap md:flex-row justify-between ${isLoading ? 'opacity-50 pointer-events-none' : ''
-              }`}>
-              <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-12">
-                <li>
-                  <button type="button" onClick={() => advanceSelected(20)} className={`flex items-center justify-center px-3 h-12 ms-0 leading-tight border rounded-s-lg dark:hover:text-white ${advancePercent === 20
-                    ? 'text-blue-600 bg-blue-50 border-blue-300 dark:text-white dark:bg-blue-600 dark:border-blue-700'
-                    : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
-                    }`}>20%</button>
-                </li>
-                <li>
-                  <button type="button" onClick={() => advanceSelected(30)} className={`flex items-center justify-center px-3 h-12 border ${advancePercent === 30
-                    ? 'text-blue-600 bg-blue-50 border-blue-300 dark:text-white dark:bg-blue-600 dark:border-blue-700'
-                    : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
-                    }`}>30%</button>
-                </li>
-                <li>
-                  <button type="button" onClick={() => advanceSelected(50)} className={`flex items-center justify-center px-3 h-12 leading-tight border rounded-e-lg dark:hover:text-white ${advancePercent === 50
-                    ? 'text-blue-600 bg-blue-50 border-blue-300 dark:text-white dark:bg-blue-600 dark:border-blue-700'
-                    : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
-                    }`}>50%</button>
-                </li>
-              </ul>
-            </div>
+      <main className="max-w-4xl space-y-stack-md">
+        <section className="bg-surface-lowest rounded-xl shadow-soft border border-surface-container p-6">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+            <h2 className={sectionTitleClass}><UserIcon className="w-5 h-5 text-primary" />Select Alumn</h2>
+            <button id="dropdownRadioButton" onClick={() => clearSelection()} className="text-label-md font-label-md text-primary hover:text-surface-tint flex items-center gap-1 transition-colors" type="button"><ArrowPathIcon className="w-4 h-4" />Clear selection</button>
           </div>
-        </div>
-        <div className="relative">
-          <p>Total: {formatPrice(orderTotal())}</p>
-        </div>
-      </div>
-      <SearchCombobox
-        fetchOptions={fetchProducts}
-        onSelect={(option) => onProductSelected(option)}
-        placeholder="Search products..."
-      />
-      <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between">
-        <input type="text" id="description" name="description" value={description} onChange={(e) => setDescription(e.target.value)} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="description" />
-      </div>
-      <button type="submit" disabled={isLoading} className={`text-white ${isLoading ? "bg-gray-400 cursor-progress" : "bg-blue-700 hover:bg-blue-800 cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700"} focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center  dark:focus:ring-blue-800`}>Submit</button>
+          <div className="relative [&_input]:pl-12 [&_input]:pr-4 [&_input]:py-3 [&_input]:rounded-lg [&_input]:border-outline-variant [&_input]:bg-surface-lowest [&_input]:text-on-surface [&_input]:focus:ring-1 [&_input]:focus:ring-primary [&_input]:focus:border-primary [&_input]:text-body-md [&_input]:font-body-md [&_ul]:rounded-lg [&_ul]:border-outline-variant [&_ul]:bg-surface-lowest [&_ul]:text-on-surface [&_ul]:shadow-soft">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none z-10">&#128269;</span>
+            <AutocompleteCombobox fetchOptions={fetchAlumns} onSelect={option => onOptionSelected(option)} onInputChange={() => setAlumnId(0)} placeholder="Search alumns by name or ID..." />
+          </div>
+        </section>
+
+        <section className="bg-surface-lowest rounded-xl shadow-soft border border-surface-container p-6">
+          <h2 className={`${sectionTitleClass} mb-6`}><ShoppingCartIcon className="w-5 h-5 text-primary" />Products &amp; Details</h2>
+          <div className="space-y-4 mb-8">
+            <div className="relative [&_input]:pl-12 [&_input]:pr-4 [&_input]:py-3 [&_input]:rounded-lg [&_input]:border-outline-variant [&_input]:bg-surface-lowest [&_input]:text-on-surface [&_input]:focus:ring-1 [&_input]:focus:ring-primary [&_input]:focus:border-primary [&_input]:text-body-md [&_input]:font-body-md [&_ul]:rounded-lg [&_ul]:border-outline-variant [&_ul]:bg-surface-lowest [&_ul]:text-on-surface [&_ul]:shadow-soft">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none z-10">&#128269;</span>
+              <SearchCombobox fetchOptions={fetchProducts} onSelect={option => onProductSelected(option)} placeholder="Search products..." />
+            </div>
+            <textarea id="description" name="description" value={description} onChange={e => setDescription(e.target.value)} className={`${fieldClass} resize-none`} placeholder="Order description or notes..." rows={2} />
+          </div>
+          {products.length === 0 ? (
+            <div className="border border-dashed border-outline-variant rounded-lg p-8 text-center bg-surface-bright">
+              <ShoppingCartIcon className="w-8 h-8 text-outline mx-auto mb-2" />
+              <p className="text-body-md text-on-surface-variant">No products added yet.<br />Search and select products to add them to the order.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-lg border border-outline-variant">
+              <table className="w-full text-left border-collapse">
+                <thead><tr className="border-b border-outline-variant bg-surface"><th className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">ID</th><th className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">Name</th><th className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">Quantity</th><th className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">Price</th><th className="w-12 px-3 py-4"><span className="sr-only">Remove</span></th></tr></thead>
+                <tbody className="text-body-md font-body-md">{products.map(product => <tr key={`product_${product.id}`} className="border-b border-outline-variant last:border-b-0"><td className="px-6 py-3">{product.id}</td><td className="px-6 py-3 capitalize">{product.name}</td><td className="px-6 py-3"><input type="number" min="1" step="1" onChange={e => handleQuantityChange(e, product.id)} value={product.quantity} className="w-24 px-3 py-2 rounded-md border border-outline-variant bg-surface-lowest text-on-surface focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="0" /></td><td className="px-6 py-3">{formatPrice(product.price)}</td><td className="px-3 py-3"><button type="button" onClick={() => removeProduct(product.id)} className="p-2 rounded-md text-error hover:bg-error-container hover:text-on-error-container" title={`Remove ${product.name}`} aria-label={`Remove ${product.name}`}><TrashIcon className="h-5 w-5" /></button></td></tr>)}</tbody>
+              </table>
+            </div>
+          )}
+        </section>
+
+        <section className="bg-surface-lowest rounded-xl shadow-soft border border-surface-container p-6">
+          <h2 className={`${sectionTitleClass} mb-6`}><BanknotesIcon className="w-5 h-5 text-primary" />Payment Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <div><label htmlFor="advance" className={labelClass}>Anticipo (Deposit)</label><div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-bold">$</span><input type="number" min="0" max={orderTotal()} step="0.01" id="advance" name="advance" value={advance} onChange={e => { setAdvancePercent(undefined); handlePriceInputChange(e, setAdvance) }} className={`${fieldClass} pl-8`} placeholder="0.00" /></div></div>
+            <div><p className={labelClass}>Quick Percentage</p><div className="flex rounded-lg border border-outline-variant overflow-hidden">{([20, 30, 50] as const).map(percent => <button key={percent} type="button" onClick={() => advanceSelected(percent)} className={`flex-1 py-3 text-body-md font-body-md border-r border-outline-variant last:border-r-0 transition-colors ${advancePercent === percent ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-on-surface-variant hover:bg-surface-container'}`}>{percent}%</button>)}</div></div>
+          </div>
+        </section>
+
+        <section className="rounded-xl border border-primary-container bg-surface-container-low p-6 flex flex-col sm:flex-row justify-between sm:items-end gap-3">
+          <div><p className="text-label-md font-label-md text-on-surface-variant">Order Total</p><p className="text-headline-md font-bold text-primary">{formatPrice(orderTotal())}</p></div>
+          <p className="text-body-md text-on-surface-variant">Advance: {formatPrice(Number(advance) || 0)}</p>
+        </section>
+      </main>
     </form>
   );
 };
