@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Transition, TransitionChild } from "@headlessui/react";
 import type { IDueDate, ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import DatePicker from "../../utils/datePicker";
@@ -71,7 +70,7 @@ export default function EditDueDateModal({ isOpen, subscription, onClose }: Edit
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 dark:bg-opacity-80 z-40" />
+        <div className="fixed inset-0 z-10 bg-on-secondary-fixed/50 backdrop-blur-[2px] transition-opacity duration-300" />
       </TransitionChild>
 
       {/* Modal */}
@@ -84,43 +83,29 @@ export default function EditDueDateModal({ isOpen, subscription, onClose }: Edit
         leaveTo="opacity-0 scale-95"
       >
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={closeDialog}>
-          <div
-            className="relative bg-white rounded-lg shadow dark:bg-gray-800 w-full max-w-sm"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="relative z-20 flex w-[92%] max-w-md flex-col overflow-hidden rounded-xl bg-surface shadow-2xl animate-[fadeIn_0.2s_ease-out]" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
-            <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Edit Due Date
-              </h3>
+            <div className="flex items-center justify-between px-gutter py-4 border-b border-outline-variant">
+              <h2 className="font-headline-sm text-headline-sm text-on-surface">Edit Due Date</h2>
               <button
                 type="button"
                 onClick={() => !isLoading && closeDialog()}
                 disabled={isLoading}
-                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <XMarkIcon className="w-4 h-4" />
+                <span className="material-symbols-outlined text-[20px] leading-none block">close</span>
                 <span className="sr-only">Close modal</span>
               </button>
             </div>
 
             {/* Body */}
-            <div className="p-4 md:p-5">
-              <form
-                onSubmit={handleSubmit}
-                className={`space-y-6 ${isLoading ? "opacity-50 pointer-events-none" : ""}`}
-              >
-                <p className="capitalize text-gray-900 dark:text-white">
+            <form id="edit-due-date-form" onSubmit={handleSubmit} className={`p-gutter flex flex-col gap-stack-md ${isLoading ? "opacity-50 pointer-events-none" : ""}`}>
+                <p className="font-body-lg text-body-lg text-on-surface font-medium capitalize">
                   {subscription?.alumn.name} {subscription?.alumn.last_name}
                 </p>
 
-                <div>
-                  <label
-                    htmlFor="due_date"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Due Date
-                  </label>
+                <div className="flex flex-col gap-base">
+                  <label htmlFor="due_date" className="font-label-md text-label-md text-on-surface-variant">Due Date</label>
                   <DatePicker
                     value={due_date}
                     onChange={(date) => setDueDate(date)}
@@ -129,25 +114,10 @@ export default function EditDueDateModal({ isOpen, subscription, onClose }: Edit
                   />
                 </div>
 
-                {/* Footer */}
-                <div className="flex items-center pt-2 border-t border-gray-200 dark:border-gray-600">
-                  <button
-                    type="submit"
-                    disabled={isLoading || !due_date}
-                    className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? "Saving..." : "Save"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={closeDialog}
-                    disabled={isLoading}
-                    className="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+            </form>
+            <div className="mt-auto flex flex-row-reverse justify-start gap-stack-sm border-t border-outline-variant bg-surface-container-lowest px-gutter py-4">
+              <button type="submit" form="edit-due-date-form" disabled={isLoading || !due_date} className="bg-primary text-on-primary font-label-md text-label-md px-6 py-2.5 rounded-lg hover:bg-surface-tint active:bg-on-primary-fixed-variant transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed">{isLoading ? "Saving..." : "Save"}</button>
+              <button type="button" onClick={closeDialog} disabled={isLoading} className="bg-transparent border border-outline text-on-surface font-label-md text-label-md px-6 py-2.5 rounded-lg hover:bg-surface-container-high active:bg-surface-variant transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed">Cancel</button>
             </div>
           </div>
         </div>

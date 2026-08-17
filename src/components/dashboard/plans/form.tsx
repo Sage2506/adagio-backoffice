@@ -85,7 +85,7 @@ export default function PlanForm() {
 
       <section className="w-full max-w-3xl bg-surface-lowest rounded-xl shadow-soft border border-surface-variant p-6 sm:p-8">
         <div className="flex items-center gap-3 mb-6 pb-4 border-b border-surface-variant">
-          <div className="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center"><RectangleStackIcon className="w-5 h-5" /></div>
+          <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center"><RectangleStackIcon className="w-5 h-5" /></div>
           <h2 className="text-headline-md text-on-surface">Plan Details</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-stack-md">
