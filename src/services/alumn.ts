@@ -30,7 +30,7 @@ export function getAlumn(args: { id: string }): Promise<IGetAlumnGuardiansRespon
 }
 
 export function postAlumn(args: { data: IAlumnNew }): Promise<IPostAlumnResponse | IErrorResponse> {
-  return api.post<IAlumnRecord>(path, args.data).then(response => {
+  return api.post<IAlumnRecord>(path, { alumn: args.data }).then(response => {
     if (response.status === CREATED) {
       return {
         success: true as const,
@@ -51,7 +51,7 @@ export function postAlumn(args: { data: IAlumnNew }): Promise<IPostAlumnResponse
 }
 
 export function putAlumn(args: { id: string, data: IAlumnNew }): Promise<IPostAlumnResponse | IErrorResponse> {
-  return api.put<IAlumnRecord>(`${path}/${args.id}`, args.data).then(response => {
+  return api.put<IAlumnRecord>(`${path}/${args.id}`, { alumn: args.data }).then(response => {
     if (response.status === OK) {
       return {
         success: true as const,

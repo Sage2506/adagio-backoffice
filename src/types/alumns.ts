@@ -11,6 +11,7 @@ export interface IAlumnNew {
   birth_date: string,
   special_med_conditions: string
   is_guardian_required_for_leaving: boolean
+  guardian_ids: number[]
 }
 
 export interface IAlumnRecord {

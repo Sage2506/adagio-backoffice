@@ -163,7 +163,7 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
 
   return (
     <div className="relative" ref={calendarRef}>
-      <div className="flex items-center w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all font-body-md">
+      <div className="flex items-center w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-lowest text-on-surface focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all font-body-md">
         <input
           type="text"
           readOnly

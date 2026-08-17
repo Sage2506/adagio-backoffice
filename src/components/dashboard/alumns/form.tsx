@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAlumn, postAlumn, putAlumn } from "../../../services/alumn";
-import { postGuardian, putGuardian } from "../../../services/guardian";
+import { getGuardians, postGuardian } from "../../../services/guardian";
 import { useNavigate, useParams } from "react-router";
 import type { IAlumnNew } from "../../../types/alumns";
 import type { IGuardianNew, IGuardianRecord, IPostGuardianResponse } from "../../../types/guardians";
@@ -37,6 +37,12 @@ export default function AlumnForm() {
   const [secondary_guardian_last_name, setSecondaryGuardianLastName] = useState<string>("")
   const [secondary_guardian_phone_number, setSecondaryGuardianPhoneNumber] = useState<string>("")
   const [secondary_guardian_email, setSecondaryGuardianEmail] = useState<string>("")
+  const [guardianOptions, setGuardianOptions] = useState<IGuardianRecord[]>([])
+  const [secondaryGuardianOptions, setSecondaryGuardianOptions] = useState<IGuardianRecord[]>([])
+  const [isGuardianSearchOpen, setIsGuardianSearchOpen] = useState<boolean>(false)
+  const [isSecondaryGuardianSearchOpen, setIsSecondaryGuardianSearchOpen] = useState<boolean>(false)
+  const [isGuardianSearching, setIsGuardianSearching] = useState<boolean>(false)
+  const [isSecondaryGuardianSearching, setIsSecondaryGuardianSearching] = useState<boolean>(false)
   const [plansList, setPlansList] = useState<IPlanRecord[]>([]);
   const [plan_id, setPlanId] = useState<string>("");
   const [subscription_id, setSubscriptionId] = useState<string>("");
@@ -58,6 +64,98 @@ export default function AlumnForm() {
       }
     }
   }, [plan_id])
+
+  useEffect(() => {
+    const query = guardian_name.trim()
+    if (guardianId || query.length < 3) return
+
+    const controller = new AbortController()
+    const timeoutId = window.setTimeout(async () => {
+      setIsGuardianSearching(true)
+      const response = await getGuardians({ query, signal: controller.signal })
+      if (!controller.signal.aborted) {
+        setGuardianOptions(response.success ? response.data.filter(guardian => guardian.id !== secGuardianId) : [])
+        setIsGuardianSearching(false)
+      }
+    }, 300)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+      controller.abort()
+    }
+  }, [guardian_name, guardianId, secGuardianId])
+
+  useEffect(() => {
+    const query = secondary_guardian_name.trim()
+    if (secGuardianId || query.length < 3) return
+
+    const controller = new AbortController()
+    const timeoutId = window.setTimeout(async () => {
+      setIsSecondaryGuardianSearching(true)
+      const response = await getGuardians({ query, signal: controller.signal })
+      if (!controller.signal.aborted) {
+        setSecondaryGuardianOptions(response.success ? response.data.filter(guardian => guardian.id !== guardianId) : [])
+        setIsSecondaryGuardianSearching(false)
+      }
+    }, 300)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+      controller.abort()
+    }
+  }, [secondary_guardian_name, secGuardianId, guardianId])
+
+  function updateGuardianField(field: "name" | "last_name" | "phone_number" | "email", value: string) {
+    if (guardianId) {
+      setGuardianId(undefined)
+      setGuardianName("")
+      setGuardianLastName("")
+      setGuardianPhoneNumber("")
+      setGuardianEmail("")
+    }
+    if (field === "name") setGuardianName(value)
+    if (field === "last_name") setGuardianLastName(value)
+    if (field === "phone_number") setGuardianPhoneNumber(value)
+    if (field === "email") setGuardianEmail(value)
+    setGuardianOptions([])
+    setIsGuardianSearching(false)
+  }
+
+  function updateSecondaryGuardianField(field: "name" | "last_name" | "phone_number" | "email", value: string) {
+    if (secGuardianId) {
+      setSecondaryGuardianId(undefined)
+      setSecondaryGuardianName("")
+      setSecondaryGuardianLastName("")
+      setSecondaryGuardianPhoneNumber("")
+      setSecondaryGuardianEmail("")
+    }
+    if (field === "name") setSecondaryGuardianName(value)
+    if (field === "last_name") setSecondaryGuardianLastName(value)
+    if (field === "phone_number") setSecondaryGuardianPhoneNumber(value)
+    if (field === "email") setSecondaryGuardianEmail(value)
+    setSecondaryGuardianOptions([])
+    setIsSecondaryGuardianSearching(false)
+  }
+
+  function selectGuardian(guardian: IGuardianRecord) {
+    setGuardianId(guardian.id)
+    setGuardianName(guardian.name || "")
+    setGuardianLastName(guardian.last_name || "")
+    setGuardianPhoneNumber(guardian.phone_number || "")
+    setGuardianEmail(guardian.email || "")
+    setGuardianOptions([])
+    setIsGuardianSearchOpen(false)
+  }
+
+  function selectSecondaryGuardian(guardian: IGuardianRecord) {
+    setSecondaryGuardianId(guardian.id)
+    setSecondaryGuardianName(guardian.name || "")
+    setSecondaryGuardianLastName(guardian.last_name || "")
+    setSecondaryGuardianPhoneNumber(guardian.phone_number || "")
+    setSecondaryGuardianEmail(guardian.email || "")
+    setSecondaryGuardianOptions([])
+    setIsSecondaryGuardianSearchOpen(false)
+  }
   function loadFormData() {
     const promises = []
     promises.push(loadPlans());
@@ -130,7 +228,8 @@ export default function AlumnForm() {
       phone_number,
       email,
       special_med_conditions,
-      is_guardian_required_for_leaving
+      is_guardian_required_for_leaving,
+      guardian_ids: [guardianId, secGuardianId].filter((guardianId): guardianId is number => guardianId !== undefined)
     };
     const guardian = {
       name: guardian_name,
@@ -168,13 +267,13 @@ export default function AlumnForm() {
       promises.push(subscription_id
         ? putSubscription({ id: subscription_id, data: { alumn_id: response.data.id.toString(), plan_id } })
         : postSubscription({ data: { alumn_id: response.data.id.toString(), plan_id, subscribed_at: subscribedAt ? parseDateToYYYYMMDD(subscribedAt) : undefined } }))
-      promises.push((guardianId
-        ? putGuardian({ id: guardianId, data: args.guardian })
-        : postGuardian({ data: { ...args.guardian, alumn_id: response.data.id.toString() } })))
-      if (args.secondaryGuardian) {
-        promises.push((secGuardianId
-          ? putGuardian({ id: secGuardianId, data: args.secondaryGuardian })
-          : postGuardian({ data: { ...args.secondaryGuardian, alumn_id: response.data.id.toString() } })))
+      const mainGuardianResponseIndex = guardianId ? undefined : promises.length
+      if (!guardianId) {
+        promises.push(postGuardian({ data: { ...args.guardian, alumn_id: response.data.id.toString() } }))
+      }
+      const secondaryGuardianResponseIndex = args.secondaryGuardian && !secGuardianId ? promises.length : undefined
+      if (args.secondaryGuardian && !secGuardianId) {
+        promises.push(postGuardian({ data: { ...args.secondaryGuardian, alumn_id: response.data.id.toString() } }))
       }
       Promise.all(promises)
         .then(res => {
@@ -190,13 +289,13 @@ export default function AlumnForm() {
               setSubscriptionId(subscriptionResponse.id.toString())
               setPlanId(subscriptionResponse.plan_id.toString())
             }
-            if (res[1].success) {
-              const subscriptionResponse = res[1].data as IGuardianRecord
-              setGuardianId(subscriptionResponse.id)
+            if (mainGuardianResponseIndex !== undefined && res[mainGuardianResponseIndex]?.success) {
+              const guardianResponse = res[mainGuardianResponseIndex].data as IGuardianRecord
+              setGuardianId(guardianResponse.id)
             }
-            if (res[2]?.success) {
-              const subscriptionResponse = res[2]?.data as IGuardianRecord
-              setGuardianId(subscriptionResponse.id)
+            if (secondaryGuardianResponseIndex !== undefined && res[secondaryGuardianResponseIndex]?.success) {
+              const guardianResponse = res[secondaryGuardianResponseIndex].data as IGuardianRecord
+              setSecondaryGuardianId(guardianResponse.id)
             }
           }
         })
@@ -322,19 +421,23 @@ export default function AlumnForm() {
           <section className="bg-surface-bright rounded-xl shadow-soft border border-surface-variant p-6">
             <div className="flex items-center gap-3 mb-5 pb-3 border-b border-surface-variant"><div className="w-8 h-8 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center"><UserGroupIcon className="w-[18px] h-[18px]" /></div><h2 className="text-headline-sm text-on-surface">Main Guardian</h2></div>
             <div className="space-y-stack-sm">
-              <div className="space-y-1"><label htmlFor="guardian_name" className={labelClass}>First name</label><input onChange={e => setGuardianName(e.target.value)} value={guardian_name} type="text" id="guardian_name" name="guardian_name" className={compactFieldClass} placeholder="John" required /></div>
-              <div className="space-y-1"><label htmlFor="guardian_last_name" className={labelClass}>Last name</label><input onChange={e => setGuardianLastName(e.target.value)} value={guardian_last_name} type="text" id="guardian_last_name" name="guardian_last_name" className={compactFieldClass} placeholder="Doe" required /></div>
-              <div className="space-y-1"><label htmlFor="guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => setGuardianPhoneNumber(e.target.value)} value={guardian_phone_number} type="tel" id="guardian_phone_number" name="guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" required /></div>
-              <div className="space-y-1"><label htmlFor="guardian_email" className={labelClass}>Email address</label><input onChange={e => setGuardianEmail(e.target.value)} value={guardian_email} type="email" id="guardian_email" name="guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required /></div>
+              <div className="space-y-1 relative"><label htmlFor="guardian_name" className={labelClass}>First name</label><input onFocus={() => setIsGuardianSearchOpen(true)} onBlur={() => window.setTimeout(() => setIsGuardianSearchOpen(false), 100)} onChange={e => { updateGuardianField("name", e.target.value); setIsGuardianSearchOpen(true) }} value={guardian_name} type="text" id="guardian_name" name="guardian_name" className={compactFieldClass} placeholder="John" autoComplete="off" role="combobox" aria-autocomplete="list" aria-controls="guardian-options" aria-expanded={isGuardianSearchOpen && !guardianId && guardian_name.trim().length >= 3} required />
+                {isGuardianSearchOpen && !guardianId && guardian_name.trim().length >= 3 && (isGuardianSearching || guardianOptions.length > 0) && <div id="guardian-options" role="listbox" className="absolute z-30 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto rounded-md border border-outline-variant bg-surface-container-lowest shadow-soft">{isGuardianSearching && <p className="px-3 py-2 text-sm text-on-surface-variant">Searching...</p>}{!isGuardianSearching && guardianOptions.filter(guardian => guardian.id !== secGuardianId).map(guardian => <button key={guardian.id} type="button" role="option" onMouseDown={event => event.preventDefault()} onClick={() => selectGuardian(guardian)} className="w-full px-3 py-2 text-left hover:bg-surface-container-low focus:bg-surface-container-low outline-none"><span className="block text-sm text-on-surface capitalize">{guardian.name} {guardian.last_name}</span><span className="block text-xs text-on-surface-variant">{guardian.email || guardian.phone_number}</span></button>)}</div>}
+              </div>
+              <div className="space-y-1"><label htmlFor="guardian_last_name" className={labelClass}>Last name</label><input onChange={e => updateGuardianField("last_name", e.target.value)} value={guardian_last_name} type="text" id="guardian_last_name" name="guardian_last_name" className={compactFieldClass} placeholder="Doe" required /></div>
+              <div className="space-y-1"><label htmlFor="guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => updateGuardianField("phone_number", e.target.value)} value={guardian_phone_number} type="tel" id="guardian_phone_number" name="guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" required /></div>
+              <div className="space-y-1"><label htmlFor="guardian_email" className={labelClass}>Email address</label><input onChange={e => updateGuardianField("email", e.target.value)} value={guardian_email} type="email" id="guardian_email" name="guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required /></div>
             </div>
           </section>
           <section className="bg-surface-bright rounded-xl shadow-soft border border-surface-variant p-6">
             <div className="flex items-center gap-3 mb-5 pb-3 border-b border-surface-variant"><div className="w-8 h-8 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center"><UserPlusIcon className="w-[18px] h-[18px]" /></div><h2 className="text-headline-sm text-on-surface">Secondary Guardian</h2></div>
             <div className="space-y-stack-sm">
-              <div className="space-y-1"><label htmlFor="secondary_guardian_name" className={labelClass}>First name</label><input onChange={e => setSecondaryGuardianName(e.target.value)} value={secondary_guardian_name} type="text" id="secondary_guardian_name" name="secondary_guardian_name" className={compactFieldClass} placeholder="John" /></div>
-              <div className="space-y-1"><label htmlFor="secondary_guardian_last_name" className={labelClass}>Last name</label><input onChange={e => setSecondaryGuardianLastName(e.target.value)} value={secondary_guardian_last_name} type="text" id="secondary_guardian_last_name" name="secondary_guardian_last_name" className={compactFieldClass} placeholder="Doe" /></div>
-              <div className="space-y-1"><label htmlFor="secondary_guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => setSecondaryGuardianPhoneNumber(e.target.value)} value={secondary_guardian_phone_number} type="tel" id="secondary_guardian_phone_number" name="secondary_guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" /></div>
-              <div className="space-y-1"><label htmlFor="secondary_guardian_email" className={labelClass}>Email address</label><input onChange={e => setSecondaryGuardianEmail(e.target.value)} value={secondary_guardian_email} type="email" id="secondary_guardian_email" name="secondary_guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" /></div>
+              <div className="space-y-1 relative"><label htmlFor="secondary_guardian_name" className={labelClass}>First name</label><input onFocus={() => setIsSecondaryGuardianSearchOpen(true)} onBlur={() => window.setTimeout(() => setIsSecondaryGuardianSearchOpen(false), 100)} onChange={e => { updateSecondaryGuardianField("name", e.target.value); setIsSecondaryGuardianSearchOpen(true) }} value={secondary_guardian_name} type="text" id="secondary_guardian_name" name="secondary_guardian_name" className={compactFieldClass} placeholder="John" autoComplete="off" role="combobox" aria-autocomplete="list" aria-controls="secondary-guardian-options" aria-expanded={isSecondaryGuardianSearchOpen && !secGuardianId && secondary_guardian_name.trim().length >= 3} />
+                {isSecondaryGuardianSearchOpen && !secGuardianId && secondary_guardian_name.trim().length >= 3 && (isSecondaryGuardianSearching || secondaryGuardianOptions.length > 0) && <div id="secondary-guardian-options" role="listbox" className="absolute z-30 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto rounded-md border border-outline-variant bg-surface-container-lowest shadow-soft">{isSecondaryGuardianSearching && <p className="px-3 py-2 text-sm text-on-surface-variant">Searching...</p>}{!isSecondaryGuardianSearching && secondaryGuardianOptions.filter(guardian => guardian.id !== guardianId).map(guardian => <button key={guardian.id} type="button" role="option" onMouseDown={event => event.preventDefault()} onClick={() => selectSecondaryGuardian(guardian)} className="w-full px-3 py-2 text-left hover:bg-surface-container-low focus:bg-surface-container-low outline-none"><span className="block text-sm text-on-surface capitalize">{guardian.name} {guardian.last_name}</span><span className="block text-xs text-on-surface-variant">{guardian.email || guardian.phone_number}</span></button>)}</div>}
+              </div>
+              <div className="space-y-1"><label htmlFor="secondary_guardian_last_name" className={labelClass}>Last name</label><input onChange={e => updateSecondaryGuardianField("last_name", e.target.value)} value={secondary_guardian_last_name} type="text" id="secondary_guardian_last_name" name="secondary_guardian_last_name" className={compactFieldClass} placeholder="Doe" /></div>
+              <div className="space-y-1"><label htmlFor="secondary_guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => updateSecondaryGuardianField("phone_number", e.target.value)} value={secondary_guardian_phone_number} type="tel" id="secondary_guardian_phone_number" name="secondary_guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" /></div>
+              <div className="space-y-1"><label htmlFor="secondary_guardian_email" className={labelClass}>Email address</label><input onChange={e => updateSecondaryGuardianField("email", e.target.value)} value={secondary_guardian_email} type="email" id="secondary_guardian_email" name="secondary_guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" /></div>
             </div>
           </section>
         </aside>
