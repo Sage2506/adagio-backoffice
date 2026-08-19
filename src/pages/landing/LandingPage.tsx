@@ -234,7 +234,7 @@ export default function LandingPage() {
                                 <div>
                                     <h4 className="font-label-md text-label-md text-on-background text-lg">Zumba</h4>
                                     <p className="font-body-md text-body-md text-on-surface-variant mt-1">Lunes a viernes</p>
-                                    <p className="font-body-md text-body-md text-on-surface-variant mt-1 text-right">8:00 am -
+                                    <p className="font-body-md text-body-md text-on-surface-variant mt-1">8:00 am -
                                         9:00 am • 7:00 pm - 8:00 pm</p>
                                 </div>
                             </div>
