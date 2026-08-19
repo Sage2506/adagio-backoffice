@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeftIcon, ChevronRightIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 
 interface CalendarDay {
@@ -21,12 +22,17 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [currentView, setCurrentView] = useState<CalendarView>('days');
+  const [popupPosition, setPopupPosition] = useState<{ top: number, left: number, width: number } | null>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   // Handle click outside to close
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (calendarRef.current && !calendarRef.current.contains(event.target as Node)) {
+      if (
+        calendarRef.current && !calendarRef.current.contains(event.target as Node) &&
+        popupRef.current && !popupRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
         // Reset to days view when closing
         setCurrentView('days');
@@ -142,6 +148,19 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
     );
   };
 
+  const toggleCalendar = (): void => {
+    if (isOpen) {
+      setIsOpen(false);
+      return;
+    }
+
+    const rect = calendarRef.current?.getBoundingClientRect();
+    if (rect) {
+      setPopupPosition({ top: rect.bottom + 4, left: rect.left, width: Math.max(rect.width, 288) });
+    }
+    setIsOpen(true);
+  };
+
   return (
     <div className="relative" ref={calendarRef}>
       <div className="flex items-center w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-lowest text-on-surface focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all font-body-md">
@@ -151,20 +170,20 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
           value={formatDate(selectedDate)}
           placeholder={placeholder || "Select date"}
           className="flex-grow outline-none bg-transparent"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={toggleCalendar}
           id={id}
           name={name}
         />
         <button
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={toggleCalendar}
           className="p-1 text-on-surface-variant hover:text-primary focus:outline-none focus:ring-1 focus:ring-primary rounded-lg"
         >
           <CalendarDaysIcon className="h-5 w-5" />
         </button>
       </div>
-      {isOpen && (
-        <div className="absolute z-50 mt-1 w-full bg-surface-lowest border border-outline-variant rounded-lg shadow-soft p-4">
+      {isOpen && popupPosition && createPortal(
+        <div ref={popupRef} className="fixed z-[100] bg-surface-container-lowest border border-outline-variant rounded-lg shadow-soft p-4" style={popupPosition}>
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={currentView === 'days' ? prevMonth : prevYear}
@@ -273,7 +292,8 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
               })}
             </div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

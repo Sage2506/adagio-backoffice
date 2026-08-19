@@ -2,12 +2,15 @@ import type { IAlumnRecord } from "./alumns"
 import type { ILinks } from "./common"
 import type { IPlanRecord } from "./plans"
 
+export type IPaymentMethod = 'cash' | 'card'
+
 export interface IPaymentNew {
   payment: {
     alumn_id: string
     quantity: string
     created_at?: string
     paid_at?: string
+    payment_method?: IPaymentMethod
   }
   paid_amount?: string
   payable_type: 'subscription' | 'order'
@@ -29,6 +32,7 @@ export interface IPaymentRecord {
   quantity: number
   updated_at: string
   user_email: string
+  payment_method: string
 }
 
 export interface IPostPaymentResponse {

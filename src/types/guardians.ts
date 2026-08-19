@@ -2,7 +2,7 @@ export interface IGuadianRecord {
   id: number
   name: string
   last_name: string
-  address: any
+  address: string | null
   phone_number: string
   email: string
   is_active: boolean
@@ -22,7 +22,7 @@ export interface IGuardianRecord {
   id: number
   name: string
   last_name: string
-  address: any
+  address: string | null
   phone_number: string
   email: string
   is_active: boolean
@@ -33,4 +33,9 @@ export interface IGuardianRecord {
 export interface IPostGuardianResponse {
   success: true,
   data: IGuardianRecord
+}
+
+export interface IGetGuardiansResponse {
+  success: true
+  data: IGuardianRecord[]
 }

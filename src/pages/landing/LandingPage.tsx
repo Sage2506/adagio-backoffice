@@ -1,4 +1,19 @@
+import { useEffect } from "react";
+import { useScrollTracking } from "../../hooks/useScrollTracking";
+import { trackPageView } from "../../lib/analytics";
+import ExternalLink from "../../components/ExternalLink";
+
 export default function LandingPage() {
+    const heroRef = useScrollTracking('hero', 'Hero - Sección principal');
+    const aboutRef = useScrollTracking('about', 'Sobre Nosotros');
+    const classesRef = useScrollTracking('classes', 'Nuestras Clases');
+    const xvRef = useScrollTracking('xv', 'XV Años');
+    const adultClassesRef = useScrollTracking('adult-classes', 'Clases para Adultos');
+    const socialsRef = useScrollTracking('socials', 'Sección de Sociales');
+    const contactRef = useScrollTracking('contact', 'Contacto');
+    useEffect(() => {
+        trackPageView(location.pathname + location.search);
+    }, [location]);
     return (
         <main className="min-h-screen w-full bg-background text-on-background font-body-md antialiased pt-20">
             <header className="fixed top-0 w-full z-50 bg-surface/95 backdrop-blur-xl border-b border-outline-variant/40">
@@ -7,13 +22,13 @@ export default function LandingPage() {
                         <img src="./Logotipo.png" alt="Adagio Logo" className="h-24 w-auto object-contain dark:hidden" />
                         <img src="./logoBlanco.png" alt="Adagio Logo" className="h-24 w-auto object-contain hidden dark:block" />
                     </div>
-                    <a href="https://wa.me/+526681096194?text=Hola%21%20Me%20gustaria%20agendar%20una%20clase%20muestra%21" target="_blank" className="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-full hover:bg-surface-tint duration-300 active:scale-95 transition-transform flex items-center justify-center min-h-[48px]">
+                    <ExternalLink href="https://wa.me/+526681096194?text=Hola%21%20Me%20gustaria%20agendar%20una%20clase%20muestra%21" className="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-full hover:bg-surface-tint duration-300 active:scale-95 transition-transform flex items-center justify-center min-h-[48px]" trackLabel="Agendar clase gratis botón header">
                         Agendar
-                    </a>
+                    </ExternalLink>
                 </div>
             </header>
             {/* Hero Section */}
-            <section className="relative h-screen flex items-center justify-center overflow-hidden">
+            <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 w-full h-full">
                     <div className="bg-cover bg-center w-full h-full opacity-60 dark:hidden" data-alt="A graceful young ballet dancer leaping in mid-air in a brightly lit, spacious dance studio with high windows. The aesthetic is elegant and airy, using soft natural light. The color palette is minimal with pristine whites, soft cream, and subtle hints of magenta in the dancer's attire, embodying a classic and welcoming mood." style={{ backgroundImage: "url('./bailarina-principal.jpg')" }}></div>
                     <div className="bg-cover bg-center w-full h-full opacity-60 hidden dark:block" data-alt="A graceful young ballet dancer leaping in mid-air in a brightly lit, spacious dance studio with high windows. The aesthetic is elegant and airy, using soft natural light. The color palette is minimal with pristine whites, soft cream, and subtle hints of magenta in the dancer's attire, embodying a classic and welcoming mood." style={{ backgroundImage: "url('./bailarina-principal-dark.jpg')" }}></div>
@@ -22,13 +37,13 @@ export default function LandingPage() {
                 <div className="relative z-10 text-center max-w-container-max px-margin-mobile md:px-margin-desktop mx-auto mt-20">
                     <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-6 max-w-3xl mx-auto">Descubre el talento de tu hija a través de la danza</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-2xl mx-auto">Clases de Ballet y Jazz para niñas y jóvenes. ¡Pregunta por nuestras clases de Yoga y Zumba para ti!</p>
-                    <a href="https://wa.me/+526681096194?text=Hola%21%20Me%20gustaria%20agendar%20una%20clase%20muestra%21" target="_blank" className="bg-primary text-on-primary font-label-md text-label-md px-8 py-4 rounded-full hover:shadow-lg transition-all active:scale-95 min-h-[48px] inline-flex items-center justify-center ">
+                    <ExternalLink href="https://wa.me/+526681096194?text=Hola%21%20Me%20gustaria%20agendar%20una%20clase%20muestra%21" className="bg-primary text-on-primary font-label-md text-label-md px-8 py-4 rounded-full hover:shadow-lg transition-all active:scale-95 min-h-[48px] inline-flex items-center justify-center " trackLabel="Agendar clase gratis botón hero">
                         Agenda una clase gratis
-                    </a>
+                    </ExternalLink>
                 </div>
             </section>
             {/* About Section */}
-            <section className="py-section-gap bg-surface" id="sobre-nosotros">
+            <section ref={aboutRef} className="py-section-gap bg-surface" id="sobre-nosotros">
                 <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
                     {/* Philosophy Header */}
                     <div className="text-center mb-16 max-w-3xl mx-auto">
@@ -111,8 +126,7 @@ export default function LandingPage() {
                 </div>
             </section>
             {/* Nuestras Clases Section */}
-            <section className="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
-
+            <section ref={classesRef} className="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
                 <div className="text-center mb-stack-lg">
                     <h2 className="font-headline-md text-headline-md text-primary mb-4">Nuestras Clases</h2>
                     <div className="w-16 h-1 bg-outline-variant mx-auto"></div>
@@ -150,8 +164,44 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
+            {/* XV Section */}
+            <section ref={xvRef} className="py-section-gap bg-surface" id="quinceaneras">
+                <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                        <div className="order-2 lg:order-1 h-[500px] rounded-[2rem] overflow-hidden shadow-lg">
+                            <a href="https://www.instagram.com/p/DNBkEM8Rq_-" target="_blank"
+                                rel="noopener noreferrer" className="relative aspect-square rounded-2xl overflow-hidden group">
+                                <img alt="Coreografías para XV Años" className="w-full h-full object-top object-cover scale-105"
+                                    src="https://instagram.fcul2-1.fna.fbcdn.net/v/t51.82787-15/528296261_18077428106312942_6252760313038671332_n.webp?_nc_cat=102&ig_cache_key=MzY5MzM5MTc4Nzg2ODk5MTQ4Ng%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=pwQyIZEM310Q7kNvwHlWMdK&_nc_oc=AdpTreAi0eMMNLbkwZ9_krZZ-h6kXkcfjPVUNC6Snyq6pxf4mYBgozaEq9s-Zy0MECM&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fcul2-1.fna&_nc_gid=6hrUC2QENSJ_aZcWqq59iQ&_nc_ss=7a22e&oh=00_AQH0XNVfnbyTKpKV6fN5IH9kcJdQklZ513IykY2zbzdmfA&oe=6A8AE7B9" />
+                                <div
+                                    className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <span className="text-white font-bold">Ver en Instagram</span>
+                                </div>
+                            </a>
+                        </div>
+                        <div className="order-1 lg:order-2 space-y-8">
+                            <div className="space-y-4">
+                                <h2 className="font-headline-md text-headline-md text-on-background">Coreografías para XV Años
+                                </h2>
+                                <div className="w-16 h-1 bg-primary rounded-full"></div>
+                            </div>
+                            <p className="font-body-lg text-body-lg text-on-surface-variant">
+                                Haz que su noche sea inolvidable. Montamos el vals y el baile sorpresa con la misma
+                                filosofía de Adagio: que la quinceañera y sus chambelanes se diviertan, aprendan y brillen
+                                sin estrés ni presiones.
+                            </p>
+                            <div className="pt-4">
+                                <a className="inline-flex items-center justify-center h-12 px-8 border-2 border-primary text-primary rounded-full font-label-md text-label-md hover:bg-primary/5 transition-all hover:scale-[1.02]"
+                                    href="#contacto">
+                                    Cotizar coreografía
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
             {/* Adult Classes Section */}
-            <section className="py-section-gap bg-surface-container-highest">
+            <section ref={adultClassesRef} className="py-section-gap bg-surface-container-highest">
                 <div className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto flex flex-col md:flex-row items-center gap-gutter">
                     <div className="space-y-8">
                         <h2 className="font-headline-md text-headline-md text-on-background">Ellas bailan y tú también te mueves!</h2>
@@ -169,7 +219,8 @@ export default function LandingPage() {
                                 </div>
                                 <div>
                                     <h4 className="font-label-md text-label-md text-on-background text-lg">Yoga</h4>
-                                    <p className="font-body-md text-body-md text-on-surface-variant mt-1">Lunes a Viernes •
+                                    <p className="font-body-md text-body-md text-on-surface-variant mt-1">Lunes, martes y jueves</p>
+                                    <p className="font-body-md text-body-md text-on-surface-variant mt-1">
                                         7:00 am - 8:00 am</p>
                                 </div>
                             </div>
@@ -182,8 +233,9 @@ export default function LandingPage() {
                                 </div>
                                 <div>
                                     <h4 className="font-label-md text-label-md text-on-background text-lg">Zumba</h4>
-                                    <p className="font-body-md text-body-md text-on-surface-variant mt-1">Lunes a Viernes • 8:00 am -
-                                        9:00 am<br />Lunes a Viernes • 7:00 pm - 8:00 pm</p>
+                                    <p className="font-body-md text-body-md text-on-surface-variant mt-1">Lunes a viernes</p>
+                                    <p className="font-body-md text-body-md text-on-surface-variant mt-1 text-right">8:00 am -
+                                        9:00 am • 7:00 pm - 8:00 pm</p>
                                 </div>
                             </div>
                         </div>
@@ -200,7 +252,7 @@ export default function LandingPage() {
                 </div>
             </section>
             {/* Galeria */}
-            <section className="py-16 bg-surface">
+            <section ref={socialsRef} className="py-16 bg-surface">
                 <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
                     <div className="text-center mb-12">
                         <h2 className="font-headline-md text-headline-md text-primary mb-2">Únete a nuestra comunidad</h2>
@@ -210,35 +262,35 @@ export default function LandingPage() {
                         <a href="https://www.instagram.com/p/DZsdBRzhc8Q" target="_blank"
                             rel="noopener noreferrer" className="relative aspect-square rounded-2xl overflow-hidden group">
                             <img src="https://instagram.fcul2-1.fna.fbcdn.net/v/t51.82787-15/726432404_18112098992312942_4601579448816723080_n.webp?stp=dst-webp_s750x750_sh2.08&_nc_cat=101&ig_cache_key=MzkyMTYzNzAwNjcxOTE3NjQ2NA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=XYI3TeV3JcwQ7kNvwGn44sc&_nc_oc=AdoS7qeEadyrmiL9U-DCG7kzYDyVpNetA8QiLFmhTTI6_mGO5z688o360rqTwzvJnEU&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fcul2-1.fna&_nc_gid=9LniKFU68ACoxyaS8TCDlg&_nc_ss=7a22e&oh=00_AQFxX0CW3DpVzKyU37CTYyYBny0kUgTqRS28iwCpHfwHeQ&oe=6A87F8AC"
-                                alt="Instagram post 1" className="w-full h-full object-cover"/>
-                                <div
-                                    className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <span className="text-white font-bold">Ver en Instagram</span>
-                                </div>
+                                alt="Instagram post 1" className="w-full h-full object-cover" />
+                            <div
+                                className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <span className="text-white font-bold">Ver en Instagram</span>
+                            </div>
                         </a>
                         <a href="https://www.instagram.com/p/DTLdugSEQHx" target="_blank"
                             rel="noopener noreferrer" className="relative aspect-square rounded-2xl overflow-hidden group">
                             <img src="https://instagram.fcul2-1.fna.fbcdn.net/v/t51.82787-15/612661851_18094145774312942_2854689488168497787_n.webp?stp=dst-webp_s750x750_sh2.08&_nc_cat=110&ig_cache_key=MzgwNDI2NTA0OTM1MjExMDU3Nw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=fo1aeS2HgxIQ7kNvwEFSeK1&_nc_oc=AdrDW0Pz_ysg5YS5B5YyNzHYp3sBMbCVI4exHCe0pzyaSgJ3BN3Dc6p1yMS31IDwl5k&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fcul2-1.fna&_nc_gid=VVqNpCSwNEqRSO0JgigbnQ&_nc_ss=7a22e&oh=00_AQFVNFhui6TSqxLGwDnOcMdz4DhBRMrBd_gMH6ZhAySM9A&oe=6A881E07"
-                                alt="Instagram post 2" className="w-full h-full object-cover"/>
-                                <div
-                                    className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <span className="text-white font-bold">Ver en Instagram</span>
-                                </div>
+                                alt="Instagram post 2" className="w-full h-full object-cover" />
+                            <div
+                                className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <span className="text-white font-bold">Ver en Instagram</span>
+                            </div>
                         </a>
                         <a href="https://www.instagram.com/p/DbBqtTShDKZ" target="_blank"
                             rel="noopener noreferrer" className="relative aspect-square rounded-2xl overflow-hidden group">
                             <img src="https://instagram.fcul2-1.fna.fbcdn.net/v/t51.82787-15/751563707_18116124041312942_4839258940002108305_n.webp?_nc_cat=103&ig_cache_key=Mzk0NTYyMjU3OTU5NDkzMjg4OQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=1lTsBJFB24gQ7kNvwGcOHvH&_nc_oc=AdpctLVcNvEi0uxwe7RvPzASjvDN1Ep7tXqbKL-Kmec1ExtNB80BL_OCY7gFHYlQAmw&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fcul2-1.fna&_nc_gid=bNAFeUqsB5OnDPTfopr3MQ&_nc_ss=7a22e&oh=00_AQEuD5zYzy0vdpBcvdq_D6-I45ZBwYYhU2TwE7BJQm3JTA&oe=6A8815A1"
-                                alt="Instagram post 3" className="w-full h-full object-cover"/>
-                                <div
-                                    className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <span className="text-white font-bold">Ver en Instagram</span>
-                                </div>
+                                alt="Instagram post 3" className="w-full h-full object-cover" />
+                            <div
+                                className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <span className="text-white font-bold">Ver en Instagram</span>
+                            </div>
                         </a>
                     </div>
                 </div>
             </section>
             {/* Redes Sociales y Ubicación */}
-            <section
+            <section ref={contactRef}
                 className="py-section-gap max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop border-t border-outline-variant/20"
                 id="contacto">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
@@ -290,9 +342,9 @@ export default function LandingPage() {
                             <li className="flex items-center gap-3">
                                 <span className="material-symbols-outlined text-[20px] text-primary"
                                     data-icon="phone">phone</span>
-                                <a href="https://wa.me/+526681096194?text=Hola%21%20Me%20gustaria%20agendar%20una%20clase%20muestra" target="_blank">
+                                <ExternalLink href="https://wa.me/+526681096194?text=Hola%21%20Me%20gustaria%20agendar%20una%20clase%20muestra" trackLabel="Agendar clase gratis contacto">
                                     +52 668 109 6194
-                                </a>
+                                </ExternalLink>
                             </li>
                             <li className="flex items-center gap-3">
                                 <span className="material-symbols-outlined text-[20px] text-primary"
@@ -307,12 +359,12 @@ export default function LandingPage() {
             </section>
             {/* BottomNavBar (Mobile Only) */}
             <nav className="md:hidden bg-primary dark:bg-primary-container rounded-full w-14 h-14 fixed bottom-8 right-8 z-50 shadow-[0_8px_30px_rgba(74,68,68,0.08)] flex items-center justify-center hover:scale-110 hover:shadow-lg active:scale-90 transition-transform duration-200 cursor-pointer">
-                <a href="https://wa.me/+526681096194?text=Hola%21%20Me%20gustaria%20agendar%20una%20clase%20muestra" target="_blank" className="material-symbols-outlined text-on-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
+                <ExternalLink href="https://wa.me/+526681096194?text=Hola%21%20Me%20gustaria%20agendar%20una%20clase%20muestra" trackLabel="Agendar clase gratis botón flotante" className="material-symbols-outlined text-on-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 0 1-.923 1.785A5.969 5.969 0 0 0 6 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337Z" />
                     </svg>
 
-                </a>
+                </ExternalLink>
             </nav>
             {/* Footer */}
             <footer className="w-full bg-surface-container-low border-t border-outline-variant/40 py-section-gap">

@@ -105,15 +105,8 @@ export default function SubscriptionsTable() {
 
   return (
     <div className="w-full min-w-0 flex flex-col gap-stack-md">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-sm">
-        <div>
-          <h2 className="text-headline-lg font-headline-lg text-on-surface mb-1">Subscriptions Management</h2>
-          <p className="text-body-md font-body-md text-on-surface-variant">Manage recurring student payments and statuses.</p>
-        </div>
-      </header>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-sm w-full">
         <div className="w-full md:w-80">
-          <label htmlFor="table-search" className="sr-only">Search</label>
           <div className="relative flex items-center">
             <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
               <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -124,7 +117,7 @@ export default function SubscriptionsTable() {
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              id="table-search" className="w-full pl-10 pr-10 py-2 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-lowest text-body-md font-body-md outline-none transition-all" placeholder="Search for alumns" />
+              id="table-search" className="w-full pl-10 pr-10 py-2 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-lowest text-body-md font-body-md outline-none transition-all" placeholder="Search for subscriptions" />
             <button
               type="button"
               className="absolute right-1 p-2 rounded-md text-on-surface-variant hover:bg-surface-container focus:outline-none focus:ring-1 focus:ring-primary"

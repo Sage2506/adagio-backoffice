@@ -40,10 +40,10 @@ export default function PlansTable() {
 
   return (
     <div className="w-full min-w-0 flex flex-col gap-stack-md">
-      <div>
+      <div className={`${errors.length > 0 ? 'block' : 'hidden'}`}>
         {errors.map(error => <p>{error.msj}</p>)}
       </div>
-      <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-sm w-full">
         <div>
         </div>
         <div className="relative">
@@ -84,7 +84,7 @@ export default function PlansTable() {
             </tr>
           ) : (
             plans.map((plan) =>
-              <tr key={`plan_${plan.id}`} onClick={() => navigate(`/plans/form/${plan.id}`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
+              <tr key={`plan_${plan.id}`} onClick={() => navigate(`/dashboard/plans/form/${plan.id}`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
                 <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                   {plan.id}
                 </th>

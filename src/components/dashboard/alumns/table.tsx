@@ -104,7 +104,7 @@ export default function AlumnsTable() {
 
   return (
     <div className="w-full min-w-0 flex flex-col gap-stack-md">
-      <div>
+      <div className={`${errors.length > 0 ? 'block' : 'hidden'}`}>
         {errors.map((error, idx) => <p key={error + '_' + idx}>{error.msj}</p>)}
       </div>
       <ConfirmationModal
@@ -115,10 +115,9 @@ export default function AlumnsTable() {
         isModalOpen={isModalOpen}
         onConfirmResponse={((accepted: boolean) => onConfirmResponse(accepted))}
       />
-      <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
-        <div>
-          <label htmlFor="table-search" className="sr-only">Search</label>
-          <div className="relative mt-1">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-sm w-full">
+        <div className="w-full md:w-80">
+          <div className="relative flex items-center">
             <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
               <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
@@ -128,7 +127,7 @@ export default function AlumnsTable() {
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              id="table-search" className="w-full pl-10 pr-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-lowest text-body-md font-body-md outline-none transition-all shadow-sm" placeholder="Search for alumns" />
+              id="table-search" className="w-full pl-10 pr-10 py-2 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-lowest text-body-md font-body-md outline-none transition-all" placeholder="Search for alumns" />
           </div>
         </div>
         <div className="relative">

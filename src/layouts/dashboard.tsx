@@ -30,7 +30,8 @@ export default function DashboardLayout() {
             <nav
                 className="hidden lg:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-bright dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline py-stack-md z-50">
                 <div className="px-container-padding">
-                    <img src="./Logotipo.png" alt="Adagio Logo" className="h-auto w-full object-contain" />
+                    <img src="/Logotipo.png" alt="Adagio Logo" className="h-auto w-full object-contain dark:hidden" />
+                    <img src="/logoBlanco.png" alt="Adagio Logo" className="hidden h-auto w-full object-contain dark:block" />
                 </div>
                 <div className="flex-1 flex flex-col gap-1 overflow-y-auto">
                     <NavLink to={'/dashboard'} end className={({ isActive }) => `rounded-lg mx-2 px-4 py-3 flex items-center gap-3 ${isActive ? "bg-primary-container text-on-primary-container font-bold scale-95 duration-200" : "text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all"}`}

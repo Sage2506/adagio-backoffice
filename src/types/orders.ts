@@ -26,7 +26,7 @@ export interface IOrderRecord {
   remaining_balance: number
   alumn: Pick<IAlumnRecord, "id" | "name" | "last_name" | "email">
   order_products?: IOrderProductRecord[]
-  payments?: Pick<IPaymentRecord, "id" | "quantity" | "paid_at" | "created_at" | "user_email">[]
+  payments?: Pick<IPaymentRecord, "id" | "quantity" | "paid_at" | "created_at" | "user_email" | "payment_method">[]
 }
 
 export interface IOrderNew {

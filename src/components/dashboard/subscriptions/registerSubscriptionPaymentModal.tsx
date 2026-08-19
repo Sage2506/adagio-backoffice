@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import type { IPaymentNew } from "../../../types/payments";
 import { postPayment } from "../../../services/payment";
@@ -23,10 +22,12 @@ export default function RegisterSubscriptionPaymentModal({
   const [quantity, setQuantity] = useState<string>('');
   const [due_date, setDueDate] = useState<Date | null>(null);
   const [paid_at, setPaidAt] = useState<Date | null>(null);
+  const [alumnFullName, setAlumnFullName] = useState<string>('');
 
   useEffect(() => {
     if (subscription) {
       setQuantity((subscription.plan.price - subscription.paid_amount).toString())
+      setAlumnFullName(subscription.alumn.name + ' ' + subscription.alumn.last_name);
     }
   }, [subscription])
 
@@ -69,8 +70,8 @@ export default function RegisterSubscriptionPaymentModal({
       const response = await postPayment({ data });
       setIsLoading(false);
       if (response.success) {
-          resetState();
-          onSubscriptionPaid(true);
+        resetState();
+        onSubscriptionPaid(true);
       }
     }
   }
@@ -101,7 +102,7 @@ export default function RegisterSubscriptionPaymentModal({
         leaveTo="opacity-0"
       >
         <div
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 dark:bg-opacity-80 z-40"
+          className="fixed inset-0 bg-on-secondary-fixed/50 z-10 backdrop-blur-[2px] transition-opacity duration-30"
 
         />
       </TransitionChild>
@@ -117,101 +118,67 @@ export default function RegisterSubscriptionPaymentModal({
       >
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={closeDialog}>
           <div
-            className="relative bg-white rounded-lg shadow dark:bg-gray-800 w-full max-w-md"
-            onClick={(e) => e.stopPropagation()}
-          >
+            className="relative z-20 w-[92%] max-w-md bg-surface rounded-xl shadow-2xl flex flex-col overflow-hidden animate-[fadeIn_0.2s_ease-out]" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
-            <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Pagar Subscripción
-              </h3>
+            <div className="flex items-center justify-between px-gutter py-4 border-b border-outline-variant">
+              <h2 className="font-headline-sm text-headline-sm text-on-surface">Pagar Subscripción</h2>
               <button
                 type="button"
                 onClick={() => !isLoading && closeDialog()}
                 disabled={isLoading}
-                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <XMarkIcon className="w-4 h-4" />
-                <span className="sr-only">Close modal</span>
+                className="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high p-1.5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 focus:ring-offset-surface">
+                <span className="material-symbols-outlined text-[20px] leading-none block">close</span>
               </button>
             </div>
-
             {/* Body */}
-            <div className="p-4 md:p-5">
-              <form
-                onSubmit={(e) => formSubmit(e)}
-                className={`space-y-6 ${isLoading ? "opacity-50 pointer-events-none" : ""}`}
-              >
-                <p className="capitalize text-gray-900 dark:text-white">
-                  {subscription?.alumn.name} {subscription?.alumn.last_name}
-                </p>
-
-                <div>
-                  <label
-                    htmlFor="quantity"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Quantity
-                  </label>
+            <form onSubmit={(e) => formSubmit(e)} className={`p-gutter flex flex-col gap-stack-md overflow-y-auto max-h-[70vh] ${isLoading ? "opacity-50 pointer-events-none" : ""}`}>
+              <div>
+                <p className="font-body-lg text-body-lg text-on-surface font-medium capitalize">{alumnFullName}</p>
+              </div>
+              <div className="flex flex-col gap-base">
+                <label className="font-label-md text-label-md text-on-surface-variant">Quantity</label>
+                <div className="relative">
                   <input
                     onChange={(e) => {
                       handlePriceInputChange(e, setQuantity)
                     }}
                     value={quantity}
-                    type="number"
-                    id="quantity"
-                    name="quantity"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="$0.00"
-                    required
-                    pattern="^\d+(\.\d{1,2})?$"
-                    step="0.01"
-                    min="0" />
+                    className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-shadow placeholder-outline"
+                    id="quantity" placeholder="0" type="number" />
                 </div>
-
-                <div>
-                  <label
-                    htmlFor="due_date"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Due Date
-                  </label>
-                  <DatePicker
-                    value={due_date}
-                    onChange={(date) => setDueDate(date)}
-                    id="due_date"
-                    name="due_date"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="paid_at"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Paid Date
-                  </label>
-                  <DatePicker
-                    placeholder="Select a paid date"
-                    value={paid_at}
-                    onChange={(date) => setPaidAt(date)}
-                    id="paid_at"
-                    name="paid_at" />
-                </div>
-              </form>
-            </div>
-
-            {/* Footer */}
-            <div className="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+              </div>
+              <div className="flex flex-col gap-base">
+                <label className="font-label-md text-label-md text-on-surface-variant">Paid Date</label>
+                <DatePicker
+                  placeholder="Select a paid date"
+                  value={paid_at}
+                  onChange={(date) => setPaidAt(date)}
+                  id="paid_at"
+                  name="paid_at" />
+              </div>
+              <div className="flex flex-col gap-base">
+                <label className="font-label-md text-label-md text-on-surface-variant">Due Date</label>
+                <DatePicker
+                  value={due_date}
+                  onChange={(date) => setDueDate(date)}
+                  id="due_date"
+                  name="due_date"
+                />
+              </div>
+            </form>
+            <div
+              className="px-gutter py-4 bg-surface-container-lowest border-t border-outline-variant flex flex-row-reverse justify-start gap-stack-sm mt-auto">
               <button
-                type="button"
                 onClick={submitData}
                 disabled={isLoading}
-                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50 disabled:cursor-not-allowed">
+
+                className={`bg-primary text-on-primary font-label-md text-label-md px-6 py-2.5 rounded-lg hover:bg-surface-tint active:bg-on-primary-fixed-variant transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface`}>
                 {isLoading ? "Processing..." : "Pay"}
               </button>
               <button
-                type="button"
                 onClick={closeDialog}
                 disabled={isLoading}
-                className="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                className="bg-transparent border border-outline text-on-surface font-label-md text-label-md px-6 py-2.5 rounded-lg hover:bg-surface-container-high active:bg-surface-variant transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface">
                 Cancel
               </button>
             </div>
