@@ -22,10 +22,12 @@ export default function RegisterSubscriptionPaymentModal({
   const [quantity, setQuantity] = useState<string>('');
   const [due_date, setDueDate] = useState<Date | null>(null);
   const [paid_at, setPaidAt] = useState<Date | null>(null);
+  const [alumnFullName, setAlumnFullName] = useState<string>('');
 
   useEffect(() => {
     if (subscription) {
       setQuantity((subscription.plan.price - subscription.paid_amount).toString())
+      setAlumnFullName(subscription.alumn.name + ' ' + subscription.alumn.last_name);
     }
   }, [subscription])
 
@@ -131,7 +133,7 @@ export default function RegisterSubscriptionPaymentModal({
             {/* Body */}
             <form onSubmit={(e) => formSubmit(e)} className={`p-gutter flex flex-col gap-stack-md overflow-y-auto max-h-[70vh] ${isLoading ? "opacity-50 pointer-events-none" : ""}`}>
               <div>
-                <p className="font-body-lg text-body-lg text-on-surface font-medium">Liliana Mata Torrero</p>
+                <p className="font-body-lg text-body-lg text-on-surface font-medium capitalize">{alumnFullName}</p>
               </div>
               <div className="flex flex-col gap-base">
                 <label className="font-label-md text-label-md text-on-surface-variant">Quantity</label>
@@ -146,15 +148,6 @@ export default function RegisterSubscriptionPaymentModal({
                 </div>
               </div>
               <div className="flex flex-col gap-base">
-                <label className="font-label-md text-label-md text-on-surface-variant">Due Date</label>
-                <DatePicker
-                  value={due_date}
-                  onChange={(date) => setDueDate(date)}
-                  id="due_date"
-                  name="due_date"
-                />
-              </div>
-              <div className="flex flex-col gap-base">
                 <label className="font-label-md text-label-md text-on-surface-variant">Paid Date</label>
                 <DatePicker
                   placeholder="Select a paid date"
@@ -162,6 +155,15 @@ export default function RegisterSubscriptionPaymentModal({
                   onChange={(date) => setPaidAt(date)}
                   id="paid_at"
                   name="paid_at" />
+              </div>
+              <div className="flex flex-col gap-base">
+                <label className="font-label-md text-label-md text-on-surface-variant">Due Date</label>
+                <DatePicker
+                  value={due_date}
+                  onChange={(date) => setDueDate(date)}
+                  id="due_date"
+                  name="due_date"
+                />
               </div>
             </form>
             <div

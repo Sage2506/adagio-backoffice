@@ -40,10 +40,10 @@ export default function PlansTable() {
 
   return (
     <div className="w-full min-w-0 flex flex-col gap-stack-md">
-      <div>
+      <div className={`${errors.length > 0 ? 'block' : 'hidden'}`}>
         {errors.map(error => <p>{error.msj}</p>)}
       </div>
-      <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-sm w-full">
         <div>
         </div>
         <div className="relative">

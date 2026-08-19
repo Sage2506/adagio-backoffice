@@ -55,7 +55,7 @@ export default function OrdersTable() {
           {errors.map((error, index) => <p key={`${error.msj}_${index}`}>{error.msj}</p>)}
         </div>
       )}
-      <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
+      <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between">
         <div />
         <div className="relative">
           <button onClick={() => navigate('/dashboard/orders/form')} className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg flex items-center gap-2 hover:bg-surface-tint transition-colors shadow-sm whitespace-nowrap" type="button">

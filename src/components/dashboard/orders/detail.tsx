@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router";
 import { getOrder } from "../../../services/order";
 import { postPayment } from "../../../services/payment";
 import type { IOrderRecord } from "../../../types/orders";
-import type { IPaymentNew } from "../../../types/payments";
+import type { IPaymentMethod, IPaymentNew } from "../../../types/payments";
 import { formatPrettyLongDateShort, formatPrice, handlePriceInputChange } from "../../../utils/numbers";
 
 const statusStyles = {
@@ -18,6 +18,7 @@ export default function OrderDetail() {
   const navigate = useNavigate();
   const [order, setOrder] = useState<IOrderRecord>();
   const [amount, setAmount] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<IPaymentMethod>("cash");
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaying, setIsPaying] = useState(false);
@@ -72,10 +73,15 @@ export default function OrderDetail() {
       payable_id: order.id.toString()
     };
 
+    if (paymentMethod !== "cash") {
+      data.payment.payment_method = paymentMethod;
+    }
+
     setIsPaying(true);
     const response = await postPayment({ data });
     if (response.success) {
       setAmount("");
+      setPaymentMethod("cash");
       setErrors([]);
       setRefreshKey(value => value + 1);
     } else {
@@ -109,7 +115,7 @@ export default function OrderDetail() {
       <header className="flex flex-wrap items-start justify-between gap-4 border-b border-gray-200 pb-5 dark:border-gray-700">
         <div>
           <p className="text-sm text-gray-500 dark:text-gray-400">Order #{order.id}</p>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{order.alumn.name} {order.alumn.last_name}</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white capitalize">{order.alumn.name} {order.alumn.last_name}</h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Created {formatPrettyLongDateShort(order.created_at)} by {order.user_email}</p>
         </div>
         <span className={`inline-flex px-3 py-1.5 text-sm font-semibold capitalize ${statusStyles[order.status]}`}>{order.status}</span>
@@ -163,7 +169,10 @@ export default function OrderDetail() {
                 {order.payments.map(payment => (
                   <div key={payment.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
                     <div><p className="font-medium text-gray-900 dark:text-white">{formatPrice(payment.quantity)}</p><p className="text-xs text-gray-500">{payment.user_email}</p></div>
-                    <time className="text-sm text-gray-500">{formatPrettyLongDateShort(payment.paid_at || payment.created_at)}</time>
+                    <div className="text-right">
+                      <time className="block text-sm text-gray-500">{formatPrettyLongDateShort(payment.paid_at || payment.created_at)}</time>
+                      <span className="block text-xs capitalize text-gray-500">{payment.payment_method}</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -183,8 +192,19 @@ export default function OrderDetail() {
           </dl>
           <form onSubmit={submitPayment} className="space-y-4">
             <div>
-              <label htmlFor="payment-amount" className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Amount</label>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <label htmlFor="payment-amount" className="block text-sm font-medium text-gray-900 dark:text-white">Amount</label>
+                <button type="button" disabled={isPaid || isPaying} onClick={() => setAmount(order.remaining_balance.toString())} className="text-sm font-medium text-blue-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60 disabled:no-underline dark:text-blue-400">Remaining balance</button>
+              </div>
               <input id="payment-amount" type="number" min="0.01" max={order.remaining_balance} step="0.01" disabled={isPaid || isPaying} value={amount} onChange={event => handlePriceInputChange(event, setAmount)} placeholder="0.00" className="block w-full border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+            </div>
+            <div>
+              <p className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Payment Method</p>
+              <div className="flex rounded-lg border border-outline-variant overflow-hidden">
+                {(["cash", "card"] as const).map(method => (
+                  <button key={method} type="button" disabled={isPaid || isPaying} onClick={() => setPaymentMethod(method)} className={`flex-1 py-3 text-body-md font-body-md border-r border-outline-variant last:border-r-0 capitalize transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${paymentMethod === method ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-on-surface-variant hover:bg-surface-container'}`}>{method}</button>
+                ))}
+              </div>
             </div>
             <button type="submit" disabled={isPaid || isPaying} className="inline-flex w-full items-center justify-center gap-2 bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:cursor-not-allowed disabled:bg-gray-400 dark:bg-blue-600 dark:hover:bg-blue-700">
               <CreditCardIcon className="h-5 w-5" />
