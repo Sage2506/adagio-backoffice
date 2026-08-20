@@ -7,6 +7,7 @@ export interface ISubscriptionNew {
   alumn_id: string
   status?: number
   subscribed_at?: string
+  custom_price?: number
 }
 export interface ISubscriptionRecord {
   plan_id: number
@@ -14,6 +15,8 @@ export interface ISubscriptionRecord {
   id: number
   due_date: string
   status: number
+  paid_amount: number
+  custom_price: number | null
   last_payment_date: string
   created_at: string
   updated_at: string
@@ -31,6 +34,7 @@ export interface ISubscriptionAlumnPlanRecord {
   alumn: IAlumnRecord
   plan: IPlanRecord,
   paid_amount: number
+  custom_price: number | null
 }
 
 export interface IPostSubscriptionResponse {

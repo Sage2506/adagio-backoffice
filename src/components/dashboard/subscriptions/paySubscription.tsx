@@ -14,7 +14,7 @@ export default function PaySubscriptionForm() {
 
   function onOptionSelected(option: { id: string | number, label: string, value: IPaymentAlumnPlan } | null) {
     if (option) {
-      setQuantity(option.value.plan.price.toString())
+      setQuantity((option.value.custom_price ?? option.value.plan.price).toString())
       setSubscriptionId(option.value.id)
       setAlumnId(option.value.alumn_id.toString())
     }

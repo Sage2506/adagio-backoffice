@@ -8,7 +8,7 @@ import type { IErrorResponse } from "../../../types/errors";
 import { getPlans } from "../../../services/plan";
 import type { IPlanRecord } from "../../../types/plans";
 import type { IPostSubscriptionResponse, ISubscriptionRecord } from "../../../types/subscriptions";
-import { postSubscription, putSubscription } from "../../../services/subscription";
+import { putSubscription } from "../../../services/subscription";
 import DatePicker from "../../utils/datePicker";
 import { parseDateToYYYYMMDD } from "../../../utils/stringFormatters";
 import type { IPaymentNew, IPostPaymentResponse } from "../../../types/payments";
@@ -51,6 +51,9 @@ export default function AlumnForm() {
   const [subscriptionPayment, setSubscriptionPayment] = useState<string>('')
   const [isMonthlyPaymentIncluded, setIsMonthlyPaymentIncluded] = useState<boolean>(false);
   const [monthlyPayment, setMonthlyPayment] = useState<string>('')
+  const [usesCustomPrice, setUsesCustomPrice] = useState<boolean>(false);
+  const [customPrice, setCustomPrice] = useState<string>('');
+  const [customPriceError, setCustomPriceError] = useState<string>('');
 
   useEffect(() => {
     loadFormData()
@@ -63,7 +66,7 @@ export default function AlumnForm() {
         setMonthlyPayment(selectedPlan.price.toString());
       }
     }
-  }, [plan_id])
+  }, [plan_id, plansList, usesCustomPrice, customPrice])
 
   useEffect(() => {
     const query = guardian_name.trim()
@@ -105,6 +108,22 @@ export default function AlumnForm() {
     }
   }, [secondary_guardian_name, secGuardianId, guardianId])
 
+  useEffect(() => {
+    // si se activa el custom monthly payment con un monthly payment diferente a cero hacer el custom price igual al monthly payment
+    if (usesCustomPrice && monthlyPayment !== '0.00') {
+      setCustomPrice(monthlyPayment)
+    }
+    if (!usesCustomPrice && customPrice !== '0.00') {
+      setCustomPrice('')
+    }
+  }, [usesCustomPrice])
+
+  useEffect(() => {
+    // si se activa el pago mensual con un custom price diferente a cero hacer el monthly payment igual al custom price
+    if (isMonthlyPaymentIncluded && customPrice !== '0.00') {
+      setMonthlyPayment(customPrice)
+    }
+  }, [isMonthlyPaymentIncluded])
   function updateGuardianField(field: "name" | "last_name" | "phone_number" | "email", value: string) {
     if (guardianId) {
       setGuardianId(undefined)
@@ -156,6 +175,7 @@ export default function AlumnForm() {
     setSecondaryGuardianOptions([])
     setIsSecondaryGuardianSearchOpen(false)
   }
+
   function loadFormData() {
     const promises = []
     promises.push(loadPlans());
@@ -220,6 +240,16 @@ export default function AlumnForm() {
 
   function formSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    const parsedCustomPrice = Number(customPrice)
+    if (!id && usesCustomPrice && (!customPrice || !Number.isFinite(parsedCustomPrice) || parsedCustomPrice <= 0)) {
+      setCustomPriceError("El precio personalizado debe ser mayor a 0.")
+      return
+    }
+    //validar que no se pueda crear un alumno con creacion de primer pago mensual mayor a el precio del plan seleccionado o de un precio personalizado si se activa la opcion de precio personalizado
+    if (isMonthlyPaymentIncluded && (usesCustomPrice ? parsedCustomPrice : Number(monthlyPayment)) < Number(monthlyPayment)) {
+      setCustomPriceError(`El primer pago mensual no puede ser mayor al costo de la mensualidad.`);
+      return;
+    }
     const alumn: IAlumnNew = {
       name,
       last_name,
@@ -231,6 +261,13 @@ export default function AlumnForm() {
       is_guardian_required_for_leaving,
       guardian_ids: [guardianId, secGuardianId].filter((guardianId): guardianId is number => guardianId !== undefined)
     };
+    if (!id) {
+      alumn.subscription_attributes = {
+        plan_id,
+        subscribed_at: subscribedAt ? parseDateToYYYYMMDD(subscribedAt) : undefined,
+        ...(usesCustomPrice ? { custom_price: parsedCustomPrice } : {})
+      };
+    }
     const guardian = {
       name: guardian_name,
       last_name: guardian_last_name,
@@ -266,7 +303,13 @@ export default function AlumnForm() {
       const promises: Promise<IPostGuardianResponse | IPostSubscriptionResponse | IErrorResponse>[] = [];
       promises.push(subscription_id
         ? putSubscription({ id: subscription_id, data: { alumn_id: response.data.id.toString(), plan_id } })
-        : postSubscription({ data: { alumn_id: response.data.id.toString(), plan_id, subscribed_at: subscribedAt ? parseDateToYYYYMMDD(subscribedAt) : undefined } }))
+        : Promise.resolve({
+          success: true as const,
+          data: {
+            id: response.data.subscription_id!,
+            plan_id: Number(plan_id)
+          } as ISubscriptionRecord
+        }))
       const mainGuardianResponseIndex = guardianId ? undefined : promises.length
       if (!guardianId) {
         promises.push(postGuardian({ data: { ...args.guardian, alumn_id: response.data.id.toString() } }))
@@ -400,6 +443,12 @@ export default function AlumnForm() {
             </div>
             <div className="space-y-stack-md">
               <div className="space-y-2"><label htmlFor="plan_id" className={labelClass}>Select a Plan</label><select id="plan_id" name="plan_id" value={plan_id} onChange={e => setPlanId(e.target.value)} className={fieldClass} required>{plansList.map(plan => <option key={`plan_${plan.id}`} value={plan.id.toString()}>{plan.name}</option>)}</select></div>
+              {!id && plan_id &&
+                <div className="space-y-2 rounded-lg bg-surface-container-low p-4">
+                  <label className="flex items-center gap-3 text-body-md text-on-surface cursor-pointer">
+                    <input id="usesCustomPrice" name="usesCustomPrice" type="checkbox" checked={usesCustomPrice} onChange={event => { setUsesCustomPrice(event.target.checked); setCustomPriceError('') }} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />Custom monthly payment
+                  </label>
+                  <input onChange={event => { handlePriceInputChange(event, setCustomPrice); setCustomPriceError('') }} value={customPrice} type="number" id="customPrice" name="customPrice" min="0.01" step="0.01" disabled={!usesCustomPrice} className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-50`} placeholder="Precio personalizado (opcional)" aria-invalid={!!customPriceError} aria-describedby={customPriceError ? "customPriceError" : undefined} />{customPriceError && <p id="customPriceError" className="text-sm text-error">{customPriceError}</p>}</div>}
               <div className="space-y-2"><label htmlFor="special_med_conditions" className={labelClass}>Special medical conditions</label><textarea onChange={e => setSpecialMedConditions(e.target.value)} value={special_med_conditions} id="special_med_conditions" name="special_med_conditions" className={`${fieldClass} resize-none`} rows={3} placeholder="Allergies" required /><p className="text-xs text-on-surface-variant">Note any allergies or conditions instructors should be aware of.</p></div>
               <label className="flex items-start gap-3 rounded-lg bg-surface-container-low p-4 cursor-pointer"><input id="is_guardian_required_for_leaving" name="is_guardian_required_for_leaving" type="checkbox" checked={is_guardian_required_for_leaving} onChange={e => setIsGuardianRequiredForLeaving(e.target.checked)} className="mt-0.5 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" /><span className="text-body-md text-on-surface">The student may leave the installations without a guardian.</span></label>
             </div>
@@ -408,11 +457,26 @@ export default function AlumnForm() {
           {!id && <section className="bg-surface-lowest rounded-xl shadow-soft border border-surface-variant p-6 sm:p-8">
             <h2 className="text-headline-md text-on-surface mb-6">Subscription details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-stack-md">
-              <div className="space-y-2 md:col-span-2"><label htmlFor="subscribedAt" className={labelClass}>Subscription date</label><DatePicker value={subscribedAt ? new Date(subscribedAt) : null} onChange={date => setSubscribedAt(date)} id="subscribedAt" name="subscribedAt" /></div>
-              <label className="flex items-center gap-3 text-body-md text-on-surface cursor-pointer"><input id="isSubscriptionPaymentIncluded" name="isSubscriptionPaymentIncluded" type="checkbox" checked={isSubscriptionPaymentIncluded} onChange={e => setIsSubscriptionPaymentIncluded(e.target.checked)} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />Create with subscription payment</label>
-              <label className="flex items-center gap-3 text-body-md text-on-surface cursor-pointer"><input id="isMonthlyPaymentIncluded" name="isMonthlyPaymentIncluded" type="checkbox" checked={isMonthlyPaymentIncluded} onChange={e => setIsMonthlyPaymentIncluded(e.target.checked)} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />Create with first monthly payment</label>
-              {isSubscriptionPaymentIncluded && <div className="space-y-2"><label htmlFor="subscriptionPayment" className={labelClass}>Subscription</label><input onChange={e => handlePriceInputChange(e, setSubscriptionPayment)} value={subscriptionPayment} type="text" id="subscriptionPayment" name="subscriptionPayment" className={fieldClass} placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" /></div>}
-              {isMonthlyPaymentIncluded && <div className="space-y-2"><label htmlFor="monthlyPayment" className={labelClass}>Monthly payment</label><input onChange={e => handlePriceInputChange(e, setMonthlyPayment)} value={monthlyPayment} type="text" id="monthlyPayment" name="monthlyPayment" className={fieldClass} placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" /></div>}
+              <div className="space-y-2 md:col-span-2">
+                <label htmlFor="subscribedAt" className={labelClass}>Subscription date</label>
+                <DatePicker value={subscribedAt ? new Date(subscribedAt) : null} onChange={date => setSubscribedAt(date)} id="subscribedAt" name="subscribedAt" />
+              </div>
+              <label className="flex items-center gap-3 text-body-md text-on-surface cursor-pointer">
+                <input id="isSubscriptionPaymentIncluded" name="isSubscriptionPaymentIncluded" type="checkbox" checked={isSubscriptionPaymentIncluded} onChange={e => setIsSubscriptionPaymentIncluded(e.target.checked)} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />Create with subscription payment
+              </label>
+              <label className="flex items-center gap-3 text-body-md text-on-surface cursor-pointer">
+                <input id="isMonthlyPaymentIncluded" name="isMonthlyPaymentIncluded" type="checkbox" checked={isMonthlyPaymentIncluded} onChange={e => setIsMonthlyPaymentIncluded(e.target.checked)} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />Create with first monthly payment
+              </label>
+              {isSubscriptionPaymentIncluded &&
+                <div className="space-y-2">
+                  <label htmlFor="subscriptionPayment" className={labelClass}>Subscription</label>
+                  <input onChange={e => handlePriceInputChange(e, setSubscriptionPayment)} value={subscriptionPayment} type="text" id="subscriptionPayment" name="subscriptionPayment" className={fieldClass} placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" />
+                </div>
+              }
+              {isMonthlyPaymentIncluded &&
+                <div className="space-y-2">
+                  <label htmlFor="monthlyPayment" className={labelClass}>Monthly payment</label>
+                  <input onChange={e => handlePriceInputChange(e, setMonthlyPayment)} value={monthlyPayment} type="text" id="monthlyPayment" name="monthlyPayment" className={fieldClass} placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" /></div>}
             </div>
           </section>}
         </div>
@@ -426,7 +490,7 @@ export default function AlumnForm() {
               </div>
               <div className="space-y-1"><label htmlFor="guardian_last_name" className={labelClass}>Last name</label><input onChange={e => updateGuardianField("last_name", e.target.value)} value={guardian_last_name} type="text" id="guardian_last_name" name="guardian_last_name" className={compactFieldClass} placeholder="Doe" required /></div>
               <div className="space-y-1"><label htmlFor="guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => updateGuardianField("phone_number", e.target.value)} value={guardian_phone_number} type="tel" id="guardian_phone_number" name="guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" required /></div>
-              <div className="space-y-1"><label htmlFor="guardian_email" className={labelClass}>Email address</label><input onChange={e => updateGuardianField("email", e.target.value)} value={guardian_email} type="email" id="guardian_email" name="guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required /></div>
+              <div className="space-y-1"><label htmlFor="guardian_email" className={labelClass}>Email address</label><input onChange={e => updateGuardianField("email", e.target.value)} value={guardian_email} type="email" id="guardian_email" name="guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+\x2D]+@[a-z0-9.\x2D]+\.[a-z]{2,4}$" required /></div>
             </div>
           </section>
           <section className="bg-surface-bright rounded-xl shadow-soft border border-surface-variant p-6">
@@ -437,7 +501,7 @@ export default function AlumnForm() {
               </div>
               <div className="space-y-1"><label htmlFor="secondary_guardian_last_name" className={labelClass}>Last name</label><input onChange={e => updateSecondaryGuardianField("last_name", e.target.value)} value={secondary_guardian_last_name} type="text" id="secondary_guardian_last_name" name="secondary_guardian_last_name" className={compactFieldClass} placeholder="Doe" /></div>
               <div className="space-y-1"><label htmlFor="secondary_guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => updateSecondaryGuardianField("phone_number", e.target.value)} value={secondary_guardian_phone_number} type="tel" id="secondary_guardian_phone_number" name="secondary_guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" /></div>
-              <div className="space-y-1"><label htmlFor="secondary_guardian_email" className={labelClass}>Email address</label><input onChange={e => updateSecondaryGuardianField("email", e.target.value)} value={secondary_guardian_email} type="email" id="secondary_guardian_email" name="secondary_guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" /></div>
+              <div className="space-y-1"><label htmlFor="secondary_guardian_email" className={labelClass}>Email address</label><input onChange={e => updateSecondaryGuardianField("email", e.target.value)} value={secondary_guardian_email} type="email" id="secondary_guardian_email" name="secondary_guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+\x2D]+@[a-z0-9.\x2D]+\.[a-z]{2,4}$" /></div>
             </div>
           </section>
         </aside>
