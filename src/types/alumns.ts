@@ -12,6 +12,11 @@ export interface IAlumnNew {
   special_med_conditions: string
   is_guardian_required_for_leaving: boolean
   guardian_ids: number[]
+  subscription_attributes?: {
+    plan_id: string
+    subscribed_at?: string
+    custom_price?: number
+  }
 }
 
 export interface IAlumnRecord {
@@ -27,6 +32,8 @@ export interface IAlumnRecord {
   birth_date: string
   special_med_conditions: string
   is_guardian_required_for_leaving: boolean
+  plan_id?: number | null
+  subscription_id?: number | null
 }
 
 export interface IAlumnWithPlanAndSubscriptionRecord extends IAlumnRecord {

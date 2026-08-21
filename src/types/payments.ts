@@ -46,6 +46,7 @@ export interface IPaymentAlumnPlan {
   alumn_id: number
   due_date: string
   status: number
+  custom_price: number | null
   last_payment_date: string
   created_at: string
   updated_at: string

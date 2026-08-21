@@ -26,7 +26,8 @@ export default function RegisterSubscriptionPaymentModal({
 
   useEffect(() => {
     if (subscription) {
-      setQuantity((subscription.plan.price - subscription.paid_amount).toString())
+      const subscriptionPrice = subscription.custom_price ?? subscription.plan.price;
+      setQuantity((subscriptionPrice - subscription.paid_amount).toString())
       setAlumnFullName(subscription.alumn.name + ' ' + subscription.alumn.last_name);
     }
   }, [subscription])
@@ -134,6 +135,7 @@ export default function RegisterSubscriptionPaymentModal({
             <form onSubmit={(e) => formSubmit(e)} className={`p-gutter flex flex-col gap-stack-md overflow-y-auto max-h-[70vh] ${isLoading ? "opacity-50 pointer-events-none" : ""}`}>
               <div>
                 <p className="font-body-lg text-body-lg text-on-surface font-medium capitalize">{alumnFullName}</p>
+                {subscription?.custom_price != null && <p className="text-sm text-on-surface-variant">Precio personalizado: S/. {subscription.custom_price.toFixed(2)}</p>}
               </div>
               <div className="flex flex-col gap-base">
                 <label className="font-label-md text-label-md text-on-surface-variant">Quantity</label>

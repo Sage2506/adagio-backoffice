@@ -49,7 +49,8 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
         {subscription.alumn.name + ' ' + subscription.alumn.last_name}
       </td>
       <td className="px-6 py-4 capitalize">
-        {subscription.plan.name}
+        <p>{subscription.plan.name}</p>
+        {subscription.custom_price != null && <p className="text-xs normal-case text-on-surface-variant">Precio personalizado: S/. {subscription.custom_price.toFixed(2)}</p>}
       </td>
       <td className="px-6 py-4">
         <button className="rounded-xs shadow-lg p-0.5" onClick={(e) => onShowPaymentsModal(e)}>
