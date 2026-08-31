@@ -66,7 +66,7 @@ export default function PlanForm() {
         setSubscriptionDuration(subscription_duration.toString())
         setToleranceDays(tolerance_days.toString())
       } else {
-        navigate('/plans')
+        navigate('/dashboard/plans')
       }
     }
   }
