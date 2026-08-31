@@ -18,42 +18,42 @@ import { HeartIcon, UserGroupIcon, UserIcon, UserPlusIcon } from "@heroicons/rea
 export default function AlumnForm() {
   const navigate = useNavigate()
   const { id } = useParams();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [name, setName] = useState<string>("")
-  const [last_name, setLastName] = useState<string>("")
-  const [birth_date, setBirthDate] = useState<Date | null>(null)
   const [address, setAddress] = useState<string>("")
-  const [phone_number, setPhoneNumber] = useState<string>("")
-  const [email, setEmail] = useState<string>("")
-  const [is_guardian_required_for_leaving, setIsGuardianRequiredForLeaving] = useState<boolean>(false);
-  const [guardianId, setGuardianId] = useState<number>();
-  const [guardian_name, setGuardianName] = useState<string>("")
-  const [special_med_conditions, setSpecialMedConditions] = useState<string>("")
-  const [guardian_last_name, setGuardianLastName] = useState<string>("")
-  const [guardian_phone_number, setGuardianPhoneNumber] = useState<string>("")
-  const [guardian_email, setGuardianEmail] = useState<string>("")
-  const [secGuardianId, setSecondaryGuardianId] = useState<number>()
-  const [secondary_guardian_name, setSecondaryGuardianName] = useState<string>("")
-  const [secondary_guardian_last_name, setSecondaryGuardianLastName] = useState<string>("")
-  const [secondary_guardian_phone_number, setSecondaryGuardianPhoneNumber] = useState<string>("")
-  const [secondary_guardian_email, setSecondaryGuardianEmail] = useState<string>("")
-  const [guardianOptions, setGuardianOptions] = useState<IGuardianRecord[]>([])
-  const [secondaryGuardianOptions, setSecondaryGuardianOptions] = useState<IGuardianRecord[]>([])
-  const [isGuardianSearchOpen, setIsGuardianSearchOpen] = useState<boolean>(false)
-  const [isSecondaryGuardianSearchOpen, setIsSecondaryGuardianSearchOpen] = useState<boolean>(false)
-  const [isGuardianSearching, setIsGuardianSearching] = useState<boolean>(false)
-  const [isSecondaryGuardianSearching, setIsSecondaryGuardianSearching] = useState<boolean>(false)
-  const [plansList, setPlansList] = useState<IPlanRecord[]>([]);
-  const [plan_id, setPlanId] = useState<string>("");
-  const [subscription_id, setSubscriptionId] = useState<string>("");
-  const [subscribedAt, setSubscribedAt] = useState<Date | null>(null)
-  const [isSubscriptionPaymentIncluded, setIsSubscriptionPaymentIncluded] = useState<boolean>(false);
-  const [subscriptionPayment, setSubscriptionPayment] = useState<string>('')
-  const [isMonthlyPaymentIncluded, setIsMonthlyPaymentIncluded] = useState<boolean>(false);
-  const [monthlyPayment, setMonthlyPayment] = useState<string>('')
-  const [usesCustomPrice, setUsesCustomPrice] = useState<boolean>(false);
+  const [birth_date, setBirthDate] = useState<Date | null>(null)
   const [customPrice, setCustomPrice] = useState<string>('');
   const [customPriceError, setCustomPriceError] = useState<string>('');
+  const [email, setEmail] = useState<string>("")
+  const [guardian_email, setGuardianEmail] = useState<string>("")
+  const [guardian_last_name, setGuardianLastName] = useState<string>("")
+  const [guardian_name, setGuardianName] = useState<string>("")
+  const [guardian_phone_number, setGuardianPhoneNumber] = useState<string>("")
+  const [guardianId, setGuardianId] = useState<number>();
+  const [guardianOptions, setGuardianOptions] = useState<IGuardianRecord[]>([])
+  const [is_guardian_required_for_leaving, setIsGuardianRequiredForLeaving] = useState<boolean>(false);
+  const [isGuardianSearching, setIsGuardianSearching] = useState<boolean>(false)
+  const [isGuardianSearchOpen, setIsGuardianSearchOpen] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isMonthlyPaymentIncluded, setIsMonthlyPaymentIncluded] = useState<boolean>(false);
+  const [isSecondaryGuardianSearching, setIsSecondaryGuardianSearching] = useState<boolean>(false)
+  const [isSecondaryGuardianSearchOpen, setIsSecondaryGuardianSearchOpen] = useState<boolean>(false)
+  const [isSubscriptionPaymentIncluded, setIsSubscriptionPaymentIncluded] = useState<boolean>(false);
+  const [last_name, setLastName] = useState<string>("")
+  const [monthlyPayment, setMonthlyPayment] = useState<string>('')
+  const [name, setName] = useState<string>("")
+  const [phone_number, setPhoneNumber] = useState<string>("")
+  const [plan_id, setPlanId] = useState<string>("");
+  const [plansList, setPlansList] = useState<IPlanRecord[]>([]);
+  const [secGuardianId, setSecondaryGuardianId] = useState<number>()
+  const [secondary_guardian_email, setSecondaryGuardianEmail] = useState<string>("")
+  const [secondary_guardian_last_name, setSecondaryGuardianLastName] = useState<string>("")
+  const [secondary_guardian_name, setSecondaryGuardianName] = useState<string>("")
+  const [secondary_guardian_phone_number, setSecondaryGuardianPhoneNumber] = useState<string>("")
+  const [secondaryGuardianOptions, setSecondaryGuardianOptions] = useState<IGuardianRecord[]>([])
+  const [special_med_conditions, setSpecialMedConditions] = useState<string>("")
+  const [subscribedAt, setSubscribedAt] = useState<Date | null>(null)
+  const [subscription_id, setSubscriptionId] = useState<string>("");
+  const [subscriptionPayment, setSubscriptionPayment] = useState<string>('')
+  const [usesCustomPrice, setUsesCustomPrice] = useState<boolean>(false);
 
   useEffect(() => {
     loadFormData()
@@ -120,10 +120,18 @@ export default function AlumnForm() {
 
   useEffect(() => {
     // si se activa el pago mensual con un custom price diferente a cero hacer el monthly payment igual al custom price
-    if (isMonthlyPaymentIncluded && customPrice !== '0.00') {
-      setMonthlyPayment(customPrice)
+    if (isMonthlyPaymentIncluded) {
+      if (customPrice !== '') {
+        setMonthlyPayment(customPrice)
+      } else if (plan_id !== '' && plansList.length > 0) {
+        const selectedPlan = plansList.find(plan => plan.id.toString() === plan_id);
+        if (selectedPlan) {
+          setMonthlyPayment(selectedPlan.price.toString());
+        }
+      }
     }
   }, [isMonthlyPaymentIncluded])
+
   function updateGuardianField(field: "name" | "last_name" | "phone_number" | "email", value: string) {
     if (guardianId) {
       setGuardianId(undefined)
@@ -324,7 +332,7 @@ export default function AlumnForm() {
             if (isSubscriptionPaymentIncluded || isMonthlyPaymentIncluded) {
               createInitialPayments({ payableId: res[0].data.id, alumnId: response.data.id })
             } else {
-              navigate("/")
+              navigate("/dashboard")
             }
           } else {
             if (res[0].success) {
@@ -395,7 +403,7 @@ export default function AlumnForm() {
         }
       })
       if (responseSuccess) {
-        navigate("/")
+        navigate("/dashboard")
       }
     }).finally(() => {
       setIsLoading(false)
@@ -462,10 +470,10 @@ export default function AlumnForm() {
                 <DatePicker value={subscribedAt ? new Date(subscribedAt) : null} onChange={date => setSubscribedAt(date)} id="subscribedAt" name="subscribedAt" />
               </div>
               <label className="flex items-center gap-3 text-body-md text-on-surface cursor-pointer">
-                <input id="isSubscriptionPaymentIncluded" name="isSubscriptionPaymentIncluded" type="checkbox" checked={isSubscriptionPaymentIncluded} onChange={e => setIsSubscriptionPaymentIncluded(e.target.checked)} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />Create with subscription payment
+                <input id="isSubscriptionPaymentIncluded" name="isSubscriptionPaymentIncluded" type="checkbox" checked={isSubscriptionPaymentIncluded} onChange={e => setIsSubscriptionPaymentIncluded(e.target.checked)} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />Subscription payment
               </label>
               <label className="flex items-center gap-3 text-body-md text-on-surface cursor-pointer">
-                <input id="isMonthlyPaymentIncluded" name="isMonthlyPaymentIncluded" type="checkbox" checked={isMonthlyPaymentIncluded} onChange={e => setIsMonthlyPaymentIncluded(e.target.checked)} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />Create with first monthly payment
+                <input id="isMonthlyPaymentIncluded" name="isMonthlyPaymentIncluded" type="checkbox" checked={isMonthlyPaymentIncluded} onChange={e => setIsMonthlyPaymentIncluded(e.target.checked)} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />Month Payment (first month)
               </label>
               {isSubscriptionPaymentIncluded &&
                 <div className="space-y-2">
