@@ -4,7 +4,13 @@
       "develop": false
     }
   },
+  "engines": {
+    "node": "22.12.0"
+  },
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
