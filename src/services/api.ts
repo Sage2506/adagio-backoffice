@@ -16,12 +16,16 @@ export const api = axios.create({
   }
 });
 
+const canUseStorage = typeof window !== "undefined";
+
 export const tokenManager = {
   getToken: (): string | null => {
+    if (!canUseStorage) return null;
     return localStorage.getItem("id_token") || sessionStorage.getItem("id_token");
   },
 
   setToken: (token: string, rememberMe: boolean = false): void => {
+    if (!canUseStorage) return;
     if (rememberMe) {
       localStorage.setItem("id_token", token);
     } else {
@@ -31,21 +35,24 @@ export const tokenManager = {
   },
 
   removeToken: (): void => {
+    if (!canUseStorage) return;
     localStorage.removeItem("id_token");
     sessionStorage.removeItem("id_token");
     delete api.defaults.headers.common["Authorization"];
   },
 
   hasToken: (): boolean => {
+    if (!canUseStorage) return false;
     return !!(localStorage.getItem("id_token") || sessionStorage.getItem("id_token"));
   },
 
   isTokenPersistent: (): boolean => {
+    if (!canUseStorage) return false;
     return !!localStorage.getItem("id_token");
   }
 };
 
-const persistentToken = localStorage.getItem("id_token");
+const persistentToken = canUseStorage ? localStorage.getItem("id_token") : null;
 if (persistentToken) {
   api.defaults.headers.common['Authorization'] = `Bearer ${persistentToken}`;
 }
