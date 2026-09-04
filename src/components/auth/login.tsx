@@ -42,7 +42,7 @@ function Login() {
       setIsLoading(true);
       const response = await logIn({ user: data })
       if (response.success) {
-        login(response.id_token, rememberMe)
+        login()
       } else {
         setErrors(response.errors)
       }

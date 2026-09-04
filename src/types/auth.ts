@@ -1,5 +1,5 @@
 export interface ILoginResponse {
-  success: boolean, id_token: string, errors: { msj: string }[]
+  success: boolean, errors: { msj: string }[]
 }
 
 export interface IUserCredentials {
