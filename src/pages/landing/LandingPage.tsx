@@ -32,13 +32,13 @@ export default function LandingPage() {
             {/* Hero Section */}
             <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 w-full h-full">
-                    <div className="bg-cover bg-center w-full h-full opacity-60 dark:hidden" data-alt="A graceful young ballet dancer leaping in mid-air in a brightly lit, spacious dance studio with high windows. The aesthetic is elegant and airy, using soft natural light. The color palette is minimal with pristine whites, soft cream, and subtle hints of magenta in the dancer's attire, embodying a classic and welcoming mood." style={{ backgroundImage: "url('./bailarina-principal.jpg')" }}></div>
-                    <div className="bg-cover bg-center w-full h-full opacity-60 hidden dark:block" data-alt="A graceful young ballet dancer leaping in mid-air in a brightly lit, spacious dance studio with high windows. The aesthetic is elegant and airy, using soft natural light. The color palette is minimal with pristine whites, soft cream, and subtle hints of magenta in the dancer's attire, embodying a classic and welcoming mood." style={{ backgroundImage: "url('./bailarina-principal-dark.jpg')" }}></div>
+                    <img src="./bailarina-principal.jpg" alt="Bailarina de ballet en el estudio de Adagio, escuela de danza en Culiacán" className="w-full h-full object-cover object-center opacity-60 dark:hidden" fetchPriority="high" />
+                    <img src="./bailarina-principal-dark.jpg" alt="" aria-hidden="true" className="w-full h-full object-cover object-center opacity-60 hidden dark:block" fetchPriority="high" />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent"></div>
                 </div>
                 <div className="relative z-10 text-center max-w-container-max px-margin-mobile md:px-margin-desktop mx-auto mt-20">
-                    <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-6 max-w-3xl mx-auto">Descubre el talento de tu hija a través de la danza</h1>
-                    <p className="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-2xl mx-auto">Clases de Ballet y Jazz para niñas y jóvenes. ¡Pregunta por nuestras clases de Yoga y Zumba para ti!</p>
+                    <h1 className="font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-6 max-w-3xl mx-auto">Clases de Ballet y Jazz en Culiacán</h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-2xl mx-auto">Descubre el talento de tu hija a través de la danza. Ballet y Jazz para niñas y jóvenes. ¡Pregunta por nuestras clases de Yoga y Zumba para ti!</p>
                     <ExternalLink href="https://wa.me/+526681096194?text=Hola%21%20Me%20gustaria%20agendar%20una%20clase%20muestra%21" className="bg-primary text-on-primary font-label-md text-label-md px-8 py-4 rounded-full hover:shadow-lg transition-all active:scale-95 min-h-[48px] inline-flex items-center justify-center " trackLabel="Agendar clase gratis botón hero">
                         Agenda una clase gratis
                     </ExternalLink>
@@ -130,14 +130,14 @@ export default function LandingPage() {
             {/* Nuestras Clases Section */}
             <section ref={classesRef} className="py-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
                 <div className="text-center mb-stack-lg">
-                    <h2 className="font-headline-md text-headline-md text-primary mb-4">Nuestras Clases</h2>
+                    <h2 className="font-headline-md text-headline-md text-primary mb-4">Nuestras Clases de Ballet y Jazz en Culiacán</h2>
                     <div className="w-16 h-1 bg-outline-variant mx-auto"></div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
                     {/* Card 1 */}
                     <div className="group relative overflow-hidden rounded-xl bg-surface-lowest border border-outline-variant shadow-soft hover:shadow-md transition-shadow duration-300">
                         <div className="h-64 overflow-hidden relative">
-                            <div className="bg-cover bg-center w-full h-full group-hover:scale-105 transition-transform duration-500" data-alt="A very young child in a pink tutu sitting on the floor of a dance studio, reaching towards her toes. The lighting is soft and ethereal, emphasizing a welcoming and gentle environment. Colors focus on soft creams, pale pinks, and white, creating an elegant minimal aesthetic." style={{ backgroundImage: "url('./bailarinas-principal-baby.jpg')" }}></div>
+                            <img src="./bailarinas-principal-baby.jpg" alt="Clase de ballet para niñas de 3 a 7 años en Culiacán - Baby Dance en Adagio" className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                             <div className="absolute top-4 left-4 bg-tertiary-fixed-dim text-on-tertiary-fixed-variant font-label-md text-label-md px-3 py-1 rounded-full text-xs">3 a 7 años</div>
                         </div>
                         <div className="p-6">
@@ -147,7 +147,7 @@ export default function LandingPage() {
                     {/* Card 2 */}
                     <div className="group relative overflow-hidden rounded-xl bg-surface-lowest border border-outline-variant shadow-soft hover:shadow-md transition-shadow duration-300">
                         <div className="h-64 overflow-hidden relative">
-                            <div className="bg-cover bg-center w-full h-full group-hover:scale-105 transition-transform duration-500" data-alt="A group of pre-teen girls practicing ballet at a barre in a bright studio. They are wearing black leotards and pink tights. The aesthetic is clean, disciplined yet friendly, with natural light pouring in. The color palette incorporates crisp whites, blacks, and subtle warm tones." style={{ backgroundImage: "url('./bailarinas-principal-infantil.jpg')" }}></div>
+                            <img src="./bailarinas-principal-infantil.jpg" alt="Niñas de 8 a 12 años practicando ballet en la barra - clases de ballet infantil en Culiacán" className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                             <div className="absolute top-4 left-4 bg-tertiary-fixed-dim text-on-tertiary-fixed-variant font-label-md text-label-md px-3 py-1 rounded-full text-xs">8 a 12 años</div>
                         </div>
                         <div className="p-6">
@@ -157,7 +157,7 @@ export default function LandingPage() {
                     {/* Card 3 */}
                     <div className="group relative overflow-hidden rounded-xl bg-surface-lowest border border-outline-variant shadow-soft hover:shadow-md transition-shadow duration-300">
                         <div className="h-64 overflow-hidden relative">
-                            <div className="bg-cover bg-center w-full h-full group-hover:scale-105 transition-transform duration-500" data-alt="A teenage dancer striking a dramatic jazz pose in a modern dance studio. The lighting highlights the dancer's form with a slight rim light, giving an elegant and professional feel. The background is a soft greyish-cream, keeping the focus on the subject in a minimalist style." style={{ backgroundImage: "url('./bailarinas-principal-juvenil.jpg')" }}></div>
+                            <img src="./bailarinas-principal-juvenil.jpg" alt="Joven bailarina de jazz - clases de jazz y ballet para adolescentes en Culiacán" className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                             <div className="absolute top-4 left-4 bg-tertiary-fixed-dim text-on-tertiary-fixed-variant font-label-md text-label-md px-3 py-1 rounded-full text-xs">13+ años</div>
                         </div>
                         <div className="p-6">
@@ -173,8 +173,8 @@ export default function LandingPage() {
                         <div className="order-2 lg:order-1 h-[500px] rounded-[2rem] overflow-hidden shadow-lg">
                             <a href="https://www.instagram.com/p/DNBkEM8Rq_-" target="_blank"
                                 rel="noopener noreferrer" className="relative aspect-square rounded-2xl overflow-hidden group">
-                                <img alt="Coreografías para XV Años" className="w-full h-full object-top object-cover scale-105"
-                                    src="https://instagram.fcul2-1.fna.fbcdn.net/v/t51.82787-15/528296261_18077428106312942_6252760313038671332_n.webp?_nc_cat=102&ig_cache_key=MzY5MzM5MTc4Nzg2ODk5MTQ4Ng%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=pwQyIZEM310Q7kNvwHlWMdK&_nc_oc=AdpTreAi0eMMNLbkwZ9_krZZ-h6kXkcfjPVUNC6Snyq6pxf4mYBgozaEq9s-Zy0MECM&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fcul2-1.fna&_nc_gid=6hrUC2QENSJ_aZcWqq59iQ&_nc_ss=7a22e&oh=00_AQH0XNVfnbyTKpKV6fN5IH9kcJdQklZ513IykY2zbzdmfA&oe=6A8AE7B9" />
+                                <img alt="Coreografías para XV Años" className="w-full h-full object-top object-cover scale-105 group-hover:scale-110 transition-transform duration-500"
+                                    src="./xvanios.webp" />
                                 <div
                                     className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                     <span className="text-white font-bold">Ver en Instagram</span>
@@ -248,7 +248,7 @@ export default function LandingPage() {
                     </div>
                     <div className="w-full md:w-1/2">
                         <div className="relative rounded-2xl overflow-hidden aspect-[4/3] shadow-sm">
-                            <div className="bg-cover bg-center w-full h-full" data-alt="A group of adult women taking a serene yoga class in a light-filled room. The sun shines softly through the windows, highlighting a relaxed and welcoming community atmosphere. The aesthetic is light, airy, and calming, with a color palette of soft creams, whites, and muted blush." style={{ backgroundImage: "url('/claseAdultos.jpg')" }}></div>
+                            <img src="/claseAdultos.jpg" alt="Clase de yoga para adultos en Culiacán - Adagio Academia de Danza" className="w-full h-full object-cover object-center" loading="lazy" />
                         </div>
                     </div>
                 </div>
@@ -263,8 +263,8 @@ export default function LandingPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <a href="https://www.instagram.com/p/DZsdBRzhc8Q" target="_blank"
                             rel="noopener noreferrer" className="relative aspect-square rounded-2xl overflow-hidden group">
-                            <img src="https://instagram.fcul2-1.fna.fbcdn.net/v/t51.82787-15/726432404_18112098992312942_4601579448816723080_n.webp?stp=dst-webp_s750x750_sh2.08&_nc_cat=101&ig_cache_key=MzkyMTYzNzAwNjcxOTE3NjQ2NA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=XYI3TeV3JcwQ7kNvwGn44sc&_nc_oc=AdoS7qeEadyrmiL9U-DCG7kzYDyVpNetA8QiLFmhTTI6_mGO5z688o360rqTwzvJnEU&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fcul2-1.fna&_nc_gid=9LniKFU68ACoxyaS8TCDlg&_nc_ss=7a22e&oh=00_AQFxX0CW3DpVzKyU37CTYyYBny0kUgTqRS28iwCpHfwHeQ&oe=6A87F8AC"
-                                alt="Instagram post 1" className="w-full h-full object-cover" />
+                            <img src="./instagramPost1.webp"
+                                alt="Alumnas de ballet de Adagio Culiacán" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             <div
                                 className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <span className="text-white font-bold">Ver en Instagram</span>
@@ -272,8 +272,8 @@ export default function LandingPage() {
                         </a>
                         <a href="https://www.instagram.com/p/DTLdugSEQHx" target="_blank"
                             rel="noopener noreferrer" className="relative aspect-square rounded-2xl overflow-hidden group">
-                            <img src="https://instagram.fcul2-1.fna.fbcdn.net/v/t51.82787-15/612661851_18094145774312942_2854689488168497787_n.webp?stp=dst-webp_s750x750_sh2.08&_nc_cat=110&ig_cache_key=MzgwNDI2NTA0OTM1MjExMDU3Nw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=fo1aeS2HgxIQ7kNvwEFSeK1&_nc_oc=AdrDW0Pz_ysg5YS5B5YyNzHYp3sBMbCVI4exHCe0pzyaSgJ3BN3Dc6p1yMS31IDwl5k&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fcul2-1.fna&_nc_gid=VVqNpCSwNEqRSO0JgigbnQ&_nc_ss=7a22e&oh=00_AQFVNFhui6TSqxLGwDnOcMdz4DhBRMrBd_gMH6ZhAySM9A&oe=6A881E07"
-                                alt="Instagram post 2" className="w-full h-full object-cover" />
+                            <img src="./instagramPost2.webp"
+                                alt="Alumnas de ballet y jazz de Adagio Culiacán" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             <div
                                 className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <span className="text-white font-bold">Ver en Instagram</span>
@@ -281,8 +281,8 @@ export default function LandingPage() {
                         </a>
                         <a href="https://www.instagram.com/p/DbBqtTShDKZ" target="_blank"
                             rel="noopener noreferrer" className="relative aspect-square rounded-2xl overflow-hidden group">
-                            <img src="https://instagram.fcul2-1.fna.fbcdn.net/v/t51.82787-15/751563707_18116124041312942_4839258940002108305_n.webp?_nc_cat=103&ig_cache_key=Mzk0NTYyMjU3OTU5NDkzMjg4OQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=1lTsBJFB24gQ7kNvwGcOHvH&_nc_oc=AdpctLVcNvEi0uxwe7RvPzASjvDN1Ep7tXqbKL-Kmec1ExtNB80BL_OCY7gFHYlQAmw&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fcul2-1.fna&_nc_gid=bNAFeUqsB5OnDPTfopr3MQ&_nc_ss=7a22e&oh=00_AQEuD5zYzy0vdpBcvdq_D6-I45ZBwYYhU2TwE7BJQm3JTA&oe=6A8815A1"
-                                alt="Instagram post 3" className="w-full h-full object-cover" />
+                            <img src="./instagramPost3.webp"
+                                alt="Alumnas de jazz de Adagio Culiacán" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             <div
                                 className="absolute inset-0 bg-primary/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <span className="text-white font-bold">Ver en Instagram</span>
@@ -301,8 +301,12 @@ export default function LandingPage() {
                         <h2 className="font-headline-md text-headline-md text-on-surface mb-4">Ubicación</h2>
                         <div className="w-16 h-1 bg-primary mb-stack-md rounded-full"></div>
                         <div className="rounded-2xl overflow-hidden shadow-sm h-[300px] mb-4 bg-surface-variant">
-                            <iframe className="h-full w-full" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d25825.20499056438!2d-107.44721816154521!3d24.792306582256966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x86bcd10000867ad3%3A0xabed286d07d78c43!2sAdagio!5e0!3m2!1sen!2smx!4v1786909249419!5m2!1sen!2smx" style={{ border: 0 }} allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" title="Ubicación de Adagio"></iframe>
+                            <iframe className="h-full w-full" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d25825.20499056438!2d-107.44721816154521!3d24.792306582256966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x86bcd10000867ad3%3A0xabed286d07d78c43!2sAdagio!5e0!3m2!1ses!2smx!4v1786909249419!5m2!1ses!2smx" style={{ border: 0 }} allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin" title="Ubicación de Adagio"></iframe>
                         </div>
+                        <address className="flex items-start gap-3 not-italic font-body-md text-body-md text-on-surface-variant mb-4">
+                            <span className="material-symbols-outlined text-[20px] text-primary mt-0.5" data-icon="location_on">location_on</span>
+                            <span>Blvd. Valle Alto, Valle Alto,<br />80050 Culiacán Rosales, Sin.</span>
+                        </address>
                         <a className="inline-flex items-center gap-2 text-primary hover:text-primary-container font-label-md transition-colors"
                             href="https://maps.app.goo.gl/je4uQ4QihD6BECpP7" target="_blank">
                             <span className="material-symbols-outlined">map</span>
@@ -372,7 +376,8 @@ export default function LandingPage() {
             <footer className="w-full bg-surface-container-low border-t border-outline-variant/40 py-section-gap">
                 <div className="px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-gutter mb-stack-md">
-                        <div className="h-16 w-auto"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYQU8IP3BmAo5OHzho7xRBtUiUH1Qn2JWgeOrSnw4O1GvHbZm0ue95dqqxYl9_nEMScSdPwpmLnEiD_2DolOuMEmqvJlG7Mu09E-qJSkqGvO8wEmqSyQrNqabl63mUOtNxcvyZeF34MXsVYCAHcTYgipCN4Fqpynegouwz9zanh0zx-vpu7kqcJjEI8_qmNxbQW3irj9ksCnS4t65TgDmqMmgYieQaMKJen997LpnizJaawUB4mtR8Hd8kdWbYE2S43Q" alt="Adagio Logo" className="h-full w-auto object-contain" /></div>
+                        <div className="h-16 w-auto"><img src="./logo.png" alt="Adagio Logo" className="h-full w-auto object-contain dark:hidden" /></div>
+                        <div className="h-16 w-auto"><img src="./logoBlanco.png" alt="Adagio Logo" className="h-full w-auto object-contain hidden dark:block" /></div>
                         <div className="flex gap-6">
                             {/* <a className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors hover:underline decoration-primary underline-offset-4 duration-200" href="#">Clases</a>
                             <a className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors hover:underline decoration-primary underline-offset-4 duration-200" href="#">Contacto</a>
@@ -380,7 +385,7 @@ export default function LandingPage() {
                             <a className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors hover:underline decoration-primary underline-offset-4 duration-200" href="#">Términos</a> */}
                         </div>
                     </div>
-                    <div className="text-center font-body-md text-body-md text-on-surface-variant">© 2024 Adagio. Elegance in Motion.</div>
+                    <div className="text-center font-body-md text-body-md text-on-surface-variant">© 2026 Adagio. Elegancia en Movimiento.</div>
                 </div>
             </footer>
         </main>
