@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router";
 import { useAuth } from "../components/auth/useAuth";
 import BirthdaysSection from "../components/dashboard/alumns/birthdaysSection";
+import { blockDemoReadOnlyAction } from "../utils/demoMode";
 
 export default function DashboardLayout() {
     const navigate = useNavigate();
-    const { logout } = useAuth();
+    const { isDemoReadOnly, logout } = useAuth();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
@@ -23,9 +24,13 @@ export default function DashboardLayout() {
         navigate("/login", { replace: true });
     };
 
+    const handleDemoSubmit = (event: React.FormEvent<HTMLDivElement>) => {
+        blockDemoReadOnlyAction(event);
+    };
+
 
     return (
-        <div className="min-h-screen bg-background font-body-md text-on-surface w-full">
+        <div className="min-h-screen bg-background font-body-md text-on-surface w-full" data-demo-readonly={isDemoReadOnly ? "true" : undefined} onSubmitCapture={handleDemoSubmit}>
             {/* SideNavBar */}
             <nav
                 className="hidden lg:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-bright dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline py-stack-md z-50">
@@ -110,6 +115,7 @@ export default function DashboardLayout() {
                 </div>
             </aside>
             <main className="w-full pt-20 pb-24 p-container-padding lg:ml-64 lg:w-[calc(100%-256px)] lg:pt-8 lg:pb-8 xl:w-[calc(100%-696px)]">
+                {isDemoReadOnly && <p className="mb-4 rounded-lg border border-outline-variant bg-surface-container px-4 py-3 text-sm text-on-surface-variant">Demo mode: read-only access.</p>}
                 <Outlet />
             </main>
             <nav aria-label="Mobile primary navigation" className="lg:hidden fixed bottom-0 left-0 z-50 flex h-20 w-full items-center justify-around border-t border-outline-variant bg-surface px-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">

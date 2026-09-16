@@ -4,8 +4,12 @@ import api, { CREATED, OK } from "./api";
 
 const path = "/plans";
 
-export function getPlans(args: { params?: string }): Promise<IGetPlansResponse | IErrorResponse> {
-  return api.get<IGetPlansResponse>(`${path}?${args.params}`).then(response => {
+export function getPlans(args: { params?: string, limit?: number }): Promise<IGetPlansResponse | IErrorResponse> {
+  const query = new URLSearchParams(args.params);
+  if (args.limit) {
+    query.set('limit', args.limit.toString());
+  }
+  return api.get<IGetPlansResponse>(`${path}?${query.toString()}`).then(response => {
     if (response.status === OK) {
       const { data, links, pages } = response.data
       return { success: true as const, data, links, pages };
