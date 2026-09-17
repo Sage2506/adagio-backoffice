@@ -48,6 +48,41 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
     };
   }, [isOpen]);
 
+  const updatePopupPosition = (): void => {
+    const calendar = calendarRef.current;
+    if (!calendar) return;
+
+    const rect = calendar.getBoundingClientRect();
+    const popupHeight = popupRef.current?.offsetHeight ?? 380;
+    const popupWidth = Math.max(rect.width, 288);
+    const margin = 8;
+    const spaceBelow = window.innerHeight - rect.bottom - margin;
+    const fitsBelow = spaceBelow >= popupHeight;
+    const top = fitsBelow
+      ? rect.bottom + 4
+      : Math.max(margin, rect.top - popupHeight - 4);
+    const left = Math.min(
+      Math.max(margin, rect.left),
+      Math.max(margin, window.innerWidth - popupWidth - margin)
+    );
+
+    setPopupPosition({ top, left, width: popupWidth });
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const frameId = window.requestAnimationFrame(updatePopupPosition);
+    window.addEventListener('resize', updatePopupPosition);
+    window.addEventListener('scroll', updatePopupPosition, true);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener('resize', updatePopupPosition);
+      window.removeEventListener('scroll', updatePopupPosition, true);
+    };
+  }, [isOpen, currentView]);
+
   // Update internal state if value prop changes
   useEffect(() => {
     if (value !== undefined) {
@@ -154,10 +189,7 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
       return;
     }
 
-    const rect = calendarRef.current?.getBoundingClientRect();
-    if (rect) {
-      setPopupPosition({ top: rect.bottom + 4, left: rect.left, width: Math.max(rect.width, 288) });
-    }
+    updatePopupPosition();
     setIsOpen(true);
   };
 
@@ -183,7 +215,7 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
         </button>
       </div>
       {isOpen && popupPosition && createPortal(
-        <div ref={popupRef} className="fixed z-[100] bg-surface-container-lowest border border-outline-variant rounded-lg shadow-soft p-4" style={popupPosition}>
+        <div ref={popupRef} className="fixed z-[100] max-h-[calc(100vh-1rem)] overflow-y-auto bg-surface-container-lowest border border-outline-variant rounded-lg shadow-soft p-4" style={popupPosition}>
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={currentView === 'days' ? prevMonth : prevYear}

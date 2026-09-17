@@ -62,7 +62,7 @@ export default function ProductForm() {
         setPrice(price.toString())
         setDescription(description)
       } else {
-        navigate('/products')
+        navigate('/dashboard/products')
       }
     }
   }

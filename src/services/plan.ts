@@ -4,7 +4,7 @@ import api, { CREATED, OK } from "./api";
 
 const path = "/plans";
 
-export function getPlans(args: { params?: string, limit?: number }): Promise<IGetPlansResponse | IErrorResponse> {
+export function getPlans(args: { params?: string, limit?: number } = {}): Promise<IGetPlansResponse | IErrorResponse> {
   const query = new URLSearchParams(args.params);
   if (args.limit) {
     query.set('limit', args.limit.toString());

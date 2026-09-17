@@ -48,20 +48,6 @@ export default function ProductsTable() {
     })
   }
 
-  // function setPage(page: number) {
-  //   const newParams = new URLSearchParams(searchParams)
-  //   newParams.set('page[page]', page.toString());
-  //   navigate(`?${newParams.toString()}`, { replace: true });
-  // }
-
-  // function resetPager() {
-  //   if (currentPage === 1) {
-  //     loadProducts();
-  //   } else {
-  //     setPage(1)
-  //   }
-  // }
-
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') {
       const newParams = new URLSearchParams(searchParams);
