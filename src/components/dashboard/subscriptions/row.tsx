@@ -4,6 +4,7 @@ import { formatPrettyDateShort } from "../../../utils/numbers";
 import { PowerIcon } from "@heroicons/react/24/solid";
 import { getSubscriptionStatus } from "../../../utils/subscriptionStatus";
 import EditDueDateModal from "./editDueDateModal";
+import { blockDemoReadOnlyAction, isDemoReadOnlySession } from "../../../utils/demoMode";
 
 interface ISubscriptionRow {
   onClick: (e: React.MouseEvent<HTMLElement>) => void;
@@ -28,6 +29,7 @@ function getDateStatusStyle(subscription: ISubscriptionAlumnPlanRecord) {
 
 export default function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubscriptionStatus, reloadSubscriptions }: ISubscriptionRow) {
   const [isEditDueDateOpen, setIsEditDueDateOpen] = useState(false);
+  const isReadOnly = isDemoReadOnlySession();
 
   function onShowPaymentsModal(e: React.MouseEvent<HTMLElement>) {
     e.stopPropagation();
@@ -36,6 +38,7 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
 
   async function onToggleSubscriptionStatus(e: React.MouseEvent<HTMLElement>) {
     e.stopPropagation();
+    if (blockDemoReadOnlyAction(e)) return;
     toggleSubscriptionStatus(subscription);
   }
 
@@ -70,6 +73,7 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
         <div>
           <button
             type="button"
+            disabled={isReadOnly}
             className={`
         p-2 rounded-md transition-all duration-150 ease-in-out
         ${subscription.status === "active"
@@ -80,6 +84,7 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
         ${subscription.status === "active" ? 'hover:border-green-300' : 'hover:border-gray-300'}
         focus:outline-none focus:ring-1 focus:ring-opacity-50
         ${subscription.status === "active" ? 'focus:ring-green-400' : 'focus:ring-gray-400'}
+        disabled:cursor-not-allowed disabled:opacity-50
       `}
             onClick={(e) => { onToggleSubscriptionStatus(e) }}
           >

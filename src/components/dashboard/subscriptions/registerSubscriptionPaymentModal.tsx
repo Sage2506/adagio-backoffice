@@ -6,6 +6,7 @@ import DatePicker from "../../utils/datePicker";
 import { Transition, TransitionChild } from '@headlessui/react';
 import { parseDateToYYYYMMDD } from "../../../utils/stringFormatters";
 import { handlePriceInputChange } from "../../../utils/numbers";
+import { blockDemoReadOnlyAction, isDemoReadOnlySession } from "../../../utils/demoMode";
 
 interface RegisterSubscriptionPaymentModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export default function RegisterSubscriptionPaymentModal({
   const [due_date, setDueDate] = useState<Date | null>(null);
   const [paid_at, setPaidAt] = useState<Date | null>(null);
   const [alumnFullName, setAlumnFullName] = useState<string>('');
+  const isReadOnly = isDemoReadOnlySession();
 
   useEffect(() => {
     if (subscription) {
@@ -55,6 +57,7 @@ export default function RegisterSubscriptionPaymentModal({
   }
 
   async function submitData() {
+    if (blockDemoReadOnlyAction()) return;
     if (subscription) {
       const data: IPaymentNew = {
         payment: {
@@ -171,10 +174,14 @@ export default function RegisterSubscriptionPaymentModal({
             <div
               className="px-gutter py-4 bg-surface-container-lowest border-t border-outline-variant flex flex-row-reverse justify-start gap-stack-sm mt-auto">
               <button
-                onClick={submitData}
-                disabled={isLoading}
+                type="button"
+                onClick={(event) => {
+                  if (blockDemoReadOnlyAction(event)) return;
+                  submitData();
+                }}
+                disabled={isLoading || isReadOnly}
 
-                className={`bg-primary text-on-primary font-label-md text-label-md px-6 py-2.5 rounded-lg hover:bg-surface-tint active:bg-on-primary-fixed-variant transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface`}>
+                className={`bg-primary text-on-primary font-label-md text-label-md px-6 py-2.5 rounded-lg hover:bg-surface-tint active:bg-on-primary-fixed-variant transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-50`}>
                 {isLoading ? "Processing..." : "Pay"}
               </button>
               <button

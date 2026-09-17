@@ -1,5 +1,6 @@
 // api.ts
 import axios from "axios";
+import { DEMO_READ_ONLY_MESSAGE, isDemoReadOnlySession } from "../utils/demoMode";
 
 export const OK = 200;
 export const CREATED = 201;
@@ -18,6 +19,28 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   }
+});
+
+const readOnlyBlockedMethods = new Set(["post", "put", "patch", "delete"]);
+const readOnlyAllowedMutationPaths = new Set(["auth/login", "auth/logout"]);
+
+function getRequestPath(url: string | undefined) {
+  return (url || "")
+    .split("?")[0]
+    .replace(/^.*\/api\/v1\//, "")
+    .replace(/^\/+/, "");
+}
+
+api.interceptors.request.use((config) => {
+  const method = (config.method || "get").toLowerCase();
+  const path = getRequestPath(config.url);
+
+  if (isDemoReadOnlySession() && readOnlyBlockedMethods.has(method) && !readOnlyAllowedMutationPaths.has(path)) {
+    window.dispatchEvent(new CustomEvent("demo-read-only-blocked"));
+    return Promise.reject(new axios.CanceledError(DEMO_READ_ONLY_MESSAGE));
+  }
+
+  return config;
 });
 
 api.interceptors.response.use(

@@ -197,7 +197,7 @@ export default function AlumnForm() {
   }
 
   async function loadPlans() {
-    const response = await getPlans({});
+    const response = await getPlans({ limit: 20 });
     if (response.success) {
       setPlansList(response.data)
       if (response.data.length > 0) {

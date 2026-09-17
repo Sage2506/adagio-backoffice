@@ -17,8 +17,9 @@ const app = (
 );
 
 const root = document.getElementById('root')!;
+const isPrerenderedRoute = window.location.pathname === '/';
 
-if (root.hasChildNodes()) {
+if (root.hasChildNodes() && isPrerenderedRoute) {
   hydrateRoot(root, app);
 } else {
   createRoot(root).render(app);

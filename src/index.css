@@ -161,3 +161,9 @@
         --color-background: #1f1a1b;
     }
 }
+
+[data-demo-readonly="true"] button[type="submit"] {
+    cursor: not-allowed;
+    opacity: 0.5;
+    pointer-events: none;
+}
