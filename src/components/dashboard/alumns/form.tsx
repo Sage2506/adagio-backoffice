@@ -6,7 +6,6 @@ import type { IAlumnNew } from "../../../types/alumns";
 import type { IGuardianNew, IGuardianRecord, IPostGuardianResponse } from "../../../types/guardians";
 import type { IErrorResponse } from "../../../types/errors";
 import { getPlans } from "../../../services/plan";
-import type { IPlanRecord } from "../../../types/plans";
 import type { IPostSubscriptionResponse, ISubscriptionRecord } from "../../../types/subscriptions";
 import { putSubscription } from "../../../services/subscription";
 import DatePicker from "../../utils/datePicker";
@@ -15,19 +14,27 @@ import type { IPaymentNew, IPostPaymentResponse } from "../../../types/payments"
 import { postPayment } from "../../../services/payment";
 import { handlePriceInputChange } from "../../../utils/numbers";
 import { HeartIcon, UserGroupIcon, UserIcon, UserPlusIcon } from "@heroicons/react/24/outline";
+import { useQuery } from '@tanstack/react-query';
+
+type GuardianForm = {
+  id?: number;
+  name: string;
+  last_name: string;
+  phone_number: string;
+  email: string;
+};
+
 export default function AlumnForm() {
   const navigate = useNavigate()
   const { id } = useParams();
   const [address, setAddress] = useState<string>("")
+  const [alumnContactError, setAlumnContactError] = useState<string>('');
   const [birth_date, setBirthDate] = useState<Date | null>(null)
   const [customPrice, setCustomPrice] = useState<string>('');
   const [customPriceError, setCustomPriceError] = useState<string>('');
   const [email, setEmail] = useState<string>("")
-  const [guardian_email, setGuardianEmail] = useState<string>("")
-  const [guardian_last_name, setGuardianLastName] = useState<string>("")
-  const [guardian_name, setGuardianName] = useState<string>("")
-  const [guardian_phone_number, setGuardianPhoneNumber] = useState<string>("")
-  const [guardianId, setGuardianId] = useState<number>();
+  const [guardian, setGuardian] = useState<GuardianForm>({ name: "", last_name: "", phone_number: "", email: "" });
+  const [guardianContactError, setGuardianContactError] = useState<string>('');
   const [guardianOptions, setGuardianOptions] = useState<IGuardianRecord[]>([])
   const [is_guardian_required_for_leaving, setIsGuardianRequiredForLeaving] = useState<boolean>(false);
   const [isGuardianSearching, setIsGuardianSearching] = useState<boolean>(false)
@@ -42,12 +49,7 @@ export default function AlumnForm() {
   const [name, setName] = useState<string>("")
   const [phone_number, setPhoneNumber] = useState<string>("")
   const [plan_id, setPlanId] = useState<string>("");
-  const [plansList, setPlansList] = useState<IPlanRecord[]>([]);
-  const [secGuardianId, setSecondaryGuardianId] = useState<number>()
-  const [secondary_guardian_email, setSecondaryGuardianEmail] = useState<string>("")
-  const [secondary_guardian_last_name, setSecondaryGuardianLastName] = useState<string>("")
-  const [secondary_guardian_name, setSecondaryGuardianName] = useState<string>("")
-  const [secondary_guardian_phone_number, setSecondaryGuardianPhoneNumber] = useState<string>("")
+  const [secondaryGuardian, setSecondaryGuardian] = useState<GuardianForm>({ name: "", last_name: "", phone_number: "", email: "" });
   const [secondaryGuardianOptions, setSecondaryGuardianOptions] = useState<IGuardianRecord[]>([])
   const [special_med_conditions, setSpecialMedConditions] = useState<string>("")
   const [subscribedAt, setSubscribedAt] = useState<Date | null>(null)
@@ -55,29 +57,55 @@ export default function AlumnForm() {
   const [subscriptionPayment, setSubscriptionPayment] = useState<string>('')
   const [usesCustomPrice, setUsesCustomPrice] = useState<boolean>(false);
 
-  useEffect(() => {
-    loadFormData()
-  }, []);
+  const plansQuery = useQuery({
+    // Queries and effects related to plans and guardians
+    queryKey: ['plans'],
+    queryFn: async () => {
+      const response = await getPlans({ limit: 20 });
+      if (!response.success) {
+        throw new Error(response.errors[0]?.msj || 'Unable to load plans');
+      }
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+  const { data: plansList, isLoading: isPlansLoading } = plansQuery;
+  const availablePlans = plansList ?? [];
 
   useEffect(() => {
-    if (plan_id !== '' && plansList.length > 0) {
-      const selectedPlan = plansList.find(plan => plan.id.toString() === plan_id);
+    // Effect to load alumn data when the ID changes
+    if (!id) return;
+    loadAlumnData();
+  }, [id]);
+
+  useEffect(() => {
+    // Set the default plan if no plan is selected and there are available plans
+    if (!id && availablePlans.length > 0) {
+      setPlanId((prevPlanId) => prevPlanId === '' ? availablePlans[0].id.toString() : prevPlanId);
+    }
+  }, [id, availablePlans]);
+
+  useEffect(() => {
+    // Effect to set the monthly payment based on the selected plan and custom price usage
+    if (plan_id !== '' && availablePlans.length > 0) {
+      const selectedPlan = availablePlans.find(plan => plan.id.toString() === plan_id);
       if (selectedPlan) {
         setMonthlyPayment(selectedPlan.price.toString());
       }
     }
-  }, [plan_id, plansList, usesCustomPrice, customPrice])
+  }, [plan_id, availablePlans, usesCustomPrice, customPrice])
 
   useEffect(() => {
-    const query = guardian_name.trim()
-    if (guardianId || query.length < 3) return
+    // Effect to search for guardians based on the guardian name input
+    const query = guardian.name.trim()
+    if (guardian.id || query.length < 3) return
 
     const controller = new AbortController()
     const timeoutId = window.setTimeout(async () => {
       setIsGuardianSearching(true)
       const response = await getGuardians({ query, signal: controller.signal })
       if (!controller.signal.aborted) {
-        setGuardianOptions(response.success ? response.data.filter(guardian => guardian.id !== secGuardianId) : [])
+        setGuardianOptions(response.success ? response.data.filter(option => option.id !== secondaryGuardian.id) : [])
         setIsGuardianSearching(false)
       }
     }, 300)
@@ -86,18 +114,19 @@ export default function AlumnForm() {
       window.clearTimeout(timeoutId)
       controller.abort()
     }
-  }, [guardian_name, guardianId, secGuardianId])
+  }, [guardian.name, guardian.id, secondaryGuardian.id])
 
   useEffect(() => {
-    const query = secondary_guardian_name.trim()
-    if (secGuardianId || query.length < 3) return
+    // Effect to search for secondary guardians based on the secondary guardian name input
+    const query = secondaryGuardian.name.trim()
+    if (secondaryGuardian.id || query.length < 3) return
 
     const controller = new AbortController()
     const timeoutId = window.setTimeout(async () => {
       setIsSecondaryGuardianSearching(true)
       const response = await getGuardians({ query, signal: controller.signal })
       if (!controller.signal.aborted) {
-        setSecondaryGuardianOptions(response.success ? response.data.filter(guardian => guardian.id !== guardianId) : [])
+        setSecondaryGuardianOptions(response.success ? response.data.filter(option => option.id !== guardian.id) : [])
         setIsSecondaryGuardianSearching(false)
       }
     }, 300)
@@ -106,10 +135,10 @@ export default function AlumnForm() {
       window.clearTimeout(timeoutId)
       controller.abort()
     }
-  }, [secondary_guardian_name, secGuardianId, guardianId])
+  }, [secondaryGuardian.name, secondaryGuardian.id, guardian.id])
 
   useEffect(() => {
-    // si se activa el custom monthly payment con un monthly payment diferente a cero hacer el custom price igual al monthly payment
+    // Effect to synchronize custom price with the monthly payment when custom price usage changes
     if (usesCustomPrice && monthlyPayment !== '0.00') {
       setCustomPrice(monthlyPayment)
     }
@@ -119,12 +148,12 @@ export default function AlumnForm() {
   }, [usesCustomPrice])
 
   useEffect(() => {
-    // si se activa el pago mensual con un custom price diferente a cero hacer el monthly payment igual al custom price
+    // Effect to synchronize monthly payment with the custom price when monthly payment inclusion changes
     if (isMonthlyPaymentIncluded) {
       if (customPrice !== '') {
         setMonthlyPayment(customPrice)
-      } else if (plan_id !== '' && plansList.length > 0) {
-        const selectedPlan = plansList.find(plan => plan.id.toString() === plan_id);
+      } else if (plan_id !== '' && availablePlans.length > 0) {
+        const selectedPlan = availablePlans.find(plan => plan.id.toString() === plan_id);
         if (selectedPlan) {
           setMonthlyPayment(selectedPlan.price.toString());
         }
@@ -133,80 +162,35 @@ export default function AlumnForm() {
   }, [isMonthlyPaymentIncluded])
 
   function updateGuardianField(field: "name" | "last_name" | "phone_number" | "email", value: string) {
-    if (guardianId) {
-      setGuardianId(undefined)
-      setGuardianName("")
-      setGuardianLastName("")
-      setGuardianPhoneNumber("")
-      setGuardianEmail("")
-    }
-    if (field === "name") setGuardianName(value)
-    if (field === "last_name") setGuardianLastName(value)
-    if (field === "phone_number") setGuardianPhoneNumber(value)
-    if (field === "email") setGuardianEmail(value)
+    // Function to update a specific field of the guardian and reset related states
+    setGuardian(current => ({ ...current, id: undefined, [field]: value }))
     setGuardianOptions([])
     setIsGuardianSearching(false)
   }
 
   function updateSecondaryGuardianField(field: "name" | "last_name" | "phone_number" | "email", value: string) {
-    if (secGuardianId) {
-      setSecondaryGuardianId(undefined)
-      setSecondaryGuardianName("")
-      setSecondaryGuardianLastName("")
-      setSecondaryGuardianPhoneNumber("")
-      setSecondaryGuardianEmail("")
-    }
-    if (field === "name") setSecondaryGuardianName(value)
-    if (field === "last_name") setSecondaryGuardianLastName(value)
-    if (field === "phone_number") setSecondaryGuardianPhoneNumber(value)
-    if (field === "email") setSecondaryGuardianEmail(value)
+    // Function to update a specific field of the secondary guardian and reset related states
+    setSecondaryGuardian(current => ({ ...current, id: undefined, [field]: value }))
     setSecondaryGuardianOptions([])
     setIsSecondaryGuardianSearching(false)
   }
 
   function selectGuardian(guardian: IGuardianRecord) {
-    setGuardianId(guardian.id)
-    setGuardianName(guardian.name || "")
-    setGuardianLastName(guardian.last_name || "")
-    setGuardianPhoneNumber(guardian.phone_number || "")
-    setGuardianEmail(guardian.email || "")
+    // Function to select a guardian and update the related states
+    setGuardian({ id: guardian.id, name: guardian.name || "", last_name: guardian.last_name || "", phone_number: guardian.phone_number || "", email: guardian.email || "" })
     setGuardianOptions([])
     setIsGuardianSearchOpen(false)
   }
 
   function selectSecondaryGuardian(guardian: IGuardianRecord) {
-    setSecondaryGuardianId(guardian.id)
-    setSecondaryGuardianName(guardian.name || "")
-    setSecondaryGuardianLastName(guardian.last_name || "")
-    setSecondaryGuardianPhoneNumber(guardian.phone_number || "")
-    setSecondaryGuardianEmail(guardian.email || "")
+    // Function to select a secondary guardian and update the related states
+    setSecondaryGuardian({ id: guardian.id, name: guardian.name || "", last_name: guardian.last_name || "", phone_number: guardian.phone_number || "", email: guardian.email || "" })
     setSecondaryGuardianOptions([])
     setIsSecondaryGuardianSearchOpen(false)
   }
 
-  function loadFormData() {
-    const promises = []
-    promises.push(loadPlans());
-    if (id) {
-      promises.push(loadAlumnData())
-    }
-    setIsLoading(true)
-    Promise.all(promises).finally(() => {
-      setIsLoading(false);
-    })
-  }
-
-  async function loadPlans() {
-    const response = await getPlans({ limit: 20 });
-    if (response.success) {
-      setPlansList(response.data)
-      if (response.data.length > 0) {
-        setPlanId(response.data[0].id.toString())
-      }
-    }
-  }
-
   function loadAlumnData() {
+    // Function to load alumn data and populate the form fields
     if (id) {
       setIsLoading(true);
       getAlumn({ id }).then(response => {
@@ -225,18 +209,10 @@ export default function AlumnForm() {
           if (subscription_id) setSubscriptionId(subscription_id.toString())
           if (guardians.length > 0) {
             let guardian = guardians[0]
-            setGuardianId(guardian.id);
-            setGuardianName(guardian.name || "");
-            setGuardianLastName(guardian.last_name || "");
-            setGuardianPhoneNumber(guardian.phone_number || "");
-            setGuardianEmail(guardian.email || "");
+            setGuardian({ id: guardian.id, name: guardian.name || "", last_name: guardian.last_name || "", phone_number: guardian.phone_number || "", email: guardian.email || "" });
             if (guardians.length > 1) {
               guardian = guardians[1]
-              setSecondaryGuardianId(guardian.id);
-              setSecondaryGuardianName(guardian.name || "");
-              setSecondaryGuardianLastName(guardian.last_name || "");
-              setSecondaryGuardianPhoneNumber(guardian.phone_number || "");
-              setSecondaryGuardianEmail(guardian.email || "");
+              setSecondaryGuardian({ id: guardian.id, name: guardian.name || "", last_name: guardian.last_name || "", phone_number: guardian.phone_number || "", email: guardian.email || "" });
             }
           }
         }
@@ -247,13 +223,23 @@ export default function AlumnForm() {
   }
 
   function formSubmit(e: React.FormEvent<HTMLFormElement>) {
+    // Function to handle form submission for creating or updating an alumn
     e.preventDefault()
+    if (!phone_number.trim() && !email.trim()) {
+      setAlumnContactError("Debes ingresar al menos un teléfono o un correo electrónico.")
+      return
+    }
+    setAlumnContactError('')
+    if (!guardian.phone_number.trim() && !guardian.email.trim()) {
+      setGuardianContactError("Debes ingresar al menos un teléfono o un correo electrónico.")
+      return
+    }
+    setGuardianContactError('')
     const parsedCustomPrice = Number(customPrice)
     if (!id && usesCustomPrice && (!customPrice || !Number.isFinite(parsedCustomPrice) || parsedCustomPrice <= 0)) {
       setCustomPriceError("El precio personalizado debe ser mayor a 0.")
       return
     }
-    //validar que no se pueda crear un alumno con creacion de primer pago mensual mayor a el precio del plan seleccionado o de un precio personalizado si se activa la opcion de precio personalizado
     if (isMonthlyPaymentIncluded && (usesCustomPrice ? parsedCustomPrice : Number(monthlyPayment)) < Number(monthlyPayment)) {
       setCustomPriceError(`El primer pago mensual no puede ser mayor al costo de la mensualidad.`);
       return;
@@ -267,7 +253,7 @@ export default function AlumnForm() {
       email,
       special_med_conditions,
       is_guardian_required_for_leaving,
-      guardian_ids: [guardianId, secGuardianId].filter((guardianId): guardianId is number => guardianId !== undefined)
+      guardian_ids: [guardian.id, secondaryGuardian.id].filter((guardianId): guardianId is number => guardianId !== undefined)
     };
     if (!id) {
       alumn.subscription_attributes = {
@@ -276,12 +262,6 @@ export default function AlumnForm() {
         ...(usesCustomPrice ? { custom_price: parsedCustomPrice } : {})
       };
     }
-    const guardian = {
-      name: guardian_name,
-      last_name: guardian_last_name,
-      phone_number: guardian_phone_number,
-      email: guardian_email
-    };
     const args: {
       alumn: IAlumnNew,
       guardian: IGuardianNew,
@@ -291,18 +271,19 @@ export default function AlumnForm() {
       guardian
     }
 
-    if (secondary_guardian_name.trim().length > 0 && (secondary_guardian_email.trim().length > 0 || secondary_guardian_phone_number.trim().length > 0)) {
+    if (secondaryGuardian.name.trim().length > 0 && (secondaryGuardian.email.trim().length > 0 || secondaryGuardian.phone_number.trim().length > 0)) {
       args.secondaryGuardian = {
-        name: secondary_guardian_name,
-        last_name: secondary_guardian_last_name,
-        phone_number: secondary_guardian_phone_number,
-        email: secondary_guardian_email
+        name: secondaryGuardian.name,
+        last_name: secondaryGuardian.last_name,
+        phone_number: secondaryGuardian.phone_number,
+        email: secondaryGuardian.email
       };
     }
     updateCreateAlumn(args);
   }
 
   async function updateCreateAlumn(args: { alumn: IAlumnNew, guardian: IGuardianNew, secondaryGuardian?: IGuardianNew }) {
+    // Function to create or update an alumn along with their guardians and subscription if applicable
     setIsLoading(true)
     const response = await (id
       ? putAlumn({ id, data: args.alumn })
@@ -318,12 +299,12 @@ export default function AlumnForm() {
             plan_id: Number(plan_id)
           } as ISubscriptionRecord
         }))
-      const mainGuardianResponseIndex = guardianId ? undefined : promises.length
-      if (!guardianId) {
+      const mainGuardianResponseIndex = guardian.id ? undefined : promises.length
+      if (!guardian.id) {
         promises.push(postGuardian({ data: { ...args.guardian, alumn_id: response.data.id.toString() } }))
       }
-      const secondaryGuardianResponseIndex = args.secondaryGuardian && !secGuardianId ? promises.length : undefined
-      if (args.secondaryGuardian && !secGuardianId) {
+      const secondaryGuardianResponseIndex = args.secondaryGuardian && !secondaryGuardian.id ? promises.length : undefined
+      if (args.secondaryGuardian && !secondaryGuardian.id) {
         promises.push(postGuardian({ data: { ...args.secondaryGuardian, alumn_id: response.data.id.toString() } }))
       }
       Promise.all(promises)
@@ -342,11 +323,11 @@ export default function AlumnForm() {
             }
             if (mainGuardianResponseIndex !== undefined && res[mainGuardianResponseIndex]?.success) {
               const guardianResponse = res[mainGuardianResponseIndex].data as IGuardianRecord
-              setGuardianId(guardianResponse.id)
+              setGuardian(current => ({ ...current, id: guardianResponse.id }))
             }
             if (secondaryGuardianResponseIndex !== undefined && res[secondaryGuardianResponseIndex]?.success) {
               const guardianResponse = res[secondaryGuardianResponseIndex].data as IGuardianRecord
-              setSecondaryGuardianId(guardianResponse.id)
+              setSecondaryGuardian(current => ({ ...current, id: guardianResponse.id }))
             }
           }
         })
@@ -362,6 +343,7 @@ export default function AlumnForm() {
   }
 
   async function createInitialPayments(args: { payableId: number, alumnId: number }) {
+    // Function to create the initial payments for an alumn based on the included payment types
     const { alumnId, payableId } = args
     const promises: Promise<IPostPaymentResponse | IErrorResponse>[] = [];
     if (isSubscriptionPaymentIncluded) {
@@ -415,7 +397,7 @@ export default function AlumnForm() {
   const labelClass = "block text-label-md font-label-md text-on-surface-variant";
 
   return (
-    <form onSubmit={event => formSubmit(event)} className={`w-full min-w-0 flex flex-col gap-stack-md ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+    <form onSubmit={event => formSubmit(event)} className={`w-full min-w-0 flex flex-col gap-stack-md ${isLoading || plansQuery.isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
       <header className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-headline-lg text-on-surface">{id ? 'Edit Alumn' : 'Create Alumn'}</h1>
@@ -436,11 +418,12 @@ export default function AlumnForm() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-stack-md">
               <div className="space-y-2"><label htmlFor="name" className={labelClass}>First name</label><input onChange={e => setName(e.target.value)} value={name} type="text" id="name" name="name" className={fieldClass} placeholder="John" required /></div>
-              <div className="space-y-2"><label htmlFor="last_name" className={labelClass}>Last name</label><input onChange={e => setLastName(e.target.value)} value={last_name} type="text" id="last_name" name="last_name" className={fieldClass} placeholder="Doe" required /></div>
+              <div className="space-y-2"><label htmlFor="last_name" className={labelClass}>Last name</label><input onChange={e => setLastName(e.target.value)} onKeyDown={e => { if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); document.getElementById('birth_date')?.focus() } }} value={last_name} type="text" id="last_name" name="last_name" className={fieldClass} placeholder="Doe" required /></div>
               <div className="space-y-2 md:col-span-2"><label htmlFor="birth_date" className={labelClass}>Birth date</label><DatePicker value={birth_date ? new Date(birth_date) : null} onChange={date => setBirthDate(date)} id="birth_date" name="birth_date" /></div>
               <div className="space-y-2 md:col-span-2"><label htmlFor="address" className={labelClass}>Address</label><input onChange={e => setAddress(e.target.value)} value={address} type="text" id="address" name="address" className={fieldClass} placeholder="Street ##" required /></div>
-              <div className="space-y-2"><label htmlFor="phone_number" className={labelClass}>Phone number</label><input onChange={e => setPhoneNumber(e.target.value)} value={phone_number} type="tel" id="phone_number" name="phone_number" className={fieldClass} placeholder="123-45-6789" pattern="[0-9]{10}" required /></div>
-              <div className="space-y-2"><label htmlFor="email" className={labelClass}>Email address</label><input onChange={e => setEmail(e.target.value)} value={email} type="email" id="email" name="email" className={fieldClass} placeholder="john.doe@company.com" pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$" required /></div>
+              <div className="space-y-2"><label htmlFor="phone_number" className={labelClass}>Phone number</label><input onChange={e => setPhoneNumber(e.target.value)} value={phone_number} type="tel" id="phone_number" name="phone_number" className={fieldClass} placeholder="123-45-6789" pattern="[0-9]{10}" /></div>
+              <div className="space-y-2"><label htmlFor="email" className={labelClass}>Email address</label><input onChange={e => setEmail(e.target.value)} value={email} type="email" id="email" name="email" className={fieldClass} placeholder="john.doe@company.com" pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$" /></div>
+              {alumnContactError && <p className="text-sm text-error md:col-span-2">{alumnContactError}</p>}
             </div>
           </section>
 
@@ -450,7 +433,15 @@ export default function AlumnForm() {
               <h2 className="text-headline-md text-on-surface">Program &amp; Health</h2>
             </div>
             <div className="space-y-stack-md">
-              <div className="space-y-2"><label htmlFor="plan_id" className={labelClass}>Select a Plan</label><select id="plan_id" name="plan_id" value={plan_id} onChange={e => setPlanId(e.target.value)} className={fieldClass} required>{plansList.map(plan => <option key={`plan_${plan.id}`} value={plan.id.toString()}>{plan.name}</option>)}</select></div>
+              <div className="space-y-2">
+                <label htmlFor="plan_id" className={labelClass}>Select a Plan</label>
+                <select id="plan_id" name="plan_id" value={plan_id} onChange={e => setPlanId(e.target.value)} className={fieldClass} required>
+                  {!isPlansLoading && availablePlans.map(plan =>
+                    <option key={`plan_${plan.id}`} value={plan.id.toString()}>{plan.name}</option>
+                  )}
+                  {isPlansLoading && <option disabled>Loading plans...</option>}
+                </select>
+              </div>
               {!id && plan_id &&
                 <div className="space-y-2 rounded-lg bg-surface-container-low p-4">
                   <label className="flex items-center gap-3 text-body-md text-on-surface cursor-pointer">
@@ -458,7 +449,7 @@ export default function AlumnForm() {
                   </label>
                   <input onChange={event => { handlePriceInputChange(event, setCustomPrice); setCustomPriceError('') }} value={customPrice} type="number" id="customPrice" name="customPrice" min="0.01" step="0.01" disabled={!usesCustomPrice} className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-50`} placeholder="Precio personalizado (opcional)" aria-invalid={!!customPriceError} aria-describedby={customPriceError ? "customPriceError" : undefined} />{customPriceError && <p id="customPriceError" className="text-sm text-error">{customPriceError}</p>}</div>}
               <div className="space-y-2"><label htmlFor="special_med_conditions" className={labelClass}>Special medical conditions</label><textarea onChange={e => setSpecialMedConditions(e.target.value)} value={special_med_conditions} id="special_med_conditions" name="special_med_conditions" className={`${fieldClass} resize-none`} rows={3} placeholder="Allergies" required /><p className="text-xs text-on-surface-variant">Note any allergies or conditions instructors should be aware of.</p></div>
-              <label className="flex items-start gap-3 rounded-lg bg-surface-container-low p-4 cursor-pointer"><input id="is_guardian_required_for_leaving" name="is_guardian_required_for_leaving" type="checkbox" checked={is_guardian_required_for_leaving} onChange={e => setIsGuardianRequiredForLeaving(e.target.checked)} className="mt-0.5 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" /><span className="text-body-md text-on-surface">The student may leave the installations without a guardian.</span></label>
+              <label className="flex items-start gap-3 rounded-lg bg-surface-container-low p-4 cursor-pointer"><input id="is_guardian_required_for_leaving" name="is_guardian_required_for_leaving" type="checkbox" checked={is_guardian_required_for_leaving} onKeyDown={e => { if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); document.getElementById('subscribedAt')?.focus() } }} onChange={e => setIsGuardianRequiredForLeaving(e.target.checked)} className="mt-0.5 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" /><span className="text-body-md text-on-surface">The student may leave the installations without a guardian.</span></label>
             </div>
           </section>
 
@@ -493,23 +484,24 @@ export default function AlumnForm() {
           <section className="bg-surface-bright rounded-xl shadow-soft border border-surface-variant p-6">
             <div className="flex items-center gap-3 mb-5 pb-3 border-b border-surface-variant"><div className="w-8 h-8 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center"><UserGroupIcon className="w-[18px] h-[18px]" /></div><h2 className="text-headline-sm text-on-surface">Main Guardian</h2></div>
             <div className="space-y-stack-sm">
-              <div className="space-y-1 relative"><label htmlFor="guardian_name" className={labelClass}>First name</label><input onFocus={() => setIsGuardianSearchOpen(true)} onBlur={() => window.setTimeout(() => setIsGuardianSearchOpen(false), 100)} onChange={e => { updateGuardianField("name", e.target.value); setIsGuardianSearchOpen(true) }} value={guardian_name} type="text" id="guardian_name" name="guardian_name" className={compactFieldClass} placeholder="John" autoComplete="off" role="combobox" aria-autocomplete="list" aria-controls="guardian-options" aria-expanded={isGuardianSearchOpen && !guardianId && guardian_name.trim().length >= 3} required />
-                {isGuardianSearchOpen && !guardianId && guardian_name.trim().length >= 3 && (isGuardianSearching || guardianOptions.length > 0) && <div id="guardian-options" role="listbox" className="absolute z-30 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto rounded-md border border-outline-variant bg-surface-container-lowest shadow-soft">{isGuardianSearching && <p className="px-3 py-2 text-sm text-on-surface-variant">Searching...</p>}{!isGuardianSearching && guardianOptions.filter(guardian => guardian.id !== secGuardianId).map(guardian => <button key={guardian.id} type="button" role="option" onMouseDown={event => event.preventDefault()} onClick={() => selectGuardian(guardian)} className="w-full px-3 py-2 text-left hover:bg-surface-container-low focus:bg-surface-container-low outline-none"><span className="block text-sm text-on-surface capitalize">{guardian.name} {guardian.last_name}</span><span className="block text-xs text-on-surface-variant">{guardian.email || guardian.phone_number}</span></button>)}</div>}
+              <div className="space-y-1 relative"><label htmlFor="guardian_name" className={labelClass}>First name</label><input onFocus={() => setIsGuardianSearchOpen(true)} onBlur={() => window.setTimeout(() => setIsGuardianSearchOpen(false), 100)} onChange={e => { updateGuardianField("name", e.target.value); setIsGuardianSearchOpen(true) }} value={guardian.name} type="text" id="guardian_name" name="guardian_name" className={compactFieldClass} placeholder="John" autoComplete="off" role="combobox" aria-autocomplete="list" aria-controls="guardian-options" aria-expanded={isGuardianSearchOpen && !guardian.id && guardian.name.trim().length >= 3} required />
+                {isGuardianSearchOpen && !guardian.id && guardian.name.trim().length >= 3 && (isGuardianSearching || guardianOptions.length > 0) && <div id="guardian-options" role="listbox" className="absolute z-30 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto rounded-md border border-outline-variant bg-surface-container-lowest shadow-soft">{isGuardianSearching && <p className="px-3 py-2 text-sm text-on-surface-variant">Searching...</p>}{!isGuardianSearching && guardianOptions.filter(option => option.id !== secondaryGuardian.id).map(option => <button key={option.id} type="button" role="option" onMouseDown={event => event.preventDefault()} onClick={() => selectGuardian(option)} className="w-full px-3 py-2 text-left hover:bg-surface-container-low focus:bg-surface-container-low outline-none"><span className="block text-sm text-on-surface capitalize">{option.name} {option.last_name}</span><span className="block text-xs text-on-surface-variant">{option.email || option.phone_number}</span></button>)}</div>}
               </div>
-              <div className="space-y-1"><label htmlFor="guardian_last_name" className={labelClass}>Last name</label><input onChange={e => updateGuardianField("last_name", e.target.value)} value={guardian_last_name} type="text" id="guardian_last_name" name="guardian_last_name" className={compactFieldClass} placeholder="Doe" required /></div>
-              <div className="space-y-1"><label htmlFor="guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => updateGuardianField("phone_number", e.target.value)} value={guardian_phone_number} type="tel" id="guardian_phone_number" name="guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" required /></div>
-              <div className="space-y-1"><label htmlFor="guardian_email" className={labelClass}>Email address</label><input onChange={e => updateGuardianField("email", e.target.value)} value={guardian_email} type="email" id="guardian_email" name="guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+\x2D]+@[a-z0-9.\x2D]+\.[a-z]{2,4}$" required /></div>
+              <div className="space-y-1"><label htmlFor="guardian_last_name" className={labelClass}>Last name</label><input onChange={e => updateGuardianField("last_name", e.target.value)} value={guardian.last_name} type="text" id="guardian_last_name" name="guardian_last_name" className={compactFieldClass} placeholder="Doe" required /></div>
+              <div className="space-y-1"><label htmlFor="guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => updateGuardianField("phone_number", e.target.value)} value={guardian.phone_number} type="tel" id="guardian_phone_number" name="guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" /></div>
+              <div className="space-y-1"><label htmlFor="guardian_email" className={labelClass}>Email address</label><input onChange={e => updateGuardianField("email", e.target.value)} value={guardian.email} type="email" id="guardian_email" name="guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+\x2D]+@[a-z0-9.\x2D]+\.[a-z]{2,4}$" /></div>
+              {guardianContactError && <p className="text-sm text-error">{guardianContactError}</p>}
             </div>
           </section>
           <section className="bg-surface-bright rounded-xl shadow-soft border border-surface-variant p-6">
             <div className="flex items-center gap-3 mb-5 pb-3 border-b border-surface-variant"><div className="w-8 h-8 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center"><UserPlusIcon className="w-[18px] h-[18px]" /></div><h2 className="text-headline-sm text-on-surface">Secondary Guardian</h2></div>
             <div className="space-y-stack-sm">
-              <div className="space-y-1 relative"><label htmlFor="secondary_guardian_name" className={labelClass}>First name</label><input onFocus={() => setIsSecondaryGuardianSearchOpen(true)} onBlur={() => window.setTimeout(() => setIsSecondaryGuardianSearchOpen(false), 100)} onChange={e => { updateSecondaryGuardianField("name", e.target.value); setIsSecondaryGuardianSearchOpen(true) }} value={secondary_guardian_name} type="text" id="secondary_guardian_name" name="secondary_guardian_name" className={compactFieldClass} placeholder="John" autoComplete="off" role="combobox" aria-autocomplete="list" aria-controls="secondary-guardian-options" aria-expanded={isSecondaryGuardianSearchOpen && !secGuardianId && secondary_guardian_name.trim().length >= 3} />
-                {isSecondaryGuardianSearchOpen && !secGuardianId && secondary_guardian_name.trim().length >= 3 && (isSecondaryGuardianSearching || secondaryGuardianOptions.length > 0) && <div id="secondary-guardian-options" role="listbox" className="absolute z-30 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto rounded-md border border-outline-variant bg-surface-container-lowest shadow-soft">{isSecondaryGuardianSearching && <p className="px-3 py-2 text-sm text-on-surface-variant">Searching...</p>}{!isSecondaryGuardianSearching && secondaryGuardianOptions.filter(guardian => guardian.id !== guardianId).map(guardian => <button key={guardian.id} type="button" role="option" onMouseDown={event => event.preventDefault()} onClick={() => selectSecondaryGuardian(guardian)} className="w-full px-3 py-2 text-left hover:bg-surface-container-low focus:bg-surface-container-low outline-none"><span className="block text-sm text-on-surface capitalize">{guardian.name} {guardian.last_name}</span><span className="block text-xs text-on-surface-variant">{guardian.email || guardian.phone_number}</span></button>)}</div>}
+              <div className="space-y-1 relative"><label htmlFor="secondary_guardian_name" className={labelClass}>First name</label><input onFocus={() => setIsSecondaryGuardianSearchOpen(true)} onBlur={() => window.setTimeout(() => setIsSecondaryGuardianSearchOpen(false), 100)} onChange={e => { updateSecondaryGuardianField("name", e.target.value); setIsSecondaryGuardianSearchOpen(true) }} value={secondaryGuardian.name} type="text" id="secondary_guardian_name" name="secondary_guardian_name" className={compactFieldClass} placeholder="John" autoComplete="off" role="combobox" aria-autocomplete="list" aria-controls="secondary-guardian-options" aria-expanded={isSecondaryGuardianSearchOpen && !secondaryGuardian.id && secondaryGuardian.name.trim().length >= 3} />
+                {isSecondaryGuardianSearchOpen && !secondaryGuardian.id && secondaryGuardian.name.trim().length >= 3 && (isSecondaryGuardianSearching || secondaryGuardianOptions.length > 0) && <div id="secondary-guardian-options" role="listbox" className="absolute z-30 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto rounded-md border border-outline-variant bg-surface-container-lowest shadow-soft">{isSecondaryGuardianSearching && <p className="px-3 py-2 text-sm text-on-surface-variant">Searching...</p>}{!isSecondaryGuardianSearching && secondaryGuardianOptions.filter(option => option.id !== guardian.id).map(option => <button key={option.id} type="button" role="option" onMouseDown={event => event.preventDefault()} onClick={() => selectSecondaryGuardian(option)} className="w-full px-3 py-2 text-left hover:bg-surface-container-low focus:bg-surface-container-low outline-none"><span className="block text-sm text-on-surface capitalize">{option.name} {option.last_name}</span><span className="block text-xs text-on-surface-variant">{option.email || option.phone_number}</span></button>)}</div>}
               </div>
-              <div className="space-y-1"><label htmlFor="secondary_guardian_last_name" className={labelClass}>Last name</label><input onChange={e => updateSecondaryGuardianField("last_name", e.target.value)} value={secondary_guardian_last_name} type="text" id="secondary_guardian_last_name" name="secondary_guardian_last_name" className={compactFieldClass} placeholder="Doe" /></div>
-              <div className="space-y-1"><label htmlFor="secondary_guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => updateSecondaryGuardianField("phone_number", e.target.value)} value={secondary_guardian_phone_number} type="tel" id="secondary_guardian_phone_number" name="secondary_guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" /></div>
-              <div className="space-y-1"><label htmlFor="secondary_guardian_email" className={labelClass}>Email address</label><input onChange={e => updateSecondaryGuardianField("email", e.target.value)} value={secondary_guardian_email} type="email" id="secondary_guardian_email" name="secondary_guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+\x2D]+@[a-z0-9.\x2D]+\.[a-z]{2,4}$" /></div>
+              <div className="space-y-1"><label htmlFor="secondary_guardian_last_name" className={labelClass}>Last name</label><input onChange={e => updateSecondaryGuardianField("last_name", e.target.value)} value={secondaryGuardian.last_name} type="text" id="secondary_guardian_last_name" name="secondary_guardian_last_name" className={compactFieldClass} placeholder="Doe" /></div>
+              <div className="space-y-1"><label htmlFor="secondary_guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => updateSecondaryGuardianField("phone_number", e.target.value)} value={secondaryGuardian.phone_number} type="tel" id="secondary_guardian_phone_number" name="secondary_guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" /></div>
+              <div className="space-y-1"><label htmlFor="secondary_guardian_email" className={labelClass}>Email address</label><input onChange={e => updateSecondaryGuardianField("email", e.target.value)} value={secondaryGuardian.email} type="email" id="secondary_guardian_email" name="secondary_guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+\x2D]+@[a-z0-9.\x2D]+\.[a-z]{2,4}$" /></div>
             </div>
           </section>
         </aside>

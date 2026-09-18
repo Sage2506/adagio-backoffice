@@ -1,35 +1,39 @@
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate, useSearchParams } from "react-router";
+import { useNavigate } from "react-router";
 import type { IPlanRecord } from "../../../types/plans";
-import type { ILinks } from "../../../types/common";
 import { getPlans } from "../../../services/plan";
 import { formatPrice } from "../../../utils/numbers";
+import { usePagination } from "../../../hooks/usePagination";
+import PaginationComponent from "../../utils/paginationComponent";
 
 export default function PlansTable() {
   const navigate = useNavigate()
   const [plans, setPlans] = useState<IPlanRecord[]>([]);
-  const [pages, setPages] = useState<number[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [links, setLinks] = useState<ILinks>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
-  let [searchParams] = useSearchParams();
+  const {
+    currentPage,
+    pages,
+    links,
+    totalEntries,
+    searchParams,
+    searchString,
+    setPagination,
+    getPageTarget,
+    getLinkTarget,
+  } = usePagination({ resourcePath: "plans" });
 
   useEffect(() => {
     loadPlans();
-  }, [searchParams.toString()])
+  }, [searchString])
 
   async function loadPlans() {
     setIsLoading(true)
-    if (searchParams.has('page[page]')) {
-      setCurrentPage(parseInt(searchParams.get('page[page]')!))
-    }
     getPlans({ params: searchParams.toString() }).then(response => {
       if (response.success) {
-        const { data, pages, links } = response
+        const { data, pages, links, total } = response
         setPlans(data);
-        setPages(pages);
-        setLinks(links);
+        setPagination({ pages, links, total });
       } else {
         setErrors(response.errors)
       }
@@ -102,69 +106,16 @@ export default function PlansTable() {
         </tbody>
       </table>
       </div>
-      <nav
-        className={`flex gap-1 justify-end px-6 py-4 border-t border-outline-variant bg-surface ${isLoading ? 'opacity-50 pointer-events-none' : ''
-          }`}
-        aria-busy={isLoading}
-        aria-live="polite"
-        aria-label="Table navigation">
-        <ul className="flex gap-1">
-          {links &&
-            <li>
-              <NavLink
-                to={links.first.split('plans')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                First
-              </NavLink>
-            </li>
-          }
-
-          {links?.prev &&
-            <li>
-              <NavLink
-                to={links.prev.split('plans')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                Previous
-              </NavLink>
-            </li>
-          }
-
-          {pages.map(page =>
-            <li key={`page_${page}`}>
-              <NavLink
-                aria-current={currentPage === page ? 'page' : 'false'}
-
-                to={`?page%5Bpage%5D=${page}`}
-                className={
-                  `px-3 py-1 rounded border ${currentPage === page
-                    ? 'border-primary bg-primary-container text-on-primary-container font-bold'
-                    : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
-                  }`
-                }>
-                {page}
-              </NavLink>
-            </li>
-          )}
-          {links?.next &&
-            <li>
-              <NavLink
-                to={links.next.split('plans')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                Next
-              </NavLink>
-            </li>
-          }
-          {links &&
-            <li>
-              <NavLink
-                to={links.last.split('plans')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                Last
-              </NavLink>
-            </li>
-          }
-        </ul>
-      </nav>
+      <PaginationComponent
+        currentPage={currentPage}
+        pages={pages}
+        links={links}
+        isLoading={isLoading}
+        totalEntries={totalEntries}
+        currentItems={plans.length}
+        getPageTarget={getPageTarget}
+        getLinkTarget={getLinkTarget}
+      />
     </div>
   )
 }

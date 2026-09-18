@@ -1,34 +1,39 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { EyeSlashIcon, EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { NavLink, useNavigate, useSearchParams } from "react-router";
+import { useNavigate } from "react-router";
 import { getSubscriptions, putSubscription } from "../../../services/subscription";
 import type { ISubscriptionAlumnPlanRecord, ISubscriptionNew } from "../../../types/subscriptions";
-import type { ILinks } from "../../../types/common";
 import RegisterSubscriptionPaymentModal from "./registerSubscriptionPaymentModal";
+import RegisterSubscriptionCreditModal from "./registerSubscriptionCreditModal";
 import SubscriptionsRow from "./row";
 import PaymentsModal from "../payments/paymentsModal";
+import { usePagination } from "../../../hooks/usePagination";
+import PaginationComponent from "../../utils/paginationComponent";
 
 
 export default function SubscriptionsTable() {
   const navigate = useNavigate()
   const [subscriptions, setSubscriptions] = useState<ISubscriptionAlumnPlanRecord[]>([]);
-  const [pages, setPages] = useState<number[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [links, setLinks] = useState<ILinks>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSubscriptionPaymentModalOpen, setIsSubscriptionPaymentModalOpen] = useState<boolean>(false);
+  const [isSubscriptionCreditModalOpen, setIsSubscriptionCreditModalOpen] = useState<boolean>(false);
   const [isPaymentsModalOpen, setIsPaymentsModalOpen] = useState<boolean>(false);
   const [selectedSubscription, setSelectedSubscription] = useState<ISubscriptionAlumnPlanRecord | null>(null);
-  const [searchParams] = useSearchParams();
   const [searchValue, setSearchValue] = useState('');
-  const searchString = useMemo(() => searchParams.toString(), [searchParams]);
+  const {
+    currentPage,
+    pages,
+    links,
+    totalEntries,
+    searchParams,
+    searchString,
+    setPagination,
+    resetPagination,
+    getPageTarget,
+    getLinkTarget,
+  } = usePagination({ resourcePath: "subscriptions" });
 
   useEffect(() => {
-    if (searchParams.has('page[page]')) {
-      setCurrentPage(parseInt(searchParams.get('page[page]')!))
-    } else {
-      setCurrentPage(1)
-    }
     if (searchParams.has('q[full_name_cont]')) {
       setSearchValue(searchParams.get('q[full_name_cont]')!)
     }
@@ -52,15 +57,11 @@ export default function SubscriptionsTable() {
 
   async function loadSubscriptions() {
     setIsLoading(true)
-    if (searchParams.has('page[page]')) {
-      setCurrentPage(parseInt(searchParams.get('page[page]')!))
-    }
     getSubscriptions({ params: searchParams.toString() }).then(response => {
       if (response.success) {
-        const { data, pages, links } = response
+        const { data, pages, links, total } = response
         setSubscriptions(data);
-        setPages(pages);
-        setLinks(links);
+        setPagination({ pages, links, total });
       }
     }).finally(() => {
       setIsLoading(false)
@@ -77,11 +78,24 @@ export default function SubscriptionsTable() {
     setIsPaymentsModalOpen(true);
   }
 
+  function openCreditModal(subscription: ISubscriptionAlumnPlanRecord) {
+    setSelectedSubscription(subscription);
+    setIsSubscriptionCreditModalOpen(true);
+  }
+
   function subscriptionPaid(successful: boolean) {
     setIsSubscriptionPaymentModalOpen(false)
     setSelectedSubscription(null);
     if (successful) {
-      loadSubscriptions();
+      resetPagination(loadSubscriptions)
+    }
+  }
+
+  function onCreditModalClose(reloaded?: boolean) {
+    setIsSubscriptionCreditModalOpen(false);
+    setSelectedSubscription(null);
+    if (reloaded) {
+      resetPagination(loadSubscriptions);
     }
   }
 
@@ -96,7 +110,7 @@ export default function SubscriptionsTable() {
     setIsLoading(true)
     const res = await putSubscription({ id: subscription.id.toString(), data: newSubscription })
     if (res.success) {
-      loadSubscriptions();
+      resetPagination(loadSubscriptions);
     } else {
       subscription.status = subscription.status === "active" ? "cancelled" : "active"
       setIsLoading(false);
@@ -206,83 +220,31 @@ export default function SubscriptionsTable() {
                 key={`subscription_${subscription.id}`}
                 subscription={subscription}
                 onClick={() => openPaySubscriptionModal(subscription)}
-                showPaymentModal={showPaymentModal} />
+                showPaymentModal={showPaymentModal}
+                onOpenCreditModal={openCreditModal} />
             )
           )}
         </tbody>
       </table>
       </div>
-      <nav
-        className={`flex gap-1 justify-end px-6 py-4 border-t border-outline-variant bg-surface ${isLoading ? 'opacity-50 pointer-events-none' : ''
-          }`}
-        aria-busy={isLoading}
-        aria-live="polite"
-        aria-label="Table navigation">
-        <ul className="flex gap-1">
-          {links &&
-            <li>
-              <NavLink
-                to={links.first.split('subscriptions')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                First
-              </NavLink>
-            </li>
-          }
-
-          {links?.prev &&
-            <li>
-              <NavLink
-                to={links.prev.split('subscriptions')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                Previous
-              </NavLink>
-            </li>
-          }
-
-          {pages.map(page => {
-            const params = new URLSearchParams(searchParams);
-            params.set('page[page]', page.toString());
-            if (searchValue.trim()) {
-              params.set('q[full_name_cont]', searchValue.trim());
-            }
-            return (
-              <li key={`page_${page}`}>
-                <NavLink
-                  aria-current={currentPage === page ? 'page' : 'false'}
-                  to={`?${params.toString()}`}
-                  className={
-                    `px-3 py-1 rounded border ${currentPage === page
-                      ? 'border-primary bg-primary-container text-on-primary-container font-bold'
-                      : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
-                    }`
-                  }>
-                  {page}
-                </NavLink>
-              </li>
-            );
-          })}
-          {links?.next &&
-            <li>
-              <NavLink
-                to={links.next.split('subscriptions')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                Next
-              </NavLink>
-            </li>
-          }
-          {links &&
-            <li>
-              <NavLink
-                to={links.last.split('subscriptions')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                Last
-              </NavLink>
-            </li>
-          }
-        </ul>
-      </nav>
+      <PaginationComponent
+        currentPage={currentPage}
+        pages={pages}
+        links={links}
+        isLoading={isLoading}
+        totalEntries={totalEntries}
+        currentItems={subscriptions.length}
+        getPageTarget={getPageTarget}
+        getLinkTarget={getLinkTarget}
+      />
       </div>
       <RegisterSubscriptionPaymentModal isOpen={isSubscriptionPaymentModalOpen} subscription={selectedSubscription ?? null} onSubscriptionPaid={((successful) => subscriptionPaid(successful))} />
+      <RegisterSubscriptionCreditModal
+        isOpen={isSubscriptionCreditModalOpen}
+        subscription={selectedSubscription ?? null}
+        onClose={onCreditModalClose}
+        onSuccess={() => resetPagination(loadSubscriptions)}
+      />
       <PaymentsModal
         isOpen={isPaymentsModalOpen}
         payableId={selectedSubscription?.id ?? null}

@@ -7,8 +7,8 @@ const path = "/products";
 export function getProducts(args: { params?: string }): Promise<IGetProductsResponse | IErrorResponse> {
   return api.get<IGetProductsResponse>(`${path}?${args.params}`).then(response => {
     if (response.status === OK) {
-      const { data, links, pages } = response.data
-      return { success: true as const, data, links, pages };
+      const { data, links, pages, total } = response.data
+      return { success: true as const, data, links, pages, total };
     } else {
       return { success: false as const, errors: [{ msj: response.status.toString() }] };
     }

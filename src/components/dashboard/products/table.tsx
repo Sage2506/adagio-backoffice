@@ -1,45 +1,43 @@
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate, useSearchParams } from "react-router";
+import { useNavigate } from "react-router";
 import type { IProductRecord } from "../../../types/products";
-import type { ILinks } from "../../../types/common";
 import { getProducts } from "../../../services/product";
 import { formatPrice } from "../../../utils/numbers";
+import { usePagination } from "../../../hooks/usePagination";
+import PaginationComponent from "../../utils/paginationComponent";
 
 export default function ProductsTable() {
   const navigate = useNavigate()
   const [products, setProducts] = useState<IProductRecord[]>([]);
-  const [pages, setPages] = useState<number[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [links, setLinks] = useState<ILinks>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
   const [searchValue, setSearchValue] = useState('');
-
-  let [searchParams] = useSearchParams();
+  const {
+    currentPage,
+    pages,
+    links,
+    totalEntries,
+    searchParams,
+    searchString,
+    setPagination,
+    getPageTarget,
+    getLinkTarget,
+  } = usePagination({ resourcePath: "products" });
 
   useEffect(() => {
-    if (searchParams.has('page[page]')) {
-      setCurrentPage(parseInt(searchParams.get('page[page]')!))
-    } else {
-      setCurrentPage(1)
-    }
     if (searchParams.has('q[name_cont]')) {
       setSearchValue(searchParams.get('q[name_cont]')!)
     }
     loadProducts();
-  }, [searchParams.toString()])
+  }, [searchString])
 
   async function loadProducts() {
     setIsLoading(true)
-    if (searchParams.has('page[page]')) {
-      setCurrentPage(parseInt(searchParams.get('page[page]')!))
-    }
     getProducts({ params: searchParams.toString() }).then(response => {
       if (response.success) {
-        const { data, pages, links } = response
+        const { data, pages, links, total } = response
         setProducts(data);
-        setPages(pages);
-        setLinks(links);
+        setPagination({ pages, links, total });
       } else {
         setErrors(response.errors)
       }
@@ -47,20 +45,6 @@ export default function ProductsTable() {
       setIsLoading(false)
     })
   }
-
-  // function setPage(page: number) {
-  //   const newParams = new URLSearchParams(searchParams)
-  //   newParams.set('page[page]', page.toString());
-  //   navigate(`?${newParams.toString()}`, { replace: true });
-  // }
-
-  // function resetPager() {
-  //   if (currentPage === 1) {
-  //     loadProducts();
-  //   } else {
-  //     setPage(1)
-  //   }
-  // }
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') {
@@ -145,69 +129,16 @@ export default function ProductsTable() {
         </tbody>
       </table>
       </div>
-      <nav
-        className={`flex gap-1 justify-end px-6 py-4 border-t border-outline-variant bg-surface ${isLoading ? 'opacity-50 pointer-events-none' : ''
-          }`}
-        aria-busy={isLoading}
-        aria-live="polite"
-        aria-label="Table navigation">
-        <ul className="flex gap-1">
-          {links &&
-            <li>
-              <NavLink
-                to={links.first.split('products')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                First
-              </NavLink>
-            </li>
-          }
-
-          {links?.prev &&
-            <li>
-              <NavLink
-                to={links.prev.split('products')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                Previous
-              </NavLink>
-            </li>
-          }
-
-          {pages.map(page =>
-            <li key={`page_${page}`}>
-              <NavLink
-                aria-current={currentPage === page ? 'page' : 'false'}
-
-                to={`?page%5Bpage%5D=${page}`}
-                className={
-                  `px-3 py-1 rounded border ${currentPage === page
-                    ? 'border-primary bg-primary-container text-on-primary-container font-bold'
-                    : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
-                  }`
-                }>
-                {page}
-              </NavLink>
-            </li>
-          )}
-          {links?.next &&
-            <li>
-              <NavLink
-                to={links.next.split('products')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                Next
-              </NavLink>
-            </li>
-          }
-          {links &&
-            <li>
-              <NavLink
-                to={links.last.split('products')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                Last
-              </NavLink>
-            </li>
-          }
-        </ul>
-      </nav>
+      <PaginationComponent
+        currentPage={currentPage}
+        pages={pages}
+        links={links}
+        isLoading={isLoading}
+        totalEntries={totalEntries}
+        currentItems={products.length}
+        getPageTarget={getPageTarget}
+        getLinkTarget={getLinkTarget}
+      />
     </div>
   )
 }

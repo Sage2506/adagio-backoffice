@@ -7,8 +7,8 @@ const path = "/subscriptions";
 export function getSubscriptions(args: { params?: string }): Promise<IGetSubscriptionsResponse | IErrorResponse> {
   return api.get<IGetSubscriptionsResponse>(`${path}?${args.params}`).then(response => {
     if (response.status === OK) {
-      const { data, links, pages } = response.data
-      return { success: true as const, data, links, pages };
+      const { data, links, pages, total } = response.data
+      return { success: true as const, data, links, pages, total };
     } else {
       return { success: false as const, errors: [{ msj: response.status.toString() }] };
     }
@@ -76,6 +76,28 @@ export function putSubscriptionDueDate(args: { id: string, data: IDueDate }): Pr
     return {
       success: false as const,
       errors: [{ msj: error.message }]
+    };
+  });
+}
+
+export function postSubscriptionAddCredit(args: { id: string, amount: number | string }): Promise<{ success: true, data: any } | { success: false, errors: { msj: string }[] }> {
+  return api.post(`${path}/${args.id}/add_credit`, { amount: Number(args.amount) }).then(response => {
+    if (response.status === OK) {
+      return {
+        success: true as const,
+        data: response.data
+      };
+    }
+
+    return {
+      success: false as const,
+      errors: [{ msj: response.status.toString() }]
+    };
+  }).catch((error: { response?: { data?: { error?: string } }, message: string }) => {
+    const backendError = error.response?.data?.error;
+    return {
+      success: false as const,
+      errors: [{ msj: backendError || error.message }]
     };
   });
 }

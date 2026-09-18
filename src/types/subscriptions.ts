@@ -47,6 +47,7 @@ export interface IGetSubscriptionsResponse {
   data: ISubscriptionAlumnPlanRecord[]
   links: ILinks
   pages: number[]
+  total: number
 }
 
 export interface IDueDate {

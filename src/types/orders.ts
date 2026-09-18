@@ -40,7 +40,7 @@ export interface IOrderNew {
 export interface IGetOrdersResponse {
   data: IOrderRecord[]
   success: true
-  count: number
+  total: number
   links: ILinks
   pages: number[]
 }

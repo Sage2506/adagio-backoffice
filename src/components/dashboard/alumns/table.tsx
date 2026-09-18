@@ -1,35 +1,39 @@
 import { useState, useEffect } from "react";
 import { deleteAlumn, getAlumns, } from "../../../services/alumn";
-import { NavLink, useNavigate, useSearchParams } from "react-router";
+import { useNavigate } from "react-router";
 import type { IAlumnRecord } from "../../../types/alumns";
-import type { ILinks } from "../../../types/common";
 import ConfirmationModal from "../../utils/confirmationModal";
 import AlumnsRow from "./row";
+import { usePagination } from "../../../hooks/usePagination";
+import PaginationComponent from "../../utils/paginationComponent";
 
 export default function AlumnsTable() {
   const navigate = useNavigate()
   const [alumns, setAlumns] = useState<IAlumnRecord[]>([]);
-  const [pages, setPages] = useState<number[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [links, setLinks] = useState<ILinks>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
-  const [searchParams] = useSearchParams();
   const [searchValue, setSearchValue] = useState('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [alumnToDelete, setAlumnToDelete] = useState<IAlumnRecord>();
-  const [totalEntries, setTotalEntries] = useState<number>(0);
+  const {
+    currentPage,
+    pages,
+    links,
+    totalEntries,
+    searchParams,
+    searchString,
+    setPagination,
+    resetPagination,
+    getPageTarget,
+    getLinkTarget,
+  } = usePagination({ resourcePath: "alumns" });
+
   useEffect(() => {
-    if (searchParams.has('page[page]')) {
-      setCurrentPage(parseInt(searchParams.get('page[page]')!))
-    } else {
-      setCurrentPage(1)
-    }
     if (searchParams.has('q[full_name_cont]')) {
       setSearchValue(searchParams.get('q[full_name_cont]')!)
     }
     loadAlumns();
-  }, [searchParams.toString()])
+  }, [searchString])
 
   async function loadAlumns() {
     setIsLoading(true)
@@ -37,9 +41,7 @@ export default function AlumnsTable() {
       if (response.success) {
         const { data, pages, links, total } = response
         setAlumns(data);
-        setPages(pages);
-        setLinks(links);
-        setTotalEntries(total)
+        setPagination({ pages, links, total });
       } else {
         setErrors(response.errors)
       }
@@ -61,20 +63,6 @@ export default function AlumnsTable() {
     }
   };
 
-  function setPage(page: number) {
-    const newParams = new URLSearchParams(searchParams)
-    newParams.set('page[page]', page.toString());
-    navigate(`?${newParams.toString()}`, { replace: true });
-  }
-
-  function resetPager() {
-    if (currentPage === 1) {
-      loadAlumns();
-    } else {
-      setPage(1)
-    }
-  }
-
   function handleDelete(e: React.FormEvent, alumn: IAlumnRecord) {
     e.stopPropagation()
     setAlumnToDelete(alumn)
@@ -84,18 +72,18 @@ export default function AlumnsTable() {
   function onConfirmResponse(accepted: boolean) {
     if (alumnToDelete) {
       if (accepted) {
-        eraseAlun();
+        eraseAlum();
       }
     }
     setIsModalOpen(false)
   }
 
-  async function eraseAlun() {
+  async function eraseAlum() {
     if (alumnToDelete) {
       setIsLoading(true)
       const response = await deleteAlumn({ id: alumnToDelete.id })
       if (response.success) {
-        resetPager()
+        resetPagination(loadAlumns)
       } else {
         setIsLoading(false)
       }
@@ -177,61 +165,16 @@ export default function AlumnsTable() {
           </tbody>
         </table>
       </div>
-      <div className="px-6 py-4 flex items-center justify-between border-t border-outline-variant bg-surface">
-        <div className="text-label-md font-label-md text-on-surface-variant">Showing {(currentPage - 1) * 10 + 1} to {(currentPage -1 ) * 10 + alumns.length } of {totalEntries} entries</div>
-        <nav
-          className={`flex gap-1 ${isLoading ? 'opacity-50 pointer-events-none' : ''
-            }`}
-          aria-busy={isLoading}
-          aria-live="polite"
-          aria-label="Table navigation">
-          {links &&
-            <NavLink
-              to={links.first.split('alumns')[1]}
-              className={
-                `px-3 py-1 rounded border ${currentPage === 1
-                  ? 'border-primary bg-primary-container text-on-primary-container font-bold'
-                  : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
-                }`}>
-              First
-            </NavLink>
-          }
-          {links?.prev &&
-            <NavLink
-              to={links.prev.split('alumns')[1]}
-              className="px-3 py-1 rounded border">
-              Previous
-            </NavLink>
-          }
-          {pages.map(page =>
-            <a key={`page_${page}`}
-              aria-current={currentPage === page ? 'page' : 'false'}
-              onClick={() => setPage(page)}
-              className={
-                `px-3 py-1 rounded border ${currentPage === page
-                  ? 'border-primary bg-primary-container text-on-primary-container font-bold'
-                  : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
-                }`
-              }>
-              {page}
-            </a>
-          )}
-          {links?.next &&
-            <NavLink
-              to={links.next.split('alumns')[1]}
-              className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-              Next
-            </NavLink>
-          }
-          {links &&
-            <NavLink
-              to={links.last.split('alumns')[1]}
-              className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-              Last
-            </NavLink>
-          }
-        </nav>
-      </div>
+      <PaginationComponent
+        currentPage={currentPage}
+        pages={pages}
+        links={links}
+        isLoading={isLoading}
+        totalEntries={totalEntries}
+        currentItems={alumns.length}
+        getPageTarget={getPageTarget}
+        getLinkTarget={getLinkTarget}
+      />
     </div >
   )
 }

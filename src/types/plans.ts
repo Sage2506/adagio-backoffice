@@ -22,6 +22,7 @@ export interface IGetPlansResponse {
   data: IPlanRecord[]
   links: ILinks
   pages: number[]
+  total: number
 }
 
 export interface IGetPlanResponse {

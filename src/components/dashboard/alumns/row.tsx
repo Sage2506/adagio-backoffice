@@ -16,7 +16,7 @@ export default function AlumnsRow({ alumn, handleDelete }: IAlumnsRow) {
 
   }, []);
   return (
-    <tr key={`alumn_${alumn.id}`} onClick={() => navigate(`/alumns/form/${alumn.id}`)} className={"border-b border-outline-variant hover:bg-surface-container-low transition-colors group"}>
+    <tr key={`alumn_${alumn.id}`} onClick={() => navigate(`/dashboard/alumns/form/${alumn.id}`)} className={"border-b border-outline-variant hover:bg-surface-container-low transition-colors group"}>
       <th scope="row" className="py-4 px-6 font-bold text-on-surface">
         {alumn.id}
       </th>

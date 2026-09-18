@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate, useSearchParams } from "react-router";
+import { useNavigate } from "react-router";
 import type { IOrderRecord } from "../../../types/orders";
-import type { ILinks } from "../../../types/common";
 import { getOrders } from "../../../services/order";
 import { formatPrettyLongDateShort, formatPrice } from "../../../utils/numbers";
 import { BanknotesIcon, CreditCardIcon, EyeIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { usePagination } from "../../../hooks/usePagination";
+import PaginationComponent from "../../utils/paginationComponent";
 
 const statusStyles = {
   pending: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
@@ -15,29 +16,29 @@ const statusStyles = {
 export default function OrdersTable() {
   const navigate = useNavigate()
   const [orders, setOrders] = useState<IOrderRecord[]>([]);
-  const [pages, setPages] = useState<number[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [links, setLinks] = useState<ILinks>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
-  const [searchParams] = useSearchParams();
-  const queryString = searchParams.toString();
-  const requestedPage = searchParams.get('page[page]');
+  const {
+    currentPage,
+    pages,
+    links,
+    totalEntries,
+    searchString,
+    setPagination,
+    getPageTarget,
+    getLinkTarget,
+  } = usePagination({ resourcePath: "orders" });
 
   useEffect(() => {
     let active = true;
     setIsLoading(true)
-    if (requestedPage) {
-      setCurrentPage(parseInt(requestedPage))
-    }
 
-    getOrders({ params: queryString }).then(response => {
+    getOrders({ params: searchString }).then(response => {
       if (!active) return;
       if (response.success) {
-        const { data, pages, links } = response
+        const { data, pages, links, total } = response
         setOrders(data);
-        setPages(pages);
-        setLinks(links);
+        setPagination({ pages, links, total });
       } else {
         setErrors(response.errors)
       }
@@ -46,7 +47,7 @@ export default function OrdersTable() {
     })
 
     return () => { active = false; };
-  }, [queryString, requestedPage])
+  }, [searchString])
 
   return (
     <div className="w-full min-w-0 flex flex-col gap-stack-md">
@@ -136,69 +137,16 @@ export default function OrdersTable() {
         </tbody>
       </table>
       </div>
-      <nav
-        className={`flex gap-1 justify-end px-6 py-4 border-t border-outline-variant bg-surface ${isLoading ? 'opacity-50 pointer-events-none' : ''
-          }`}
-        aria-busy={isLoading}
-        aria-live="polite"
-        aria-label="Table navigation">
-        <ul className="flex gap-1">
-          {links &&
-            <li>
-              <NavLink
-                to={links.first.split('orders')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                First
-              </NavLink>
-            </li>
-          }
-
-          {links?.prev &&
-            <li>
-              <NavLink
-                to={links.prev.split('orders')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                Previous
-              </NavLink>
-            </li>
-          }
-
-          {pages.map(page =>
-            <li key={`page_${page}`}>
-              <NavLink
-                aria-current={currentPage === page ? 'page' : 'false'}
-
-                to={`?page%5Bpage%5D=${page}`}
-                className={
-                  `px-3 py-1 rounded border ${currentPage === page
-                    ? 'border-primary bg-primary-container text-on-primary-container font-bold'
-                    : 'border-outline-variant text-on-surface-variant hover:bg-surface-container'
-                  }`
-                }>
-                {page}
-              </NavLink>
-            </li>
-          )}
-          {links?.next &&
-            <li>
-              <NavLink
-                to={links.next.split('orders')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                Next
-              </NavLink>
-            </li>
-          }
-          {links &&
-            <li>
-              <NavLink
-                to={links.last.split('orders')[1]}
-                className="px-3 py-1 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-container">
-                Last
-              </NavLink>
-            </li>
-          }
-        </ul>
-      </nav>
+      <PaginationComponent
+        currentPage={currentPage}
+        pages={pages}
+        links={links}
+        isLoading={isLoading}
+        totalEntries={totalEntries}
+        currentItems={orders.length}
+        getPageTarget={getPageTarget}
+        getLinkTarget={getLinkTarget}
+      />
     </div>
   )
 }

@@ -7,7 +7,6 @@ import AlumnForm from "./components/dashboard/alumns/form";
 import SubscriptionsTable from "./components/dashboard/subscriptions/table";
 import PlansTable from "./components/dashboard/plans/table";
 import PlanForm from "./components/dashboard/plans/form";
-import PaySubscriptionForm from "./components/dashboard/subscriptions/paySubscription";
 import ProductsTable from "./components/dashboard/products/table";
 import ProductForm from "./components/dashboard/products/form";
 import OrdersTable from "./components/dashboard/orders/table";
@@ -40,7 +39,6 @@ export function Router() {
         <Route path="products/form" element={<ProductForm />}></Route>
         <Route path="products/form/:id" element={<ProductForm />}></Route>
         <Route path="subscriptions" element={<SubscriptionsTable />}></Route>
-        <Route path="subscriptions/pay" element={<PaySubscriptionForm />}></Route>
       </Route>
     </Routes>
   )
