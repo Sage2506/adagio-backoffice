@@ -32,15 +32,15 @@ function Login() {
       isValid = false
     }
     if (isValid) {
-      postLogIn({ email, password })
+      postLogIn({ email, password, remember_me: rememberMe })
     }
 
   }
 
-  async function postLogIn(data: { email: string, password: string }) {
+  async function postLogIn(data: { email: string, password: string, remember_me?: boolean }) {
     try {
       setIsLoading(true);
-      const response = await logIn({ user: data })
+      const response = await logIn({ user: { ...data, remember_me: rememberMe } })
       if (response.success) {
         await login()
       } else {
