@@ -4,5 +4,6 @@ export interface ILoginResponse {
 
 export interface IUserCredentials {
   email: string,
-  password: string
+  password: string,
+  remember_me?: boolean
 }

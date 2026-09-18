@@ -18,6 +18,12 @@ export function logIn(args: { user: IUserCredentials }): Promise<ILoginResponse 
   })
 }
 
+export function refreshSession(): Promise<boolean> {
+  return api.post("auth/refresh")
+    .then(() => true)
+    .catch(() => false);
+}
+
 export function logOut(): Promise<void> {
   return api.post("auth/logout").then(() => undefined);
 }
