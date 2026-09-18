@@ -2,34 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getCurrentUser, logOut as logOutRequest, refreshSession } from '../../services/user';
 import { clearDemoReadOnly, setDemoReadOnlyForEmail } from '../../utils/demoMode';
 
-const JWT_EXPIRY_THRESHOLD_MS = 5 * 60 * 1000;
-
-function parseJwtExpiryMs(): number | null {
-  const jwtPayload = document.cookie
-    .split('; ')
-    .find((cookie) => cookie.startsWith('jwt='));
-
-  if (!jwtPayload) return null;
-
-  const rawToken = decodeURIComponent(jwtPayload.split('=').slice(1).join('='));
-  if (!rawToken) return null;
-
-  try {
-    const base64Url = rawToken.split('.')[1];
-    if (!base64Url) return null;
-
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), '=');
-    const decodedPayload = JSON.parse(atob(padded));
-    const expirySeconds = decodedPayload.exp;
-
-    if (!expirySeconds) return null;
-
-    return expirySeconds * 1000;
-  } catch {
-    return null;
-  }
-}
+const JWT_REFRESH_BEFORE_EXPIRY_MS = 10 * 60 * 1000;
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -91,40 +64,16 @@ export const useAuth = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const expiryMs = parseJwtExpiryMs();
-    if (expiryMs === null) return;
-
-    const msUntilExpiry = expiryMs - Date.now();
-    if (msUntilExpiry <= 0) {
-      refreshAuthSilently();
-      return;
-    }
-
-    const delay = Math.max(msUntilExpiry - JWT_EXPIRY_THRESHOLD_MS, 0);
+    // JWT is stored in an HttpOnly cookie, so JS cannot read its expiry.
+    // We refresh shortly before the backend's 1-hour session expires.
     const timeoutId = window.setTimeout(() => {
       refreshAuthSilently();
-    }, delay);
+    }, 50 * 60 * 1000 - JWT_REFRESH_BEFORE_EXPIRY_MS);
 
     return () => window.clearTimeout(timeoutId);
   }, [isAuthenticated, refreshAuthSilently]);
 
-  useEffect(() => {
-    if (isLoading) return;
-
-    const jwtCookie = document.cookie
-      .split('; ')
-      .find((cookie) => cookie.startsWith('jwt='));
-
-    if (!jwtCookie) {
-      clearDemoReadOnly();
-      setUser(null);
-      setIsDemoReadOnly(false);
-      setIsAuthenticated(false);
-    }
-  }, [isLoading]);
-
   const login = useCallback(async () => {
-    setIsAuthenticated(true);
     await checkAuth();
   }, [checkAuth]);
 
