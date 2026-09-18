@@ -25,6 +25,7 @@ export interface IGetProductsResponse {
   data: IProductRecord[]
   links: ILinks,
   pages: number[]
+  total: number
   success: true,
 }
 

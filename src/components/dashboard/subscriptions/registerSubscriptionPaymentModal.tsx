@@ -125,7 +125,7 @@ export default function RegisterSubscriptionPaymentModal({
             className="relative z-20 w-[92%] max-w-md bg-surface rounded-xl shadow-2xl flex flex-col overflow-hidden animate-[fadeIn_0.2s_ease-out]" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
             <div className="flex items-center justify-between px-gutter py-4 border-b border-outline-variant">
-              <h2 className="font-headline-sm text-headline-sm text-on-surface">Pagar Subscripción</h2>
+              <h2 className="font-headline-sm text-headline-sm text-on-surface">Pagar Mensualidad</h2>
               <button
                 type="button"
                 onClick={() => !isLoading && closeDialog()}

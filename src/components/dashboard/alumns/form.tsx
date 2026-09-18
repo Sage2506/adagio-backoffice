@@ -28,11 +28,13 @@ export default function AlumnForm() {
   const navigate = useNavigate()
   const { id } = useParams();
   const [address, setAddress] = useState<string>("")
+  const [alumnContactError, setAlumnContactError] = useState<string>('');
   const [birth_date, setBirthDate] = useState<Date | null>(null)
   const [customPrice, setCustomPrice] = useState<string>('');
   const [customPriceError, setCustomPriceError] = useState<string>('');
   const [email, setEmail] = useState<string>("")
   const [guardian, setGuardian] = useState<GuardianForm>({ name: "", last_name: "", phone_number: "", email: "" });
+  const [guardianContactError, setGuardianContactError] = useState<string>('');
   const [guardianOptions, setGuardianOptions] = useState<IGuardianRecord[]>([])
   const [is_guardian_required_for_leaving, setIsGuardianRequiredForLeaving] = useState<boolean>(false);
   const [isGuardianSearching, setIsGuardianSearching] = useState<boolean>(false)
@@ -223,6 +225,16 @@ export default function AlumnForm() {
   function formSubmit(e: React.FormEvent<HTMLFormElement>) {
     // Function to handle form submission for creating or updating an alumn
     e.preventDefault()
+    if (!phone_number.trim() && !email.trim()) {
+      setAlumnContactError("Debes ingresar al menos un teléfono o un correo electrónico.")
+      return
+    }
+    setAlumnContactError('')
+    if (!guardian.phone_number.trim() && !guardian.email.trim()) {
+      setGuardianContactError("Debes ingresar al menos un teléfono o un correo electrónico.")
+      return
+    }
+    setGuardianContactError('')
     const parsedCustomPrice = Number(customPrice)
     if (!id && usesCustomPrice && (!customPrice || !Number.isFinite(parsedCustomPrice) || parsedCustomPrice <= 0)) {
       setCustomPriceError("El precio personalizado debe ser mayor a 0.")
@@ -406,11 +418,12 @@ export default function AlumnForm() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-stack-md">
               <div className="space-y-2"><label htmlFor="name" className={labelClass}>First name</label><input onChange={e => setName(e.target.value)} value={name} type="text" id="name" name="name" className={fieldClass} placeholder="John" required /></div>
-              <div className="space-y-2"><label htmlFor="last_name" className={labelClass}>Last name</label><input onChange={e => setLastName(e.target.value)} value={last_name} type="text" id="last_name" name="last_name" className={fieldClass} placeholder="Doe" required /></div>
+              <div className="space-y-2"><label htmlFor="last_name" className={labelClass}>Last name</label><input onChange={e => setLastName(e.target.value)} onKeyDown={e => { if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); document.getElementById('birth_date')?.focus() } }} value={last_name} type="text" id="last_name" name="last_name" className={fieldClass} placeholder="Doe" required /></div>
               <div className="space-y-2 md:col-span-2"><label htmlFor="birth_date" className={labelClass}>Birth date</label><DatePicker value={birth_date ? new Date(birth_date) : null} onChange={date => setBirthDate(date)} id="birth_date" name="birth_date" /></div>
               <div className="space-y-2 md:col-span-2"><label htmlFor="address" className={labelClass}>Address</label><input onChange={e => setAddress(e.target.value)} value={address} type="text" id="address" name="address" className={fieldClass} placeholder="Street ##" required /></div>
-              <div className="space-y-2"><label htmlFor="phone_number" className={labelClass}>Phone number</label><input onChange={e => setPhoneNumber(e.target.value)} value={phone_number} type="tel" id="phone_number" name="phone_number" className={fieldClass} placeholder="123-45-6789" pattern="[0-9]{10}" required /></div>
-              <div className="space-y-2"><label htmlFor="email" className={labelClass}>Email address</label><input onChange={e => setEmail(e.target.value)} value={email} type="email" id="email" name="email" className={fieldClass} placeholder="john.doe@company.com" pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$" required /></div>
+              <div className="space-y-2"><label htmlFor="phone_number" className={labelClass}>Phone number</label><input onChange={e => setPhoneNumber(e.target.value)} value={phone_number} type="tel" id="phone_number" name="phone_number" className={fieldClass} placeholder="123-45-6789" pattern="[0-9]{10}" /></div>
+              <div className="space-y-2"><label htmlFor="email" className={labelClass}>Email address</label><input onChange={e => setEmail(e.target.value)} value={email} type="email" id="email" name="email" className={fieldClass} placeholder="john.doe@company.com" pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$" /></div>
+              {alumnContactError && <p className="text-sm text-error md:col-span-2">{alumnContactError}</p>}
             </div>
           </section>
 
@@ -436,7 +449,7 @@ export default function AlumnForm() {
                   </label>
                   <input onChange={event => { handlePriceInputChange(event, setCustomPrice); setCustomPriceError('') }} value={customPrice} type="number" id="customPrice" name="customPrice" min="0.01" step="0.01" disabled={!usesCustomPrice} className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-50`} placeholder="Precio personalizado (opcional)" aria-invalid={!!customPriceError} aria-describedby={customPriceError ? "customPriceError" : undefined} />{customPriceError && <p id="customPriceError" className="text-sm text-error">{customPriceError}</p>}</div>}
               <div className="space-y-2"><label htmlFor="special_med_conditions" className={labelClass}>Special medical conditions</label><textarea onChange={e => setSpecialMedConditions(e.target.value)} value={special_med_conditions} id="special_med_conditions" name="special_med_conditions" className={`${fieldClass} resize-none`} rows={3} placeholder="Allergies" required /><p className="text-xs text-on-surface-variant">Note any allergies or conditions instructors should be aware of.</p></div>
-              <label className="flex items-start gap-3 rounded-lg bg-surface-container-low p-4 cursor-pointer"><input id="is_guardian_required_for_leaving" name="is_guardian_required_for_leaving" type="checkbox" checked={is_guardian_required_for_leaving} onChange={e => setIsGuardianRequiredForLeaving(e.target.checked)} className="mt-0.5 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" /><span className="text-body-md text-on-surface">The student may leave the installations without a guardian.</span></label>
+              <label className="flex items-start gap-3 rounded-lg bg-surface-container-low p-4 cursor-pointer"><input id="is_guardian_required_for_leaving" name="is_guardian_required_for_leaving" type="checkbox" checked={is_guardian_required_for_leaving} onKeyDown={e => { if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); document.getElementById('subscribedAt')?.focus() } }} onChange={e => setIsGuardianRequiredForLeaving(e.target.checked)} className="mt-0.5 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" /><span className="text-body-md text-on-surface">The student may leave the installations without a guardian.</span></label>
             </div>
           </section>
 
@@ -475,8 +488,9 @@ export default function AlumnForm() {
                 {isGuardianSearchOpen && !guardian.id && guardian.name.trim().length >= 3 && (isGuardianSearching || guardianOptions.length > 0) && <div id="guardian-options" role="listbox" className="absolute z-30 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto rounded-md border border-outline-variant bg-surface-container-lowest shadow-soft">{isGuardianSearching && <p className="px-3 py-2 text-sm text-on-surface-variant">Searching...</p>}{!isGuardianSearching && guardianOptions.filter(option => option.id !== secondaryGuardian.id).map(option => <button key={option.id} type="button" role="option" onMouseDown={event => event.preventDefault()} onClick={() => selectGuardian(option)} className="w-full px-3 py-2 text-left hover:bg-surface-container-low focus:bg-surface-container-low outline-none"><span className="block text-sm text-on-surface capitalize">{option.name} {option.last_name}</span><span className="block text-xs text-on-surface-variant">{option.email || option.phone_number}</span></button>)}</div>}
               </div>
               <div className="space-y-1"><label htmlFor="guardian_last_name" className={labelClass}>Last name</label><input onChange={e => updateGuardianField("last_name", e.target.value)} value={guardian.last_name} type="text" id="guardian_last_name" name="guardian_last_name" className={compactFieldClass} placeholder="Doe" required /></div>
-              <div className="space-y-1"><label htmlFor="guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => updateGuardianField("phone_number", e.target.value)} value={guardian.phone_number} type="tel" id="guardian_phone_number" name="guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" required /></div>
-              <div className="space-y-1"><label htmlFor="guardian_email" className={labelClass}>Email address</label><input onChange={e => updateGuardianField("email", e.target.value)} value={guardian.email} type="email" id="guardian_email" name="guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+\x2D]+@[a-z0-9.\x2D]+\.[a-z]{2,4}$" required /></div>
+              <div className="space-y-1"><label htmlFor="guardian_phone_number" className={labelClass}>Phone number</label><input onChange={e => updateGuardianField("phone_number", e.target.value)} value={guardian.phone_number} type="tel" id="guardian_phone_number" name="guardian_phone_number" className={compactFieldClass} placeholder="123-45-678" pattern="[0-9]{10}" /></div>
+              <div className="space-y-1"><label htmlFor="guardian_email" className={labelClass}>Email address</label><input onChange={e => updateGuardianField("email", e.target.value)} value={guardian.email} type="email" id="guardian_email" name="guardian_email" className={compactFieldClass} placeholder="john.doe@company.com" pattern="[a-z0-9._%+\x2D]+@[a-z0-9.\x2D]+\.[a-z]{2,4}$" /></div>
+              {guardianContactError && <p className="text-sm text-error">{guardianContactError}</p>}
             </div>
           </section>
           <section className="bg-surface-bright rounded-xl shadow-soft border border-surface-variant p-6">

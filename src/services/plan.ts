@@ -11,8 +11,8 @@ export function getPlans(args: { params?: string, limit?: number } = {}): Promis
   }
   return api.get<IGetPlansResponse>(`${path}?${query.toString()}`).then(response => {
     if (response.status === OK) {
-      const { data, links, pages } = response.data
-      return { success: true as const, data, links, pages };
+      const { data, links, pages, total } = response.data
+      return { success: true as const, data, links, pages, total };
     } else {
       return { success: false as const, errors: [{ msj: response.status.toString() }] };
     }

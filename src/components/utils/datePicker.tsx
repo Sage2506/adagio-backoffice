@@ -203,6 +203,13 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
           placeholder={placeholder || "Select date"}
           className="flex-grow outline-none bg-transparent"
           onClick={toggleCalendar}
+          onKeyDown={e => {
+            // Permite abrir el calendario con Space/Enter apenas el input recibe foco (sin un segundo Tab)
+            if (e.key === ' ' || e.key === 'Enter') {
+              e.preventDefault();
+              toggleCalendar();
+            }
+          }}
           id={id}
           name={name}
         />

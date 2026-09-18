@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import { formatPrettyDateShort } from "../../../utils/numbers";
-import { PowerIcon } from "@heroicons/react/24/solid";
+import { PowerIcon, GiftIcon } from "@heroicons/react/24/solid";
 import { getSubscriptionStatus } from "../../../utils/subscriptionStatus";
 import EditDueDateModal from "./editDueDateModal";
 import { blockDemoReadOnlyAction, isDemoReadOnlySession } from "../../../utils/demoMode";
@@ -9,6 +9,7 @@ import { blockDemoReadOnlyAction, isDemoReadOnlySession } from "../../../utils/d
 interface ISubscriptionRow {
   onClick: (e: React.MouseEvent<HTMLElement>) => void;
   showPaymentModal: Function;
+  onOpenCreditModal: (subscription: ISubscriptionAlumnPlanRecord) => void;
   subscription: ISubscriptionAlumnPlanRecord;
   toggleSubscriptionStatus: Function;
   reloadSubscriptions?: () => void;
@@ -27,7 +28,7 @@ function getDateStatusStyle(subscription: ISubscriptionAlumnPlanRecord) {
   return paidStatusStyle;
 }
 
-export default function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubscriptionStatus, reloadSubscriptions }: ISubscriptionRow) {
+export default function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubscriptionStatus, onOpenCreditModal, reloadSubscriptions }: ISubscriptionRow) {
   const [isEditDueDateOpen, setIsEditDueDateOpen] = useState(false);
   const isReadOnly = isDemoReadOnlySession();
 
@@ -55,22 +56,23 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
         <p>{subscription.plan.name}</p>
         {subscription.custom_price != null && <p className="text-xs normal-case text-on-surface-variant">Precio personalizado: S/. {subscription.custom_price.toFixed(2)}</p>}
       </td>
+
       <td className="px-6 py-4">
         <button className="rounded-xs shadow-lg p-0.5" onClick={(e) => onShowPaymentsModal(e)}>
-          <p className="cursor-pointer hover:font-bold">
+          <p className="cursor-pointer">
             {subscription.last_payment_date ? formatPrettyDateShort(subscription.last_payment_date) : "No payments yet"}
           </p>
         </button>
       </td>
       <td className="px-6 py-4">
         <button className="rounded-xs shadow-lg p-0.5" onClick={(e) => { e.stopPropagation(); setIsEditDueDateOpen(true); }}>
-          <p className="cursor-pointer hover:font-bold">
+          <p className="cursor-pointer">
             {formatPrettyDateShort(subscription.due_date)}
           </p>
         </button>
       </td>
       <td className="px-6 py-4">
-        <div>
+        <div className="flex items-center gap-2">
           <button
             type="button"
             disabled={isReadOnly}
@@ -89,6 +91,20 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
             onClick={(e) => { onToggleSubscriptionStatus(e) }}
           >
             <PowerIcon className="w-5 h-5" />
+          </button>
+
+          <button
+            type="button"
+            disabled={isReadOnly}
+            className="p-2 rounded-md border border-primary/40 bg-primary-container text-on-primary-container hover:bg-primary/10 transition-colors focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (blockDemoReadOnlyAction(e)) return;
+              onOpenCreditModal(subscription);
+            }}
+            title="Aplicar bono"
+          >
+            <GiftIcon className="w-5 h-5" />
           </button>
         </div>
       </td>
