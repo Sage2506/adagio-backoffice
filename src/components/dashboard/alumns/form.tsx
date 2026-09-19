@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAlumn, postAlumn, putAlumn } from "../../../services/alumn";
 import { getGuardians, postGuardian } from "../../../services/guardian";
-import { useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import type { IAlumnNew } from "../../../types/alumns";
 import type { IGuardianNew, IGuardianRecord, IPostGuardianResponse } from "../../../types/guardians";
 import type { IErrorResponse } from "../../../types/errors";
@@ -24,8 +24,27 @@ type GuardianForm = {
   email: string;
 };
 
+type DuplicateFormState = {
+  address: string;
+  email: string;
+  guardian: GuardianForm;
+  is_guardian_required_for_leaving: boolean;
+  isMonthlyPaymentIncluded: boolean;
+  isSubscriptionPaymentIncluded: boolean;
+  last_name: string;
+  monthlyPayment: string;
+  phone_number: string;
+  plan_id: string;
+  secondaryGuardian: GuardianForm;
+  subscribedAt: Date | null;
+  subscriptionPayment: string;
+  usesCustomPrice: boolean;
+  customPrice: string;
+};
+
 export default function AlumnForm() {
   const navigate = useNavigate()
+  const location = useLocation();
   const { id } = useParams();
   const [address, setAddress] = useState<string>("")
   const [alumnContactError, setAlumnContactError] = useState<string>('');
@@ -56,6 +75,32 @@ export default function AlumnForm() {
   const [subscription_id, setSubscriptionId] = useState<string>("");
   const [subscriptionPayment, setSubscriptionPayment] = useState<string>('')
   const [usesCustomPrice, setUsesCustomPrice] = useState<boolean>(false);
+
+  useEffect(() => {
+    const duplicateState = location.state as DuplicateFormState | null;
+    if (!duplicateState || id) return;
+
+    setAddress(duplicateState.address);
+    setEmail(duplicateState.email);
+    setGuardian(duplicateState.guardian);
+    setIsGuardianRequiredForLeaving(duplicateState.is_guardian_required_for_leaving);
+    setIsMonthlyPaymentIncluded(duplicateState.isMonthlyPaymentIncluded);
+    setIsSubscriptionPaymentIncluded(duplicateState.isSubscriptionPaymentIncluded);
+    setLastName(duplicateState.last_name);
+    setMonthlyPayment(duplicateState.monthlyPayment);
+    setPhoneNumber(duplicateState.phone_number);
+    setPlanId(duplicateState.plan_id);
+    setSecondaryGuardian(duplicateState.secondaryGuardian);
+    setSubscribedAt(duplicateState.subscribedAt ? new Date(duplicateState.subscribedAt) : null);
+    setSubscriptionPayment(duplicateState.subscriptionPayment);
+    setUsesCustomPrice(duplicateState.usesCustomPrice);
+    setCustomPrice(duplicateState.customPrice);
+    setSubscriptionId("");
+    setBirthDate(null);
+    setName("");
+    setSpecialMedConditions("");
+    navigate(location.pathname, { replace: true, state: null });
+  }, [id, location.pathname, location.state, navigate]);
 
   const plansQuery = useQuery({
     // Queries and effects related to plans and guardians
@@ -392,6 +437,28 @@ export default function AlumnForm() {
     })
   }
 
+  function duplicateAlumn() {
+    const state: DuplicateFormState = {
+      address,
+      email,
+      guardian,
+      is_guardian_required_for_leaving,
+      isMonthlyPaymentIncluded,
+      isSubscriptionPaymentIncluded,
+      last_name,
+      monthlyPayment,
+      phone_number,
+      plan_id,
+      secondaryGuardian,
+      subscribedAt,
+      subscriptionPayment,
+      usesCustomPrice,
+      customPrice,
+    };
+
+    navigate('/dashboard/alumns/form', { state });
+  }
+
   const fieldClass = "w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-lowest text-on-surface focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md outline-none";
   const compactFieldClass = "w-full px-3 py-2 rounded-md border border-outline-variant bg-surface-lowest text-on-surface text-sm focus:ring-1 focus:ring-primary focus:border-primary transition-all font-body-md outline-none";
   const labelClass = "block text-label-md font-label-md text-on-surface-variant";
@@ -405,6 +472,7 @@ export default function AlumnForm() {
         </div>
         <div className="flex gap-3">
           <button type="button" onClick={() => navigate('/dashboard')} className="px-6 py-2 rounded-lg border border-outline text-on-surface font-label-md text-label-md hover:bg-surface-container-low transition-colors">Cancel</button>
+          {id && <button type="button" onClick={duplicateAlumn} className="px-6 py-2 rounded-lg border border-primary text-primary font-label-md text-label-md hover:bg-primary-container transition-colors">Duplicate</button>}
           <button type="submit" disabled={isLoading} className={`px-6 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-surface-tint transition-colors shadow-soft ${isLoading ? 'cursor-progress opacity-70' : ''}`}>{id ? 'Save Changes' : 'Create Alumn'}</button>
         </div>
       </header>
