@@ -41,18 +41,13 @@ export default function DashboardLayout() {
                 <div className="flex-1 flex flex-col gap-1 overflow-y-auto">
                     <NavLink to={'/dashboard'} end className={({ isActive }) => `rounded-lg mx-2 px-4 py-3 flex items-center gap-3 ${isActive ? "bg-primary-container text-on-primary-container font-bold scale-95 duration-200" : "text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all"}`}
                     >
-                        <span className="material-symbols-outlined" data-icon="dashboard">dashboard</span>
-                        <span className="text-label-md font-label-md">Dashboard</span>
+                        <span className="material-symbols-outlined" data-icon="event_repeat">event_repeat</span>
+                        <span className="text-label-md font-label-md">Subscriptions</span>
                     </NavLink>
-                    <NavLink to={'/dashboard'} end className={({ isActive }) => `rounded-lg mx-2 px-4 py-3 flex items-center gap-3 ${isActive ? "bg-primary-container text-on-primary-container font-bold scale-95 duration-200" : "text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all"}`}
+                    <NavLink to={'/dashboard/alumns'}  className={({ isActive }) => `rounded-lg mx-2 px-4 py-3 flex items-center gap-3 ${isActive ? "bg-primary-container text-on-primary-container font-bold scale-95 duration-200" : "text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all"}`}
                     >
                         <span className="material-symbols-outlined" data-icon="group">group</span>
                         <span className="text-label-md font-label-md">Alumns</span>
-                    </NavLink>
-                    <NavLink to={'/dashboard/subscriptions'} className={({ isActive }) => `rounded-lg mx-2 px-4 py-3 flex items-center gap-3 ${isActive ? "bg-primary-container text-on-primary-container font-bold scale-95 duration-200" : "text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all"}`}
-                    >
-                        <span className="material-symbols-outlined" data-icon="event_repeat">event_repeat</span>
-                        <span className="text-label-md font-label-md">Subscriptions</span>
                     </NavLink>
                     <NavLink to={'/dashboard/plans'} className={({ isActive }) => `rounded-lg mx-2 px-4 py-3 flex items-center gap-3 ${isActive ? "bg-primary-container text-on-primary-container font-bold scale-95 duration-200" : "text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all"}`}
                     >
@@ -98,9 +93,8 @@ export default function DashboardLayout() {
                 </header>
                 <nav className="flex-1 overflow-y-auto px-2 py-4">
                     <ul className="flex flex-col gap-1">
-                        <li><NavLink to="/dashboard" end onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">dashboard</span><span className="font-body-md">Dashboard</span></NavLink></li>
-                        <li><NavLink to="/dashboard" end onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">group</span><span className="font-body-md">Alumns</span></NavLink></li>
-                        <li><NavLink to="/dashboard/subscriptions" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm font-semibold" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">event_repeat</span><span className="font-body-md">Subscriptions</span></NavLink></li>
+                        <li><NavLink to="/dashboard" end onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm font-semibold" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">event_repeat</span><span className="font-body-md">Subscriptions</span></NavLink></li>
+                        <li><NavLink to="/dashboard/alumns"  onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">group</span><span className="font-body-md">Alumns</span></NavLink></li>
                         <li><NavLink to="/dashboard/plans" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm font-semibold" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">layers</span><span className="font-body-md">Plans</span></NavLink></li>
                         <li><NavLink to="/dashboard/products" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm font-semibold" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">shopping_bag</span><span className="font-body-md">Products</span></NavLink></li>
                         <li><NavLink to="/dashboard/orders" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm font-semibold" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">receipt_long</span><span className="font-body-md">Orders</span></NavLink></li>

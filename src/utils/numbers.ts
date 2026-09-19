@@ -7,6 +7,15 @@ export const formatPrice = (amount: number): string => {
     }).format(amount);
 }
 
+export const formatCurrencyValue = (amount: number): string => {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(Number(amount || 0));
+}
+
 export const formatPrettyDateShort = (dateString: string): string => {
     if (!dateString) return "N/A";
     // Extrae solo la parte de la fecha (YYYY-MM-DD)

@@ -101,3 +101,15 @@ export function postSubscriptionAddCredit(args: { id: string, amount: number | s
     };
   });
 }
+
+export function getMonthlyIncome(): Promise<{ success: true, total: number } | { success: false, errors: { msj: string }[] }> {
+  return api.get<{ total: number }>(`${path}/monthly_income`).then(response => {
+    if (response.status === OK) {
+      return { success: true as const, total: Number(response.data.total || 0) };
+    }
+
+    return { success: false as const, errors: [{ msj: response.status.toString() }] };
+  }).catch((error: { message: string }) => {
+    return { success: false as const, errors: [{ msj: error.message }] };
+  });
+}

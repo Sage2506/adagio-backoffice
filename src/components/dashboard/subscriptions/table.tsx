@@ -1,22 +1,26 @@
 import { useState, useEffect } from "react";
 import { EyeSlashIcon, EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router";
-import { getSubscriptions, putSubscription } from "../../../services/subscription";
+import { getMonthlyIncome, getSubscriptions, putSubscription } from "../../../services/subscription";
 import type { ISubscriptionAlumnPlanRecord, ISubscriptionNew } from "../../../types/subscriptions";
 import RegisterSubscriptionPaymentModal from "./registerSubscriptionPaymentModal";
 import RegisterSubscriptionCreditModal from "./registerSubscriptionCreditModal";
+import EditDueDateModal from "./editDueDateModal";
 import SubscriptionsRow from "./row";
 import PaymentsModal from "../payments/paymentsModal";
 import { usePagination } from "../../../hooks/usePagination";
 import PaginationComponent from "../../utils/paginationComponent";
+import { formatCurrencyValue } from "../../../utils/numbers";
 
 
 export default function SubscriptionsTable() {
   const navigate = useNavigate()
   const [subscriptions, setSubscriptions] = useState<ISubscriptionAlumnPlanRecord[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [monthlyIncome, setMonthlyIncome] = useState<number>(0);
   const [isSubscriptionPaymentModalOpen, setIsSubscriptionPaymentModalOpen] = useState<boolean>(false);
   const [isSubscriptionCreditModalOpen, setIsSubscriptionCreditModalOpen] = useState<boolean>(false);
+  const [isEditDueDateModalOpen, setIsEditDueDateModalOpen] = useState<boolean>(false);
   const [isPaymentsModalOpen, setIsPaymentsModalOpen] = useState<boolean>(false);
   const [selectedSubscription, setSelectedSubscription] = useState<ISubscriptionAlumnPlanRecord | null>(null);
   const [searchValue, setSearchValue] = useState('');
@@ -38,6 +42,7 @@ export default function SubscriptionsTable() {
       setSearchValue(searchParams.get('q[full_name_cont]')!)
     }
     loadSubscriptions();
+    loadMonthlyIncome();
   }, [searchString.toString()])
 
   // Solo actualiza el filtro al presionar Enter
@@ -68,6 +73,13 @@ export default function SubscriptionsTable() {
     })
   }
 
+  async function loadMonthlyIncome() {
+    const response = await getMonthlyIncome();
+    if (response.success) {
+      setMonthlyIncome(response.total);
+    }
+  }
+
   function openPaySubscriptionModal(subscription: ISubscriptionAlumnPlanRecord) {
     setSelectedSubscription(subscription);
     setIsSubscriptionPaymentModalOpen(true);
@@ -83,6 +95,15 @@ export default function SubscriptionsTable() {
     setIsSubscriptionCreditModalOpen(true);
   }
 
+  function openDueDateModal(subscription: ISubscriptionAlumnPlanRecord) {
+    setSelectedSubscription(subscription);
+    setIsEditDueDateModalOpen(true);
+  }
+
+  function navigateToAlumnForm(alumnId: number) {
+    navigate(`/dashboard/alumns/form/${alumnId}`);
+  }
+
   function subscriptionPaid(successful: boolean) {
     setIsSubscriptionPaymentModalOpen(false)
     setSelectedSubscription(null);
@@ -93,6 +114,14 @@ export default function SubscriptionsTable() {
 
   function onCreditModalClose(reloaded?: boolean) {
     setIsSubscriptionCreditModalOpen(false);
+    setSelectedSubscription(null);
+    if (reloaded) {
+      resetPagination(loadSubscriptions);
+    }
+  }
+
+  function onDueDateModalClose(reloaded?: boolean) {
+    setIsEditDueDateModalOpen(false);
     setSelectedSubscription(null);
     if (reloaded) {
       resetPagination(loadSubscriptions);
@@ -151,6 +180,11 @@ export default function SubscriptionsTable() {
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
+          <div
+          className={`px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container'}`}
+          >
+            <p>Monthly Income: {formatCurrencyValue(monthlyIncome)}</p>
+          </div>
           <button
             type="button"
             className={`px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 ${searchParams.get('include_inactive') === 'true' ? 'bg-primary-container text-on-primary-container border-primary-container' : 'bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container'}`}
@@ -175,6 +209,7 @@ export default function SubscriptionsTable() {
                 <EyeIcon className="w-5 h-5" /> Disabled
               </>
             )}
+            
           </button>
         </div>
       </div>
@@ -215,13 +250,14 @@ export default function SubscriptionsTable() {
           ) : (
             subscriptions.map((subscription) =>
               <SubscriptionsRow
-                reloadSubscriptions={loadSubscriptions}
                 toggleSubscriptionStatus={toggleSubscriptionStatus}
                 key={`subscription_${subscription.id}`}
                 subscription={subscription}
                 onClick={() => openPaySubscriptionModal(subscription)}
                 showPaymentModal={showPaymentModal}
-                onOpenCreditModal={openCreditModal} />
+                onOpenCreditModal={openCreditModal}
+                onOpenDueDateModal={openDueDateModal}
+                onNavigateToAlumnForm={navigateToAlumnForm} />
             )
           )}
         </tbody>
@@ -239,6 +275,11 @@ export default function SubscriptionsTable() {
       />
       </div>
       <RegisterSubscriptionPaymentModal isOpen={isSubscriptionPaymentModalOpen} subscription={selectedSubscription ?? null} onSubscriptionPaid={((successful) => subscriptionPaid(successful))} />
+      <EditDueDateModal
+        isOpen={isEditDueDateModalOpen}
+        subscription={selectedSubscription ?? null}
+        onClose={onDueDateModalClose}
+      />
       <RegisterSubscriptionCreditModal
         isOpen={isSubscriptionCreditModalOpen}
         subscription={selectedSubscription ?? null}

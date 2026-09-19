@@ -26,7 +26,7 @@ export function Router() {
           <DashboardLayout />
         </ProtectedRoute>
       }>
-        <Route index element={<AlumnsTable />} />
+        <Route index element={<SubscriptionsTable/>} />
         <Route path="alumns/form" element={<AlumnForm />} />
         <Route path="alumns/form/:id" element={<AlumnForm />} />
         <Route path="orders" element={<OrdersTable />}></Route>
@@ -38,7 +38,7 @@ export function Router() {
         <Route path="products" element={<ProductsTable />}></Route>
         <Route path="products/form" element={<ProductForm />}></Route>
         <Route path="products/form/:id" element={<ProductForm />}></Route>
-        <Route path="subscriptions" element={<SubscriptionsTable />}></Route>
+        <Route path="alumns" element={<AlumnsTable/>}></Route>
       </Route>
     </Routes>
   )
