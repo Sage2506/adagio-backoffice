@@ -10,7 +10,7 @@ import type { IPostSubscriptionResponse, ISubscriptionRecord } from "../../../ty
 import { putSubscription } from "../../../services/subscription";
 import DatePicker from "../../utils/datePicker";
 import { parseDateToYYYYMMDD } from "../../../utils/stringFormatters";
-import type { IPaymentNew, IPostPaymentResponse } from "../../../types/payments";
+import type { IPaymentMethod, IPaymentNew, IPostPaymentResponse } from "../../../types/payments";
 import { postPayment } from "../../../services/payment";
 import { handlePriceInputChange } from "../../../utils/numbers";
 import { HeartIcon, UserGroupIcon, UserIcon, UserPlusIcon } from "@heroicons/react/24/outline";
@@ -63,6 +63,8 @@ export default function AlumnForm() {
   const [isSecondaryGuardianSearching, setIsSecondaryGuardianSearching] = useState<boolean>(false)
   const [isSecondaryGuardianSearchOpen, setIsSecondaryGuardianSearchOpen] = useState<boolean>(false)
   const [isSubscriptionPaymentIncluded, setIsSubscriptionPaymentIncluded] = useState<boolean>(false);
+  const [payment_method, setPaymentMethod] = useState<IPaymentMethod>('cash');
+  const [reference, setReference] = useState<string>('');
   const [last_name, setLastName] = useState<string>("")
   const [monthlyPayment, setMonthlyPayment] = useState<string>('')
   const [name, setName] = useState<string>("")
@@ -99,6 +101,8 @@ export default function AlumnForm() {
     setBirthDate(null);
     setName("");
     setSpecialMedConditions("");
+    setPaymentMethod('cash');
+    setReference('');
     navigate(location.pathname, { replace: true, state: null });
   }, [id, location.pathname, location.state, navigate]);
 
@@ -241,7 +245,7 @@ export default function AlumnForm() {
       getAlumn({ id }).then(response => {
         if (response.success) {
           const { guardians, alumn } = response.data
-          const { name, last_name, address, phone_number, email, birth_date, special_med_conditions, plan_id, subscription_id, is_guardian_required_for_leaving } = alumn;
+          const { name, last_name, address, phone_number, email, birth_date, special_med_conditions, plan_id, subscription_id, subscription_custom_price, is_guardian_required_for_leaving } = alumn;
           setAddress(address || "");
           setBirthDate(birth_date ? new Date(birth_date + 'T00:00:00') : new Date());
           setEmail(email || "");
@@ -252,6 +256,8 @@ export default function AlumnForm() {
           setIsGuardianRequiredForLeaving(!!is_guardian_required_for_leaving)
           if (plan_id) setPlanId(plan_id.toString());
           if (subscription_id) setSubscriptionId(subscription_id.toString())
+          setUsesCustomPrice(subscription_custom_price != null);
+          setCustomPrice(subscription_custom_price?.toString() || '');
           if (guardians.length > 0) {
             let guardian = guardians[0]
             setGuardian({ id: guardian.id, name: guardian.name || "", last_name: guardian.last_name || "", phone_number: guardian.phone_number || "", email: guardian.email || "" });
@@ -330,13 +336,21 @@ export default function AlumnForm() {
   async function updateCreateAlumn(args: { alumn: IAlumnNew, guardian: IGuardianNew, secondaryGuardian?: IGuardianNew }) {
     // Function to create or update an alumn along with their guardians and subscription if applicable
     setIsLoading(true)
+    const parsedCustomPrice = Number(customPrice)
     const response = await (id
       ? putAlumn({ id, data: args.alumn })
       : postAlumn({ data: args.alumn }))
     if (response.success) {
       const promises: Promise<IPostGuardianResponse | IPostSubscriptionResponse | IErrorResponse>[] = [];
       promises.push(subscription_id
-        ? putSubscription({ id: subscription_id, data: { alumn_id: response.data.id.toString(), plan_id } })
+        ? putSubscription({
+          id: subscription_id,
+          data: {
+            alumn_id: response.data.id.toString(),
+            plan_id,
+            custom_price: usesCustomPrice && customPrice.trim() && Number.isFinite(parsedCustomPrice) && parsedCustomPrice > 0 ? parsedCustomPrice : null,
+          }
+        })
         : Promise.resolve({
           success: true as const,
           data: {
@@ -396,6 +410,8 @@ export default function AlumnForm() {
         payment: {
           alumn_id: alumnId.toString(),
           quantity: subscriptionPayment,
+          payment_method,
+          reference,
         },
         payable_type: "subscription",
         payable_id: payableId.toString(),
@@ -413,6 +429,8 @@ export default function AlumnForm() {
         payment: {
           alumn_id: alumnId.toString(),
           quantity: monthlyPayment,
+          payment_method,
+          reference,
         },
         payable_type: "subscription",
         payable_id: payableId.toString(),
@@ -510,12 +528,12 @@ export default function AlumnForm() {
                   {isPlansLoading && <option disabled>Loading plans...</option>}
                 </select>
               </div>
-              {!id && plan_id &&
+              {plan_id &&
                 <div className="space-y-2 rounded-lg bg-surface-container-low p-4">
                   <label className="flex items-center gap-3 text-body-md text-on-surface cursor-pointer">
                     <input id="usesCustomPrice" name="usesCustomPrice" type="checkbox" checked={usesCustomPrice} onChange={event => { setUsesCustomPrice(event.target.checked); setCustomPriceError('') }} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />Custom monthly payment
                   </label>
-                  <input onChange={event => { handlePriceInputChange(event, setCustomPrice); setCustomPriceError('') }} value={customPrice} type="number" id="customPrice" name="customPrice" min="0.01" step="0.01" disabled={!usesCustomPrice} className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-50`} placeholder="Precio personalizado (opcional)" aria-invalid={!!customPriceError} aria-describedby={customPriceError ? "customPriceError" : undefined} />{customPriceError && <p id="customPriceError" className="text-sm text-error">{customPriceError}</p>}</div>}
+                  <input onChange={event => { handlePriceInputChange(event, setCustomPrice); setCustomPriceError('') }} value={customPrice} type="number" id="customPrice" name="customPrice" min="0" step="0.01" disabled={!usesCustomPrice} className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-50`} placeholder="Precio personalizado (opcional)" aria-invalid={!!customPriceError} aria-describedby={customPriceError ? "customPriceError" : undefined} />{customPriceError && <p id="customPriceError" className="text-sm text-error">{customPriceError}</p>}</div>}
               <div className="space-y-2"><label htmlFor="special_med_conditions" className={labelClass}>Special medical conditions</label><textarea onChange={e => setSpecialMedConditions(e.target.value)} value={special_med_conditions} id="special_med_conditions" name="special_med_conditions" className={`${fieldClass} resize-none`} rows={3} placeholder="Allergies" required /><p className="text-xs text-on-surface-variant">Note any allergies or conditions instructors should be aware of.</p></div>
               <label className="flex items-start gap-3 rounded-lg bg-surface-container-low p-4 cursor-pointer"><input id="is_guardian_required_for_leaving" name="is_guardian_required_for_leaving" type="checkbox" checked={is_guardian_required_for_leaving} onKeyDown={e => { if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); document.getElementById('subscribedAt')?.focus() } }} onChange={e => setIsGuardianRequiredForLeaving(e.target.checked)} className="mt-0.5 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" /><span className="text-body-md text-on-surface">The student may leave the installations without a guardian.</span></label>
             </div>
@@ -544,6 +562,37 @@ export default function AlumnForm() {
                 <div className="space-y-2">
                   <label htmlFor="monthlyPayment" className={labelClass}>Monthly payment</label>
                   <input onChange={e => handlePriceInputChange(e, setMonthlyPayment)} value={monthlyPayment} type="text" id="monthlyPayment" name="monthlyPayment" className={fieldClass} placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" /></div>}
+              {(isSubscriptionPaymentIncluded || isMonthlyPaymentIncluded) && <>
+                <div className="space-y-2">
+                  <label htmlFor="payment_method" className={labelClass}>Método de Pago</label>
+                  <select
+                    id="payment_method"
+                    name="payment_method"
+                    value={payment_method}
+                    onChange={event => {
+                      const method = event.target.value as IPaymentMethod;
+                      setPaymentMethod(method);
+                      if (method === 'cash') setReference('');
+                    }}
+                    className={fieldClass}
+                  >
+                    <option value="cash">Efectivo</option>
+                    <option value="transfer">Transferencia</option>
+                    <option value="card">Tarjeta / Terminal</option>
+                  </select>
+                </div>
+                {payment_method !== 'cash' && <div className="space-y-2">
+                  <label htmlFor="reference" className={labelClass}>Folio / Referencia</label>
+                  <input
+                    id="reference"
+                    name="reference"
+                    value={reference}
+                    onChange={event => setReference(event.target.value)}
+                    className={fieldClass}
+                    required
+                  />
+                </div>}
+              </>}
             </div>
           </section>}
         </div>

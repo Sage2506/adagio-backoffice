@@ -34,6 +34,7 @@ export interface IAlumnRecord {
   is_guardian_required_for_leaving: boolean
   plan_id?: number | null
   subscription_id?: number | null
+  subscription_custom_price?: number | null
 }
 
 export interface IAlumnWithPlanAndSubscriptionRecord extends IAlumnRecord {

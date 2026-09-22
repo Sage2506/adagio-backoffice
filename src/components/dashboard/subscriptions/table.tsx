@@ -11,6 +11,9 @@ import PaymentsModal from "../payments/paymentsModal";
 import { usePagination } from "../../../hooks/usePagination";
 import PaginationComponent from "../../utils/paginationComponent";
 import { formatCurrencyValue } from "../../../utils/numbers";
+import FinancialBalance from "../../FinancialBalance";
+import AgeRangeFilter from "../../utils/AgeRangeFilter";
+import DisciplineFilter from "../../utils/DisciplineFilter";
 
 
 export default function SubscriptionsTable() {
@@ -148,40 +151,51 @@ export default function SubscriptionsTable() {
 
   return (
     <div className="w-full min-w-0 flex flex-col gap-stack-md">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-sm w-full">
-        <div className="w-full md:w-80">
-          <div className="relative flex items-center">
-            <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
-              <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-              </svg>
+      <div className="relative flex items-center">
+        <FinancialBalance />
+      </div>
+      <div>
+          <h1 className="text-headline-md text-on-surface">Subscriptions</h1>
+          
+        </div>
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-stack-sm w-full">
+        <div className="flex w-full flex-col items-start gap-stack-sm lg:flex-row lg:items-end">
+          <div className="w-full md:w-80">
+            <label htmlFor="table-search" className="block text-label-md font-label-md text-on-surface-variant">Search</label>
+            <div className="relative mt-1 flex items-center">
+              <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                <svg className="w-4 h-4 text-on-surface-variant" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                </svg>
+              </div>
+              <input type="text"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                id="table-search" className="w-full pl-10 pr-10 py-2 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-lowest text-on-surface text-body-md font-body-md outline-none transition-all" placeholder="Search for subscriptions" />
+              <button
+                type="button"
+                className="absolute right-1 p-2 rounded-md text-on-surface-variant hover:bg-surface-container focus:outline-none focus:ring-1 focus:ring-primary"
+                title="Limpiar búsqueda"
+                onClick={() => {
+                  setSearchValue('');
+                  const cleanParams = new URLSearchParams(searchParams);
+                  cleanParams.delete('q[full_name_cont]');
+                  cleanParams.delete('q[alumn_full_name_cont]');
+                  cleanParams.delete('page[page]');
+                  navigate(`?${cleanParams.toString()}`, { replace: true });
+                }}
+              >
+                <TrashIcon className="w-5 h-5" />
+              </button>
             </div>
-            <input type="text"
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              id="table-search" className="w-full pl-10 pr-10 py-2 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-lowest text-body-md font-body-md outline-none transition-all" placeholder="Search for subscriptions" />
-            <button
-              type="button"
-              className="absolute right-1 p-2 rounded-md text-on-surface-variant hover:bg-surface-container focus:outline-none focus:ring-1 focus:ring-primary"
-              title="Limpiar búsqueda"
-              onClick={() => {
-                setSearchValue('');
-                const cleanParams = new URLSearchParams(searchParams);
-                cleanParams.delete('q[full_name_cont]');
-                cleanParams.delete('q[alumn_full_name_cont]');
-                cleanParams.delete('page[page]');
-                // Elimina otros parámetros de búsqueda si existen
-                navigate(`?${cleanParams.toString()}`, { replace: true });
-              }}
-            >
-              <TrashIcon className="w-5 h-5" />
-            </button>
           </div>
+          <AgeRangeFilter idPrefix="subscriptions" />
+          <DisciplineFilter idPrefix="subscriptions" />
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <div
-          className={`px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container'}`}
+            className={`px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container'}`}
           >
             <p>Monthly Income: {formatCurrencyValue(monthlyIncome)}</p>
           </div>
@@ -209,70 +223,70 @@ export default function SubscriptionsTable() {
                 <EyeIcon className="w-5 h-5" /> Disabled
               </>
             )}
-            
+
           </button>
         </div>
       </div>
       <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-soft overflow-hidden">
-      <div className="overflow-x-auto">
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="border-b border-outline-variant bg-surface">
-            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
-              ID
-            </th>
-            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
-              Full Name
-            </th>
-            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
-              Plan
-            </th>
-            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
-              Last payment
-            </th>
-            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
-              Due Date
-            </th>
-            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
-              Due Date
-            </th>
-          </tr>
-        </thead>
-        <tbody className={isLoading ? "opacity-50 pointer-events-none" : "text-body-md font-body-md"}>
-          {isLoading && subscriptions.length === 0 ? (
-            <tr>
-              <td colSpan={6} style={{ padding: 0, border: 'none' }}>
-                <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
-                  <span className="text-lg text-gray-500">Loading...</span>
-                </div>
-              </td>
-            </tr>
-          ) : (
-            subscriptions.map((subscription) =>
-              <SubscriptionsRow
-                toggleSubscriptionStatus={toggleSubscriptionStatus}
-                key={`subscription_${subscription.id}`}
-                subscription={subscription}
-                onClick={() => openPaySubscriptionModal(subscription)}
-                showPaymentModal={showPaymentModal}
-                onOpenCreditModal={openCreditModal}
-                onOpenDueDateModal={openDueDateModal}
-                onNavigateToAlumnForm={navigateToAlumnForm} />
-            )
-          )}
-        </tbody>
-      </table>
-      </div>
-      <PaginationComponent
-        currentPage={currentPage}
-        pages={pages}
-        links={links}
-        isLoading={isLoading}
-        totalEntries={totalEntries}
-        currentItems={subscriptions.length}
-        getPageTarget={getPageTarget}
-        getLinkTarget={getLinkTarget}
-      />
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-outline-variant bg-surface">
+                <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                  ID
+                </th>
+                <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                  Full Name
+                </th>
+                <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                  Plan
+                </th>
+                <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                  Last payment
+                </th>
+                <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                  Due Date
+                </th>
+                <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
+                  Due Date
+                </th>
+              </tr>
+            </thead>
+            <tbody className={isLoading ? "opacity-50 pointer-events-none" : "text-body-md font-body-md"}>
+              {isLoading && subscriptions.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ padding: 0, border: 'none' }}>
+                    <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
+                      <span className="text-lg text-gray-500">Loading...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                subscriptions.map((subscription) =>
+                  <SubscriptionsRow
+                    toggleSubscriptionStatus={toggleSubscriptionStatus}
+                    key={`subscription_${subscription.id}`}
+                    subscription={subscription}
+                    onClick={() => openPaySubscriptionModal(subscription)}
+                    showPaymentModal={showPaymentModal}
+                    onOpenCreditModal={openCreditModal}
+                    onOpenDueDateModal={openDueDateModal}
+                    onNavigateToAlumnForm={navigateToAlumnForm} />
+                )
+              )}
+            </tbody>
+          </table>
+        </div>
+        <PaginationComponent
+          currentPage={currentPage}
+          pages={pages}
+          links={links}
+          isLoading={isLoading}
+          totalEntries={totalEntries}
+          currentItems={subscriptions.length}
+          getPageTarget={getPageTarget}
+          getLinkTarget={getLinkTarget}
+        />
       </div>
       <RegisterSubscriptionPaymentModal isOpen={isSubscriptionPaymentModalOpen} subscription={selectedSubscription ?? null} onSubscriptionPaid={((successful) => subscriptionPaid(successful))} />
       <EditDueDateModal
