@@ -14,6 +14,10 @@ import OrdersForm from "./components/dashboard/orders/form";
 import OrderDetail from "./components/dashboard/orders/detail";
 import AlumnsTable from "./components/dashboard/alumns/table";
 import ProtectedRoute from "./components/auth/protectedRoute";
+import ExpensesPage from "./components/dashboard/expenses/ExpensesPage";
+import AdditionalIncomesPage from "./components/dashboard/additioinalIncomes/AdditionalIncomesPage";
+import DisciplinesTable from "./components/dashboard/disciplines/table";
+import DisciplineForm from "./components/dashboard/disciplines/form";
 
 export function Router() {
   return (
@@ -32,6 +36,8 @@ export function Router() {
         <Route path="orders" element={<OrdersTable />}></Route>
         <Route path="orders/form" element={<OrdersForm />}></Route>
         <Route path="orders/:id" element={<OrderDetail />}></Route>
+        <Route path="expenses" element={<ExpensesPage />}></Route>
+        <Route path="additional-incomes" element={<AdditionalIncomesPage />}></Route>
         <Route path="plans" element={<PlansTable />}></Route>
         <Route path="plans/form" element={<PlanForm />}></Route>
         <Route path="plans/form/:id" element={<PlanForm />}></Route>
@@ -39,6 +45,9 @@ export function Router() {
         <Route path="products/form" element={<ProductForm />}></Route>
         <Route path="products/form/:id" element={<ProductForm />}></Route>
         <Route path="alumns" element={<AlumnsTable/>}></Route>
+        <Route path="disciplines" element={<DisciplinesTable />}></Route>
+        <Route path="disciplines/form" element={<DisciplineForm />}></Route>
+        <Route path="disciplines/form/:id" element={<DisciplineForm />}></Route>
       </Route>
     </Routes>
   )

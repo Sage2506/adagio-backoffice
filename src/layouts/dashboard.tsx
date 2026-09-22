@@ -59,10 +59,25 @@ export default function DashboardLayout() {
                         <span className="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
                         <span className="text-label-md font-label-md">Products</span>
                     </NavLink>
+                    <NavLink to={'/dashboard/disciplines'} className={({ isActive }) => `rounded-lg mx-2 px-4 py-3 flex items-center gap-3 ${isActive ? "bg-primary-container text-on-primary-container font-bold scale-95 duration-200" : "text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all"}`}
+                    >
+                        <span className="material-symbols-outlined" data-icon="school">school</span>
+                        <span className="text-label-md font-label-md">Disciplines</span>
+                    </NavLink>
                     <NavLink to={'/dashboard/orders'} className={({ isActive }) => `rounded-lg mx-2 px-4 py-3 flex items-center gap-3 ${isActive ? "bg-primary-container text-on-primary-container font-bold scale-95 duration-200" : "text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all"}`}
                     >
                         <span className="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
                         <span className="text-label-md font-label-md">Orders</span>
+                    </NavLink>
+                    <NavLink to={'/dashboard/expenses'} className={({ isActive }) => `rounded-lg mx-2 px-4 py-3 flex items-center gap-3 ${isActive ? "bg-primary-container text-on-primary-container font-bold scale-95 duration-200" : "text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all"}`}
+                    >
+                        <span className="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+                        <span className="text-label-md font-label-md">Expenses</span>
+                    </NavLink>
+                    <NavLink to={'/dashboard/additional-incomes'} className={({ isActive }) => `rounded-lg mx-2 px-4 py-3 flex items-center gap-3 ${isActive ? "bg-primary-container text-on-primary-container font-bold scale-95 duration-200" : "text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all"}`}
+                    >
+                        <span className="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+                        <span className="text-label-md font-label-md">Additional Incomes</span>
                     </NavLink>
                 </div>
                 <div className="px-4 mt-auto">
@@ -97,7 +112,10 @@ export default function DashboardLayout() {
                         <li><NavLink to="/dashboard/alumns"  onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">group</span><span className="font-body-md">Alumns</span></NavLink></li>
                         <li><NavLink to="/dashboard/plans" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm font-semibold" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">layers</span><span className="font-body-md">Plans</span></NavLink></li>
                         <li><NavLink to="/dashboard/products" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm font-semibold" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">shopping_bag</span><span className="font-body-md">Products</span></NavLink></li>
+                        <li><NavLink to="/dashboard/disciplines" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm font-semibold" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">school</span><span className="font-body-md">Disciplines</span></NavLink></li>
                         <li><NavLink to="/dashboard/orders" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm font-semibold" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">receipt_long</span><span className="font-body-md">Orders</span></NavLink></li>
+                        <li><NavLink to="/dashboard/expenses" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm font-semibold" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">receipt_long</span><span className="font-body-md">Expenses</span></NavLink></li>
+                        <li><NavLink to="/dashboard/additional-incomes" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `flex items-center gap-4 px-4 py-3 rounded-lg ${isActive ? "bg-primary-container text-on-primary-container shadow-sm font-semibold" : "text-on-surface-variant hover:bg-surface-container transition-colors"}`}><span className="material-symbols-outlined">account_balance_wallet</span><span className="font-body-md">Additional Incomes</span></NavLink></li>
                     </ul>
                 </nav>
                 <div className="p-4 border-t border-outline-variant">
@@ -117,7 +135,7 @@ export default function DashboardLayout() {
                     <span className="material-symbols-outlined">group</span>
                     <span className="text-[10px] font-label-md">Alumns</span>
                 </NavLink>
-                <NavLink to="/dashboard/subscriptions" className={({ isActive }) => `flex h-16 w-28 flex-col items-center justify-center gap-1 rounded-full transition-colors ${isActive ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:bg-surface-container-low'}`}>
+                <NavLink to="/dashboard" className={({ isActive }) => `flex h-16 w-28 flex-col items-center justify-center gap-1 rounded-full transition-colors ${isActive ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:bg-surface-container-low'}`}>
                     <span className="material-symbols-outlined">event_repeat</span>
                     <span className="text-[10px] font-label-md">Subscriptions</span>
                 </NavLink>

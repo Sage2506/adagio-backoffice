@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
-import type { IPaymentNew } from "../../../types/payments";
+import type { IPaymentMethod, IPaymentNew } from "../../../types/payments";
 import { postPayment } from "../../../services/payment";
 import DatePicker from "../../utils/datePicker";
 import { Transition, TransitionChild } from '@headlessui/react';
@@ -23,6 +23,8 @@ export default function RegisterSubscriptionPaymentModal({
   const [quantity, setQuantity] = useState<string>('');
   const [due_date, setDueDate] = useState<Date | null>(null);
   const [paid_at, setPaidAt] = useState<Date | null>(null);
+  const [payment_method, setPaymentMethod] = useState<IPaymentMethod>('cash');
+  const [reference, setReference] = useState<string>('');
   const [alumnFullName, setAlumnFullName] = useState<string>('');
   const isReadOnly = isDemoReadOnlySession();
 
@@ -58,16 +60,19 @@ export default function RegisterSubscriptionPaymentModal({
 
   async function submitData() {
     if (blockDemoReadOnlyAction()) return;
+    if (payment_method !== 'cash' && !reference.trim()) return;
     if (subscription) {
       const data: IPaymentNew = {
         payment: {
           alumn_id: subscription.alumn.id.toString(),
           quantity,
+          payment_method,
+          reference,
         },
         payable_id: subscription.id.toString(),
         payable_type: "subscription",
       }
-      if (!!paid_at) {
+      if (paid_at) {
         data.payment['paid_at'] = parseDateToYYYYMMDD(paid_at)
       }
       setIsLoading(true);
@@ -90,6 +95,8 @@ export default function RegisterSubscriptionPaymentModal({
     setPaidAt(null)
     setIsLoading(false)
     setQuantity('')
+    setPaymentMethod('cash')
+    setReference('')
   }
 
   if (!isOpen) return null;
@@ -161,6 +168,33 @@ export default function RegisterSubscriptionPaymentModal({
                   id="paid_at"
                   name="paid_at" />
               </div>
+              <div className="flex flex-col gap-base">
+                <label htmlFor="payment_method" className="font-label-md text-label-md text-on-surface-variant">Método de Pago</label>
+                <select
+                  id="payment_method"
+                  value={payment_method}
+                  onChange={(event) => {
+                    const method = event.target.value as IPaymentMethod;
+                    setPaymentMethod(method);
+                    if (method === 'cash') setReference('');
+                  }}
+                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-shadow"
+                >
+                  <option value="cash">Efectivo</option>
+                  <option value="transfer">Transferencia</option>
+                  <option value="card">Tarjeta / Terminal</option>
+                </select>
+              </div>
+              {payment_method !== 'cash' && <div className="flex flex-col gap-base">
+                <label htmlFor="reference" className="font-label-md text-label-md text-on-surface-variant">Folio / Referencia</label>
+                <input
+                  id="reference"
+                  value={reference}
+                  onChange={(event) => setReference(event.target.value)}
+                  required
+                  className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-shadow"
+                />
+              </div>}
               <div className="flex flex-col gap-base">
                 <label className="font-label-md text-label-md text-on-surface-variant">Due Date</label>
                 <DatePicker

@@ -6,6 +6,8 @@ import ConfirmationModal from "../../utils/confirmationModal";
 import AlumnsRow from "./row";
 import { usePagination } from "../../../hooks/usePagination";
 import PaginationComponent from "../../utils/paginationComponent";
+import AgeRangeFilter from "../../utils/AgeRangeFilter";
+import DisciplineFilter from "../../utils/DisciplineFilter";
 
 export default function AlumnsTable() {
   const navigate = useNavigate()
@@ -104,21 +106,26 @@ export default function AlumnsTable() {
         onConfirmResponse={((accepted: boolean) => onConfirmResponse(accepted))}
       />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-sm w-full">
-        <div className="w-full md:w-80">
-          <div className="relative flex items-center">
-            <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
-              <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-              </svg>
+        <div className="flex w-full flex-col items-start gap-stack-sm lg:flex-row lg:items-end">
+          <div className="w-full md:w-80">
+            <label htmlFor="table-search" className="block text-label-md font-label-md text-on-surface-variant">Search</label>
+            <div className="relative mt-1 flex items-center">
+              <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                <svg className="w-4 h-4 text-on-surface-variant" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                </svg>
+              </div>
+              <input type="text"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                id="table-search" className="w-full pl-10 pr-10 py-2 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-lowest text-on-surface text-body-md font-body-md outline-none transition-all" placeholder="Search for alumns" />
             </div>
-            <input type="text"
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              id="table-search" className="w-full pl-10 pr-10 py-2 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-lowest text-body-md font-body-md outline-none transition-all" placeholder="Search for alumns" />
           </div>
+          <AgeRangeFilter idPrefix="alumns" />
+          <DisciplineFilter idPrefix="alumns" />
         </div>
-        <div className="relative">
+        <div className="relative shrink-0">
           <button onClick={() => navigate('/dashboard/alumns/form')} className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg flex items-center gap-2 hover:bg-surface-tint transition-colors shadow-sm whitespace-nowrap" type="button">
             Create
             <svg className="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">

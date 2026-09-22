@@ -7,7 +7,7 @@ export interface ISubscriptionNew {
   alumn_id: string
   status?: number
   subscribed_at?: string
-  custom_price?: number
+  custom_price?: number | null
 }
 export interface ISubscriptionRecord {
   plan_id: number
