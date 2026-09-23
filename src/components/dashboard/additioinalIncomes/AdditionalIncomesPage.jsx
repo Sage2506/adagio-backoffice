@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { useLoadingLabel } from "../../../hooks/useLoadingLabel";
 import PaginationComponent from "../../utils/paginationComponent";
 import api from "../../../services/api";
 import { usePagination } from "../../../hooks/usePagination";
@@ -8,6 +9,7 @@ import NewAdditionalIncomeModal from "./NewAdditionalIncomeModal";
 export default function AdditionalIncomesPage() {
   const [incomes, setIncomes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const loadingLabel = useLoadingLabel("Loading", isLoading);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
@@ -67,7 +69,7 @@ export default function AdditionalIncomesPage() {
         <button type="button" onClick={() => setIsModalOpen(true)} className="rounded-lg bg-primary px-5 py-2.5 font-medium text-on-primary shadow-sm transition-colors hover:bg-surface-tint">New</button>
       </header>
 
-      {error && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>}
+      {error && <div role="alert" className="rounded-xl border border-error-container bg-error-container px-4 py-3 text-body-md text-on-error-container">{error}</div>}
 
       <section className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-soft overflow-hidden">
         <div className="overflow-x-auto">
@@ -83,7 +85,7 @@ export default function AdditionalIncomesPage() {
             </thead>
             <tbody className={isLoading ? "opacity-50 pointer-events-none" : "text-body-md font-body-md"}>
               {isLoading && incomes.length === 0 ? (
-                <tr><td colSpan={5} style={{ padding: 0, border: "none" }}><div className="flex items-center justify-center" style={{ minHeight: "60vh" }}><span className="text-lg text-gray-500">Loading...</span></div></td></tr>
+                <tr><td colSpan={5} style={{ padding: 0, border: "none" }}><div className="flex items-center justify-center" style={{ minHeight: "60vh" }}><span className="text-lg text-gray-500">{loadingLabel}</span></div></td></tr>
               ) : incomes.length === 0 ? (
                 <tr><td colSpan={5} className="py-10 px-6 text-center text-on-surface-variant">No additional incomes found.</td></tr>
               ) : (

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { usePagination } from "../../../hooks/usePagination";
+import React from "react";
+import { useLoadingLabel } from "../../../hooks/useLoadingLabel";
 import api from "../../../services/api";
 import PaginationComponent from "../../utils/paginationComponent"
 import ExpenseRow from "./ExpenseRow";
@@ -49,6 +50,7 @@ export default function ExpensesPage() {
     resetPagination();
     setRefreshKey(value => value + 1);
   }
+  const loadingLabel = useLoadingLabel("Loading", isLoading);
 
   function handleExpenseError(message) {
     setError(message);
@@ -80,7 +82,7 @@ export default function ExpensesPage() {
             </thead>
             <tbody className={isLoading ? "opacity-50 pointer-events-none" : "text-body-md font-body-md"}>
               {isLoading && expenses.length === 0 ? (
-                <tr><td colSpan={5} style={{ padding: 0, border: "none" }}><div className="flex items-center justify-center" style={{ minHeight: "60vh" }}><span className="text-lg text-gray-500">Loading...</span></div></td></tr>
+                <tr><td colSpan={5} style={{ padding: 0, border: "none" }}><div className="flex items-center justify-center" style={{ minHeight: "60vh" }}><span className="text-lg text-gray-500">{loadingLabel}</span></div></td></tr>
               ) : expenses.length === 0 ? (
                 <tr><td colSpan={5} className="py-10 px-6 text-center text-on-surface-variant">No expenses found.</td></tr>
               ) : (

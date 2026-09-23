@@ -1,4 +1,5 @@
 import { memo, useEffect, useMemo, useState } from "react";
+import { useLoadingLabel } from "../../../hooks/useLoadingLabel";
 import api from "../../../services/api";
 import { formatCurrencyValue } from "../../../utils/numbers";
 
@@ -24,6 +25,7 @@ const breakdownSections = [
 function FinancialBalance() {
   const [balance, setBalance] = useState(initialBalance);
   const [isLoading, setIsLoading] = useState(true);
+  const loadingLabel = useLoadingLabel("Loading balance", isLoading);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -59,7 +61,7 @@ function FinancialBalance() {
   if (isLoading) {
     return (
       <div className="flex min-h-64 items-center justify-center rounded-xl border border-outline-variant bg-surface-container-lowest p-8 text-body-md text-on-surface-variant shadow-soft">
-        Loading balance...
+        {loadingLabel}
       </div>
     );
   }

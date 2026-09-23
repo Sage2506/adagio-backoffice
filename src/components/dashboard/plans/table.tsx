@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLoadingLabel } from "../../../hooks/useLoadingLabel";
 import { useNavigate } from "react-router";
 import type { IPlanRecord } from "../../../types/plans";
 import { getPlans } from "../../../services/plan";
@@ -22,7 +23,7 @@ export default function PlansTable() {
     getPageTarget,
     getLinkTarget,
   } = usePagination({ resourcePath: "plans" });
-
+  const loadingLabel = useLoadingLabel("Loading", isLoading);
   useEffect(() => {
     loadPlans();
   }, [searchString])
@@ -82,7 +83,7 @@ export default function PlansTable() {
             <tr>
               <td colSpan={4} style={{ padding: 0, border: 'none' }}>
                 <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
-                  <span className="text-lg text-gray-500">Loading...</span>
+                  <span className="text-lg text-gray-500">{loadingLabel}</span>
                 </div>
               </td>
             </tr>

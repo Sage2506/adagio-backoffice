@@ -14,6 +14,7 @@ import { formatCurrencyValue } from "../../../utils/numbers";
 import AgeRangeFilter from "../../utils/AgeRangeFilter";
 import DisciplineFilter from "../../utils/DisciplineFilter";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
+import { useLoadingLabel } from "../../../hooks/useLoadingLabel";
 
 
 export default function SubscriptionsTable() {
@@ -28,6 +29,8 @@ export default function SubscriptionsTable() {
   const [selectedSubscription, setSelectedSubscription] = useState<ISubscriptionAlumnPlanRecord | null>(null);
   const [searchValue, setSearchValue] = useState('');
   const [isExporting, setIsExporting] = useState(false);
+  const loadingLabel = useLoadingLabel("Loading", isLoading);
+  const exportingLabel = useLoadingLabel("Exporting", isExporting);
   const {
     currentPage,
     pages,
@@ -249,7 +252,7 @@ export default function SubscriptionsTable() {
             className="px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50"
           >
             <ArrowDownTrayIcon className="w-5 h-5" />
-            {isExporting ? "Exporting..." : "Export Excel"}
+            {isExporting ? exportingLabel : 'Export Excel'}
           </button>
         </div>
       </div>
@@ -283,7 +286,7 @@ export default function SubscriptionsTable() {
                 <tr>
                   <td colSpan={6} style={{ padding: 0, border: 'none' }}>
                     <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
-                      <span className="text-lg text-gray-500">Loading...</span>
+                      <span className="text-lg text-gray-500">{loadingLabel}</span>
                     </div>
                   </td>
                 </tr>

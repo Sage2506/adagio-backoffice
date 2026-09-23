@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import { logIn } from "../../services/user";
 import { Navigate } from "react-router";
 import { useAuth } from "./useAuth";
 import { LoadingSpinner } from "../utils/loadingSpiner";
+const emailRegex = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
+import { useLoadingLabel } from "../../hooks/useLoadingLabel";
 
 function Login() {
   const [email, setEmail] = useState<string>('');
@@ -11,6 +13,7 @@ function Login() {
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { isAuthenticated, isLoading: authLoading, login } = useAuth();
+  const loginLabel = useLoadingLabel("Logging in", isLoading);
 
   function formSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -20,7 +23,6 @@ function Login() {
       setErrors([...errors, { msj: 'Missing email' }])
       isValid = false
     } else {
-      const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g
       if (!emailRegex.test(email)) {
         setErrors([...errors, { msj: 'Invalid email' }])
         isValid = false;
@@ -46,8 +48,11 @@ function Login() {
       } else {
         setErrors(response.errors)
       }
-    } catch (err: any) {
-      setErrors([{ msj: (err.response?.data?.message || 'Login failed') }]);
+    } catch (err: unknown) {
+      const message = typeof err === "object" && err !== null && "response" in err
+        ? (err.response as { data?: { message?: string } }).data?.message
+        : undefined;
+      setErrors([{ msj: message || 'Login failed' }]);
     } finally {
       setIsLoading(false)
     }
@@ -111,10 +116,10 @@ function Login() {
             </div>
 
           </div>
-          <button type="submit" disabled={isLoading || authLoading} className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{isLoading ? 'Logging in...' : 'Login'}</button>
+          <button type="submit" disabled={isLoading || authLoading} className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{isLoading ? loginLabel : 'Login'}</button>
         </form>
       </div>
     </div>
   );
 }
-export default Login;
+export default memo(Login);
