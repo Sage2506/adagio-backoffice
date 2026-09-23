@@ -1,10 +1,11 @@
+import { memo } from "react";
 import { formatCurrencyValue } from "../../../utils/numbers";
 
 function labelFor(value) {
   return value.replaceAll("_", " ").replace(/\b\w/g, character => character.toUpperCase());
 }
 
-export default function AdditionalIncomeRow({ income }) {
+function AdditionalIncomeRow({ income }) {
   return (
     <tr className="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
       <td className="py-4 px-6 text-on-surface-variant">
@@ -25,3 +26,5 @@ export default function AdditionalIncomeRow({ income }) {
     </tr>
   );
 }
+
+export default memo(AdditionalIncomeRow);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { deleteDiscipline, getDisciplines } from "../../../services/discipline";
 import type { IDisciplineRecord } from "../../../types/disciplines";
@@ -35,11 +35,15 @@ export default function DisciplinesTable() {
     return query ? disciplines.filter(discipline => discipline.name.toLowerCase().includes(query)) : disciplines;
   }, [disciplines, searchValue]);
 
-  function handleDelete(event: React.MouseEvent, discipline: IDisciplineRecord) {
+  const handleDelete = useCallback((event: React.MouseEvent, discipline: IDisciplineRecord) => {
     event.stopPropagation();
     setDisciplineToDelete(discipline);
     setIsModalOpen(true);
-  }
+  }, []);
+
+  const handleEdit = useCallback((discipline: IDisciplineRecord) => {
+    navigate(`/dashboard/disciplines/form/${discipline.id}`);
+  }, [navigate]);
 
   async function confirmDelete(accepted: boolean) {
     setIsModalOpen(false);
@@ -105,7 +109,7 @@ export default function DisciplinesTable() {
               ) : filteredDisciplines.length === 0 ? (
                 <tr><td colSpan={4} className="px-6 py-12 text-center text-body-md text-on-surface-variant">No disciplines found.</td></tr>
               ) : (
-                filteredDisciplines.map(discipline => <DisciplineRow key={`discipline_${discipline.id}`} discipline={discipline} onEdit={() => navigate(`/dashboard/disciplines/form/${discipline.id}`)} onDelete={handleDelete} />)
+                filteredDisciplines.map(discipline => <DisciplineRow key={`discipline_${discipline.id}`} discipline={discipline} onEdit={handleEdit} onDelete={handleDelete} />)
               )}
             </tbody>
           </table>

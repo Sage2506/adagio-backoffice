@@ -1,6 +1,6 @@
 import { Transition, TransitionChild } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/16/solid";
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import type { IPaymentRecord } from "../../../types/payments";
 import { getPayments } from "../../../services/payment";
 import { buildSnakeCaseParams } from "../../../utils/stringFormatters";
@@ -10,12 +10,25 @@ interface IPaymentsModal {
   isOpen: boolean;
   payableId: number | null;
   payableType: string;
-  toggleModal: Function;
+  toggleModal: () => void;
 }
 
-export default function PaymentsModal({ isOpen, toggleModal, payableId, payableType }: IPaymentsModal) {
+function PaymentsModal({ isOpen, toggleModal, payableId, payableType }: IPaymentsModal) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [payments, setPayments] = useState<IPaymentRecord[]>([])
+
+  const fetchPayments = useCallback(async () => {
+    if (payableId === null) return;
+
+    setIsLoading(true);
+    getPayments({ params: buildSnakeCaseParams({ payableType, payableId }) }).then(response => {
+      if (response.success) {
+        setPayments(response.data);
+      }
+    }).finally(() => {
+      setIsLoading(false);
+    });
+  }, [payableId, payableType]);
 
   useEffect(() => {
     if (!isOpen || payableId === null) {
@@ -23,20 +36,7 @@ export default function PaymentsModal({ isOpen, toggleModal, payableId, payableT
       return;
     }
     fetchPayments();
-  }, [isOpen, payableId]);
-
-  async function fetchPayments() {
-    if (!!payableId) {
-      setIsLoading(true);
-      getPayments({ params: buildSnakeCaseParams({ payableType, payableId }) }).then(response => {
-        if (response.success) {
-          setPayments(response.data);
-        }
-      }).finally(() => {
-        setIsLoading(false);
-      })
-    }
-  }
+  }, [fetchPayments, isOpen, payableId]);
 
   return (
     <Transition show={isOpen}>
@@ -135,3 +135,5 @@ export default function PaymentsModal({ isOpen, toggleModal, payableId, payableT
     </Transition>
   );
 };
+
+export default memo(PaymentsModal);

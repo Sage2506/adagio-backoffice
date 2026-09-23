@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { EyeSlashIcon, EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router";
-import { getMonthlyIncome, getSubscriptions, putSubscription } from "../../../services/subscription";
+import { exportSubscriptions, getMonthlyIncome, getSubscriptions, putSubscription } from "../../../services/subscription";
 import type { ISubscriptionAlumnPlanRecord, ISubscriptionNew } from "../../../types/subscriptions";
 import RegisterSubscriptionPaymentModal from "./registerSubscriptionPaymentModal";
 import RegisterSubscriptionCreditModal from "./registerSubscriptionCreditModal";
@@ -13,6 +13,7 @@ import PaginationComponent from "../../utils/paginationComponent";
 import { formatCurrencyValue } from "../../../utils/numbers";
 import AgeRangeFilter from "../../utils/AgeRangeFilter";
 import DisciplineFilter from "../../utils/DisciplineFilter";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 
 
 export default function SubscriptionsTable() {
@@ -26,6 +27,7 @@ export default function SubscriptionsTable() {
   const [isPaymentsModalOpen, setIsPaymentsModalOpen] = useState<boolean>(false);
   const [selectedSubscription, setSelectedSubscription] = useState<ISubscriptionAlumnPlanRecord | null>(null);
   const [searchValue, setSearchValue] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
   const {
     currentPage,
     pages,
@@ -82,29 +84,50 @@ export default function SubscriptionsTable() {
     }
   }
 
-  function openPaySubscriptionModal(subscription: ISubscriptionAlumnPlanRecord) {
+  const openPaySubscriptionModal = useCallback((subscription: ISubscriptionAlumnPlanRecord) => {
     setSelectedSubscription(subscription);
     setIsSubscriptionPaymentModalOpen(true);
-  }
+  }, []);
 
-  function showPaymentModal(subscription: ISubscriptionAlumnPlanRecord) {
+  const showPaymentModal = useCallback((subscription: ISubscriptionAlumnPlanRecord) => {
     setSelectedSubscription(subscription);
     setIsPaymentsModalOpen(true);
-  }
+  }, []);
 
-  function openCreditModal(subscription: ISubscriptionAlumnPlanRecord) {
+  const openCreditModal = useCallback((subscription: ISubscriptionAlumnPlanRecord) => {
     setSelectedSubscription(subscription);
     setIsSubscriptionCreditModalOpen(true);
-  }
+  }, []);
 
-  function openDueDateModal(subscription: ISubscriptionAlumnPlanRecord) {
+  const openDueDateModal = useCallback((subscription: ISubscriptionAlumnPlanRecord) => {
     setSelectedSubscription(subscription);
     setIsEditDueDateModalOpen(true);
-  }
+  }, []);
 
-  function navigateToAlumnForm(alumnId: number) {
+  const navigateToAlumnForm = useCallback((alumnId: number) => {
     navigate(`/dashboard/alumns/form/${alumnId}`);
-  }
+  }, [navigate]);
+
+  const handleExport = useCallback(async () => {
+    setIsExporting(true);
+    const exportParams = new URLSearchParams(searchParams);
+    exportParams.delete('page[page]');
+    exportParams.delete('limit');
+    const response = await exportSubscriptions({ params: exportParams.toString() });
+
+    if (response instanceof Blob) {
+      const downloadUrl = URL.createObjectURL(response);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = 'subscriptions.xlsx';
+      link.click();
+      URL.revokeObjectURL(downloadUrl);
+    } else {
+      setIsLoading(false);
+    }
+
+    setIsExporting(false);
+  }, [searchParams]);
 
   function subscriptionPaid(successful: boolean) {
     setIsSubscriptionPaymentModalOpen(false)
@@ -219,6 +242,15 @@ export default function SubscriptionsTable() {
             )}
 
           </button>
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={isExporting}
+            className="px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <ArrowDownTrayIcon className="w-5 h-5" />
+            {isExporting ? "Exporting..." : "Export Excel"}
+          </button>
         </div>
       </div>
       <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-soft overflow-hidden">
@@ -261,7 +293,7 @@ export default function SubscriptionsTable() {
                     toggleSubscriptionStatus={toggleSubscriptionStatus}
                     key={`subscription_${subscription.id}`}
                     subscription={subscription}
-                    onClick={() => openPaySubscriptionModal(subscription)}
+                    onClick={openPaySubscriptionModal}
                     showPaymentModal={showPaymentModal}
                     onOpenCreditModal={openCreditModal}
                     onOpenDueDateModal={openDueDateModal}

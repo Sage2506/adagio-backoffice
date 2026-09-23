@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router";
 import { useScrollTracking } from "../../hooks/useScrollTracking";
 import { trackPageView } from "../../lib/analytics";
-import ExternalLink from "../../components/ExternalLink";
+import ExternalLink from "../../components/utils/ExternalLink";
 
 export default function LandingPage() {
     const location = useLocation();

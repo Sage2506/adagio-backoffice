@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import type { IProductRecord } from "../../../types/products";
-import { getProducts } from "../../../services/product";
-import { formatPrice } from "../../../utils/numbers";
+import { deleteProduct, getProducts } from "../../../services/product";
 import { usePagination } from "../../../hooks/usePagination";
 import PaginationComponent from "../../utils/paginationComponent";
+import ProductsRow from "./row";
 
 export default function ProductsTable() {
   const navigate = useNavigate()
@@ -45,6 +45,20 @@ export default function ProductsTable() {
       setIsLoading(false)
     })
   }
+
+  const handleDelete = useCallback(async (event: React.MouseEvent, product: IProductRecord) => {
+    event.stopPropagation();
+    setIsLoading(true);
+
+    const response = await deleteProduct({ id: product.id });
+    if (response.success) {
+      setProducts(current => current.filter(currentProduct => currentProduct.id !== product.id));
+    } else {
+      setErrors(response.errors);
+    }
+
+    setIsLoading(false);
+  }, []);
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') {
@@ -101,30 +115,24 @@ export default function ProductsTable() {
             <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider">
               Price
             </th>
+            <th scope="col" className="py-4 px-6 text-table-header font-table-header text-on-surface-variant uppercase tracking-wider text-center">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody className={isLoading ? "opacity-50 pointer-events-none" : "text-body-md font-body-md"}>
           {isLoading && products.length === 0 ? (
             <tr>
-              <td colSpan={3} style={{ padding: 0, border: 'none' }}>
+              <td colSpan={4} style={{ padding: 0, border: 'none' }}>
                 <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
                   <span className="text-lg text-gray-500">Loading...</span>
                 </div>
               </td>
             </tr>
           ) : (
-            products.map((product) =>
-              <tr key={`product_${product.id}`} onClick={() => navigate(`/dashboard/products/form/${product.id}`)} className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700"}>
-                <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  {product.id}
-                </th>
-                <td className="px-6 py-4 capitalize">
-                  {product.name}
-                </td>
-                <td className="px-6 py-4">
-                  {formatPrice(product.price)}
-                </td>
-              </tr>)
+            products.map(product => (
+              <ProductsRow key={`product_${product.id}`} product={product} onDelete={handleDelete} />
+            ))
           )}
         </tbody>
       </table>

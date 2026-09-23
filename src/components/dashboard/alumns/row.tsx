@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { memo } from "react";
 import type { IAlumnRecord } from "../../../types/alumns";
 import { useNavigate } from "react-router";
 import { TrashIcon } from "@heroicons/react/24/solid";
@@ -6,15 +6,12 @@ import { blockDemoReadOnlyAction, isDemoReadOnlySession } from "../../../utils/d
 
 interface IAlumnsRow {
   alumn: IAlumnRecord
-  handleDelete: Function
+  handleDelete: (event: React.MouseEvent, alumn: IAlumnRecord) => void
 }
 
-export default function AlumnsRow({ alumn, handleDelete }: IAlumnsRow) {
+function AlumnsRow({ alumn, handleDelete }: IAlumnsRow) {
   const navigate = useNavigate()
   const isReadOnly = isDemoReadOnlySession();
-  useEffect(() => {
-
-  }, []);
   return (
     <tr key={`alumn_${alumn.id}`} onClick={() => navigate(`/dashboard/alumns/form/${alumn.id}`)} className={"border-b border-outline-variant hover:bg-surface-container-low transition-colors group"}>
       <th scope="row" className="py-4 px-6 font-bold text-on-surface">
@@ -45,3 +42,5 @@ export default function AlumnsRow({ alumn, handleDelete }: IAlumnsRow) {
     </tr>
   );
 };
+
+export default memo(AlumnsRow);

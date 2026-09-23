@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { Transition, TransitionChild } from "@headlessui/react";
 import api from "../../../services/api";
 
@@ -37,7 +37,7 @@ function getRequestErrorMessage(error: unknown) {
   return "error" in data && typeof data.error === "string" ? data.error : "Unable to create additional income.";
 }
 
-export default function NewAdditionalIncomeModal({ isOpen, onClose, onCreated, onError }: NewAdditionalIncomeModalProps) {
+function NewAdditionalIncomeModal({ isOpen, onClose, onCreated, onError }: NewAdditionalIncomeModalProps) {
   const [form, setForm] = useState(emptyForm);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -154,3 +154,5 @@ export default function NewAdditionalIncomeModal({ isOpen, onClose, onCreated, o
     </Transition>
   );
 }
+
+export default memo(NewAdditionalIncomeModal);

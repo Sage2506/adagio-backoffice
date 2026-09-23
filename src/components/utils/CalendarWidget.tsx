@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 
 interface CalendarWidgetProps {
   selectedDates: Date[];
@@ -7,6 +7,11 @@ interface CalendarWidgetProps {
   year?: number;
   onMonthChange?: (month: number, year: number) => void;
 }
+
+const monthNames = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
 
 const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   selectedDates,
@@ -25,11 +30,6 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   const daysInMonth = lastDay.getDate();
   const startDay = firstDay.getDay();
 
-  const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
-
   const handlePreviousMonth = () => {
     if (onMonthChange) {
       const newMonth = month === 0 ? 11 : month - 1;
@@ -47,24 +47,28 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   };
 
   // Crear un Set con los días seleccionados para el mes actual
-  const selectedDays = new Set<number>();
-  selectedDates.forEach(date => {
-    const matchesMonth = date.getMonth() === month;
-    const matchesYear = validateYear ? date.getFullYear() === year : true;
-    if (matchesMonth && matchesYear) {
-      selectedDays.add(date.getDate());
+  const selectedDays = useMemo(() => {
+    const days = new Set<number>();
+    selectedDates.forEach(date => {
+      const matchesMonth = date.getMonth() === month;
+      const matchesYear = validateYear ? date.getFullYear() === year : true;
+      if (matchesMonth && matchesYear) {
+        days.add(date.getDate());
+      }
+    });
+    return days;
+  }, [selectedDates, validateYear, month, year]);
+
+  const days = useMemo(() => {
+    const calendarDays: (number | null)[] = Array(startDay).fill(null);
+    for (let i = 1; i <= daysInMonth; i++) {
+      calendarDays.push(i);
     }
-  });
-
-  let days: (number | null)[] = Array(startDay).fill(null);
-  for (let i = 1; i <= daysInMonth; i++) {
-    days.push(i);
-  }
-
-  // Rellenar la última semana si es necesario
-  while (days.length % 7 !== 0) {
-    days.push(null);
-  }
+    while (calendarDays.length % 7 !== 0) {
+      calendarDays.push(null);
+    }
+    return calendarDays;
+  }, [startDay, daysInMonth]);
 
   return (
     <div className="bg-surface-container-lowest rounded-xl shadow-soft border border-outline-variant p-6">
@@ -116,4 +120,4 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   );
 };
 
-export default CalendarWidget;
+export default memo(CalendarWidget);

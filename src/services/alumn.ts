@@ -17,6 +17,19 @@ export function getAlumns(args: { params?: string }): Promise<IGetAlumnsResponse
   })
 }
 
+export function exportAlumns(args: { params?: string }): Promise<Blob | IErrorResponse> {
+  return api.get(`${path}?export=excel&${args.params || ""}`, { responseType: "blob" }).then(response => {
+    if (response.status === OK) {
+      return response.data as Blob;
+    }
+
+    return { success: false as const, errors: [{ msj: response.status.toString() }] };
+  }).catch(error => ({
+    success: false as const,
+    errors: [{ msj: error.message }]
+  }));
+}
+
 export function getAlumn(args: { id: string }): Promise<IGetAlumnGuardiansResponse | IErrorResponse> {
   return api.get<IAlumnGuardiansRecord>(`${path}/${args.id}`).then(response => {
     if (response.status === OK) {

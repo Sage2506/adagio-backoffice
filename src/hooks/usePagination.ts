@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import type { ILinks } from "../types/common";
 
@@ -25,13 +25,13 @@ export function usePagination(options: UsePaginationOptions = {}) {
   const page = Number(searchParams.get(pageParam));
   const currentPage = Number.isInteger(page) && page > 0 ? page : 1;
 
-  function setPagination(data: PaginationData) {
+  const setPagination = useCallback((data: PaginationData) => {
     setPages(data.pages);
     setLinks(data.links);
     if (data.total !== undefined) setTotalEntries(data.total);
-  }
+  }, []);
 
-  function resetPagination(reload?: () => void | Promise<void>) {
+  const resetPagination = useCallback((reload?: () => void | Promise<void>) => {
     if (currentPage === 1) {
       void reload?.();
       return;
@@ -40,23 +40,23 @@ export function usePagination(options: UsePaginationOptions = {}) {
     const newParams = new URLSearchParams(searchParams);
     newParams.delete(pageParam);
     navigate(`?${newParams.toString()}`, { replace: true });
-  }
+  }, [currentPage, navigate, pageParam, searchParams]);
 
-  function getPageTarget(page: number) {
+  const getPageTarget = useCallback((page: number) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set(pageParam, page.toString());
     return `?${newParams.toString()}`;
-  }
+  }, [pageParam, searchParams]);
 
-  function getLinkTarget(link?: string) {
+  const getLinkTarget = useCallback((link?: string) => {
     if (!link) return undefined;
     if (!resourcePath) return link;
 
     const resourceIndex = link.indexOf(resourcePath);
     return resourceIndex >= 0 ? link.slice(resourceIndex + resourcePath.length) : link;
-  }
+  }, [resourcePath]);
 
-  return {
+  return useMemo(() => ({
     currentPage,
     pages,
     links,
@@ -67,6 +67,17 @@ export function usePagination(options: UsePaginationOptions = {}) {
     resetPagination,
     getPageTarget,
     getLinkTarget,
-  };
+  }), [
+    currentPage,
+    pages,
+    links,
+    totalEntries,
+    searchParams,
+    searchString,
+    setPagination,
+    resetPagination,
+    getPageTarget,
+    getLinkTarget,
+  ]);
 }
     

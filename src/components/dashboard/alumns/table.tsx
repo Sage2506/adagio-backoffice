@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { deleteAlumn, getAlumns, } from "../../../services/alumn";
+import { useCallback, useEffect, useState } from "react";
+import { deleteAlumn, exportAlumns, getAlumns, } from "../../../services/alumn";
 import { useNavigate } from "react-router";
 import type { IAlumnRecord } from "../../../types/alumns";
 import ConfirmationModal from "../../utils/confirmationModal";
@@ -8,6 +8,7 @@ import { usePagination } from "../../../hooks/usePagination";
 import PaginationComponent from "../../utils/paginationComponent";
 import AgeRangeFilter from "../../utils/AgeRangeFilter";
 import DisciplineFilter from "../../utils/DisciplineFilter";
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 
 export default function AlumnsTable() {
   const navigate = useNavigate()
@@ -17,6 +18,7 @@ export default function AlumnsTable() {
   const [searchValue, setSearchValue] = useState('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [alumnToDelete, setAlumnToDelete] = useState<IAlumnRecord>();
+  const [isExporting, setIsExporting] = useState(false);
   const {
     currentPage,
     pages,
@@ -65,11 +67,32 @@ export default function AlumnsTable() {
     }
   };
 
-  function handleDelete(e: React.FormEvent, alumn: IAlumnRecord) {
-    e.stopPropagation()
+  const handleDelete = useCallback((event: React.MouseEvent, alumn: IAlumnRecord) => {
+    event.stopPropagation()
     setAlumnToDelete(alumn)
     setIsModalOpen(true);
-  }
+  }, [])
+
+  const handleExport = useCallback(async () => {
+    setIsExporting(true);
+    const exportParams = new URLSearchParams(searchParams);
+    exportParams.delete('page[page]');
+    exportParams.delete('limit');
+    const response = await exportAlumns({ params: exportParams.toString() });
+
+    if (response instanceof Blob) {
+      const downloadUrl = URL.createObjectURL(response);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = 'alumns.xlsx';
+      link.click();
+      URL.revokeObjectURL(downloadUrl);
+    } else {
+      setErrors(response.errors);
+    }
+
+    setIsExporting(false);
+  }, [searchParams]);
 
   function onConfirmResponse(accepted: boolean) {
     if (alumnToDelete) {
@@ -103,7 +126,7 @@ export default function AlumnsTable() {
         confirmText="Yes"
         rejectText="No"
         isModalOpen={isModalOpen}
-        onConfirmResponse={((accepted: boolean) => onConfirmResponse(accepted))}
+        onConfirmResponse={onConfirmResponse}
       />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-sm w-full">
         <div className="flex w-full flex-col flex-wrap items-start gap-stack-sm lg:flex-row lg:items-end">
@@ -129,6 +152,10 @@ export default function AlumnsTable() {
             <svg className="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7 7V5" />
             </svg>
+          </button>
+          <button onClick={handleExport} disabled={isExporting} className="border border-outline text-on-surface font-bold py-2 px-6 rounded-lg flex items-center gap-2 hover:bg-surface-container-low transition-colors whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-50" type="button">
+            <ArrowDownTrayIcon className="h-5 w-5" />
+            {isExporting ? 'Exporting...' : 'Export Excel'}
           </button>
         </div>
       </div>

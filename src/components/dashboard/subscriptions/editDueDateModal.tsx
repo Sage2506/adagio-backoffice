@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { Transition, TransitionChild } from "@headlessui/react";
 import type { IDueDate, ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import DatePicker from "../../utils/datePicker";
@@ -11,9 +11,13 @@ interface EditDueDateModalProps {
   onClose: (reloaded: boolean) => void;
 }
 
-export default function EditDueDateModal({ isOpen, subscription, onClose }: EditDueDateModalProps) {
+function EditDueDateModal({ isOpen, subscription, onClose }: EditDueDateModalProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [due_date, setDueDate] = useState<Date | null>(null);
+  const alumnFullName = useMemo(
+    () => subscription ? `${subscription.alumn.name} ${subscription.alumn.last_name}` : "",
+    [subscription]
+  );
 
   useEffect(() => {
     if (isOpen && subscription) {
@@ -101,7 +105,7 @@ export default function EditDueDateModal({ isOpen, subscription, onClose }: Edit
             {/* Body */}
             <form id="edit-due-date-form" onSubmit={handleSubmit} className={`p-gutter flex flex-col gap-stack-md ${isLoading ? "opacity-50 pointer-events-none" : ""}`}>
                 <p className="font-body-lg text-body-lg text-on-surface font-medium capitalize">
-                  {subscription?.alumn.name} {subscription?.alumn.last_name}
+                  {alumnFullName}
                 </p>
 
                 <div className="flex flex-col gap-base">
@@ -125,3 +129,5 @@ export default function EditDueDateModal({ isOpen, subscription, onClose }: Edit
     </Transition>
   );
 }
+
+export default memo(EditDueDateModal);
