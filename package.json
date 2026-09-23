@@ -38,5 +38,10 @@
     "typescript-eslint": "^8.34.1",
     "vite": "^7.0.0",
     "vitest": "^4.1.10"
+  },
+  "allowScripts": {
+    "@tailwindcss/oxide@4.1.11": true,
+    "esbuild@0.28.2": true,
+    "fsevents@2.3.3": true
   }
 }
