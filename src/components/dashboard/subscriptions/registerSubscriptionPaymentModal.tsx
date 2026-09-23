@@ -132,7 +132,7 @@ export default function RegisterSubscriptionPaymentModal({
             className="relative z-20 w-[92%] max-w-md bg-surface rounded-xl shadow-2xl flex flex-col overflow-hidden animate-[fadeIn_0.2s_ease-out]" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
             <div className="flex items-center justify-between px-gutter py-4 border-b border-outline-variant">
-              <h2 className="font-headline-sm text-headline-sm text-on-surface">Pagar Mensualidad</h2>
+              <h2 className="font-headline-sm text-headline-sm text-on-surface">Pay monthly fee</h2>
               <button
                 type="button"
                 onClick={() => !isLoading && closeDialog()}
@@ -145,7 +145,7 @@ export default function RegisterSubscriptionPaymentModal({
             <form onSubmit={(e) => formSubmit(e)} className={`p-gutter flex flex-col gap-stack-md overflow-y-auto max-h-[70vh] ${isLoading ? "opacity-50 pointer-events-none" : ""}`}>
               <div>
                 <p className="font-body-lg text-body-lg text-on-surface font-medium capitalize">{alumnFullName}</p>
-                {subscription?.custom_price != null && <p className="text-sm text-on-surface-variant">Precio personalizado: S/. {subscription.custom_price.toFixed(2)}</p>}
+                {subscription?.custom_price != null && <p className="text-sm text-on-surface-variant">Custom price: S/. {subscription.custom_price.toFixed(2)}</p>}
               </div>
               <div className="flex flex-col gap-base">
                 <label className="font-label-md text-label-md text-on-surface-variant">Quantity</label>
@@ -169,7 +169,7 @@ export default function RegisterSubscriptionPaymentModal({
                   name="paid_at" />
               </div>
               <div className="flex flex-col gap-base">
-                <label htmlFor="payment_method" className="font-label-md text-label-md text-on-surface-variant">Método de Pago</label>
+                <label htmlFor="payment_method" className="font-label-md text-label-md text-on-surface-variant">Payment Method</label>
                 <select
                   id="payment_method"
                   value={payment_method}
@@ -180,13 +180,13 @@ export default function RegisterSubscriptionPaymentModal({
                   }}
                   className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-shadow"
                 >
-                  <option value="cash">Efectivo</option>
-                  <option value="transfer">Transferencia</option>
-                  <option value="card">Tarjeta / Terminal</option>
+                  <option value="cash">Cash</option>
+                  <option value="transfer">Bank transfer</option>
+                  <option value="card">Card / terminal</option>
                 </select>
               </div>
               {payment_method !== 'cash' && <div className="flex flex-col gap-base">
-                <label htmlFor="reference" className="font-label-md text-label-md text-on-surface-variant">Folio / Referencia</label>
+                <label htmlFor="reference" className="font-label-md text-label-md text-on-surface-variant">Reference number</label>
                 <input
                   id="reference"
                   value={reference}

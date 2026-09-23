@@ -35,7 +35,7 @@ export default function RegisterSubscriptionCreditModal({
 
         const amount = Number(creditAmount);
         if (!creditAmount || Number.isNaN(amount) || amount <= 0) {
-            setCreditError("El monto debe ser mayor a 0");
+            setCreditError("The amount must be greater than 0");
             return;
         }
 
@@ -52,7 +52,7 @@ export default function RegisterSubscriptionCreditModal({
             return;
         }
 
-        setCreditError(response.errors[0]?.msj || "No se pudo aplicar el bono");
+        setCreditError(response.errors[0]?.msj || "Unable to apply the credit");
     }
 
     if (!isOpen) return null;
@@ -82,7 +82,7 @@ export default function RegisterSubscriptionCreditModal({
                     <div className="relative z-20 w-[92%] max-w-md bg-surface rounded-xl shadow-2xl flex flex-col overflow-hidden animate-[fadeIn_0.2s_ease-out]" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between px-gutter py-4 border-b border-outline-variant">
                             <div>
-                                <h2 className="font-headline-sm text-headline-sm text-on-surface">Aplicar bono</h2>
+                                <h2 className="font-headline-sm text-headline-sm text-on-surface">Apply credit</h2>
                             </div>
                             <button
                                 type="button"
@@ -96,7 +96,7 @@ export default function RegisterSubscriptionCreditModal({
 
                         <form onSubmit={onSubmitAddCredit} className={`p-gutter flex flex-col gap-stack-md ${isSubmittingCredit ? "opacity-50 pointer-events-none" : ""}`}>
                             <div>
-                                <p className="font-body-lg text-body-lg text-on-surface font-medium">Ingrese el monto del bono a aplicar</p>
+                                <p className="font-body-lg text-body-lg text-on-surface font-medium">Enter the credit amount to apply</p>
                             </div>
                             <div className="flex flex-col gap-base">
                                 <label className="font-label-md text-label-md text-on-surface-variant">Amount</label>

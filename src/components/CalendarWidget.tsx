@@ -26,8 +26,8 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   const startDay = firstDay.getDay();
 
   const monthNames = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
   ];
 
   const handlePreviousMonth = () => {
@@ -72,7 +72,7 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         <button
           onClick={handlePreviousMonth}
           className="text-on-surface-variant hover:text-primary cursor-pointer"
-          aria-label="Mes anterior"
+          aria-label="Previous month"
         >
           <span className="material-symbols-outlined"
             data-icon="chevron_left">chevron_left</span>
@@ -83,7 +83,7 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
         <button
           onClick={handleNextMonth}
           className="text-on-surface-variant hover:text-primary cursor-pointer"
-          aria-label="Mes siguiente"
+          aria-label="Next month"
         >
           <span className="material-symbols-outlined"
             data-icon="chevron_right">chevron_right</span>
@@ -91,7 +91,7 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({
       </div>
 
       <div className="grid grid-cols-7 gap-1 text-center mb-2">
-        {["D", "L", "M", "M", "J", "V", "S"].map((d, idx) => (
+        {["S", "M", "T", "W", "T", "F", "S"].map((d, idx) => (
           <div key={`day-${idx}`} className="text-label-md font-label-md text-on-surface-variant">{d}</div>
         ))}
       </div>

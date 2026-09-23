@@ -19,8 +19,8 @@ const BirthdaysSection: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<number>(today.getFullYear());
 
   const monthNames = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
   ];
 
   useEffect(() => {
@@ -37,7 +37,7 @@ const BirthdaysSection: React.FC = () => {
         });
         setBirthdays(sortedBirthdays);
       } else {
-        setError("Error al cargar cumpleaños");
+        setError("Unable to load birthdays");
       }
       setLoading(false);
     };
@@ -57,7 +57,7 @@ const BirthdaysSection: React.FC = () => {
     return (
       <div className="bg-surface-container-lowest rounded-xl shadow-soft p-6 w-full border border-outline-variant">
         <div className="text-center text-on-surface-variant py-8">
-          Cargando...
+          Loading...
         </div>
       </div>
     );
@@ -83,10 +83,10 @@ const BirthdaysSection: React.FC = () => {
         year={selectedYear}
         onMonthChange={handleMonthChange}
       />
-      {/* Lista de cumpleaños del mes */}
+      {/* Monthly birthday list */}
       <div className="bg-surface-container-lowest rounded-xl shadow-soft p-6 w-full border border-outline-variant">
         <h3 className="text-headline-sm text-on-surface mb-4">
-          Cumpleaños del mes 🎂
+          This month's birthdays 🎂
         </h3>
         {birthdays.length > 0 ? (
           <ul className="space-y-3 max-h-full overflow-y-auto">
@@ -105,7 +105,7 @@ const BirthdaysSection: React.FC = () => {
                   className={`text-body-md text-on-surface bg-surface-bright p-3 rounded-lg border border-outline-variant ${isPast ? 'opacity-50' : ''}`}
                 >
                   <span className="text-label-md font-label-md font-bold text-primary">
-                    {day} de {monthNames[selectedMonth]}
+                    {monthNames[selectedMonth]} {day}
                   </span>
                   <br />
                   <p className="capitalize">{birthday.name} {birthday.last_name}</p>
@@ -115,7 +115,7 @@ const BirthdaysSection: React.FC = () => {
           </ul>
         ) : (
           <p className="text-body-md text-on-surface-variant italic">
-            No hay cumpleaños este mes
+            No birthdays this month
           </p>
         )}
       </div>
