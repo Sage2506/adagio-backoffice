@@ -106,7 +106,7 @@ export default function AlumnsTable() {
         onConfirmResponse={((accepted: boolean) => onConfirmResponse(accepted))}
       />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-sm w-full">
-        <div className="flex w-full flex-col items-start gap-stack-sm lg:flex-row lg:items-end">
+        <div className="flex w-full flex-col flex-wrap overflow-y-hidden items-start gap-stack-sm lg:flex-row lg:items-end">
           <div className="w-full md:w-80">
             <label htmlFor="table-search" className="block text-label-md font-label-md text-on-surface-variant">Search</label>
             <div className="relative mt-1 flex items-center">
@@ -124,8 +124,6 @@ export default function AlumnsTable() {
           </div>
           <AgeRangeFilter idPrefix="alumns" />
           <DisciplineFilter idPrefix="alumns" />
-        </div>
-        <div className="relative shrink-0">
           <button onClick={() => navigate('/dashboard/alumns/form')} className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg flex items-center gap-2 hover:bg-surface-tint transition-colors shadow-sm whitespace-nowrap" type="button">
             Create
             <svg className="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -167,7 +165,7 @@ export default function AlumnsTable() {
                 </td>
               </tr>
             ) : (
-              alumns.map((alumn) => <AlumnsRow key={'alumno' + alumn.id} alumn={alumn} handleDelete={handleDelete} />)
+              alumns.map((alumn) => <AlumnsRow key={'student' + alumn.id} alumn={alumn} handleDelete={handleDelete} />)
             )}
           </tbody>
         </table>

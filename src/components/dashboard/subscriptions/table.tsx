@@ -151,15 +151,12 @@ export default function SubscriptionsTable() {
 
   return (
     <div className="w-full min-w-0 flex flex-col gap-stack-md">
-      <div className="relative flex items-center">
-        <FinancialBalance />
-      </div>
       <div>
-          <h1 className="text-headline-md text-on-surface">Subscriptions</h1>
-          
-        </div>
+        <h1 className="text-headline-md text-on-surface">Subscriptions</h1>
+
+      </div>
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-stack-sm w-full">
-        <div className="flex w-full flex-col items-start gap-stack-sm lg:flex-row lg:items-end">
+        <div className="flex w-full flex-col flex-wrap overflow-y-hidden items-start gap-stack-sm lg:flex-row lg:items-end">
           <div className="w-full md:w-80">
             <label htmlFor="table-search" className="block text-label-md font-label-md text-on-surface-variant">Search</label>
             <div className="relative mt-1 flex items-center">
@@ -176,7 +173,7 @@ export default function SubscriptionsTable() {
               <button
                 type="button"
                 className="absolute right-1 p-2 rounded-md text-on-surface-variant hover:bg-surface-container focus:outline-none focus:ring-1 focus:ring-primary"
-                title="Limpiar búsqueda"
+                title="Clear search"
                 onClick={() => {
                   setSearchValue('');
                   const cleanParams = new URLSearchParams(searchParams);
@@ -192,8 +189,6 @@ export default function SubscriptionsTable() {
           </div>
           <AgeRangeFilter idPrefix="subscriptions" />
           <DisciplineFilter idPrefix="subscriptions" />
-        </div>
-        <div className="flex items-center gap-3 shrink-0">
           <div
             className={`px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container'}`}
           >
@@ -212,7 +207,7 @@ export default function SubscriptionsTable() {
               newParams.delete('page[page]'); // reset page
               navigate(`?${newParams.toString()}`, { replace: true });
             }}
-            title="Mostrar/ocultar suscripciones inactivas"
+            title="Show/hide inactive subscriptions"
           >
             {searchParams.get('include_inactive') === 'true' ? (
               <>

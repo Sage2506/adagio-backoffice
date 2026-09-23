@@ -66,7 +66,7 @@ export default function DashboardLayout() {
                     </NavLink>
                     <NavLink to={'/dashboard/orders'} className={({ isActive }) => `rounded-lg mx-2 px-4 py-3 flex items-center gap-3 ${isActive ? "bg-primary-container text-on-primary-container font-bold scale-95 duration-200" : "text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all"}`}
                     >
-                        <span className="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+                        <span className="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
                         <span className="text-label-md font-label-md">Orders</span>
                     </NavLink>
                     <NavLink to={'/dashboard/expenses'} className={({ isActive }) => `rounded-lg mx-2 px-4 py-3 flex items-center gap-3 ${isActive ? "bg-primary-container text-on-primary-container font-bold scale-95 duration-200" : "text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all"}`}
@@ -78,6 +78,11 @@ export default function DashboardLayout() {
                     >
                         <span className="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
                         <span className="text-label-md font-label-md">Additional Incomes</span>
+                    </NavLink>
+                    <NavLink to={'/dashboard/balances'} className={({ isActive }) => `rounded-lg mx-2 px-4 py-3 flex items-center gap-3 ${isActive ? "bg-primary-container text-on-primary-container font-bold scale-95 duration-200" : "text-on-surface-variant dark:text-outline hover:bg-surface-container-high dark:hover:bg-surface-variant transition-all"}`}
+                    >
+                        <span className="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+                        <span className="text-label-md font-label-md">Balances</span>
                     </NavLink>
                 </div>
                 <div className="px-4 mt-auto">

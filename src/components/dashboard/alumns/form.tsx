@@ -277,22 +277,22 @@ export default function AlumnForm() {
     // Function to handle form submission for creating or updating an alumn
     e.preventDefault()
     if (!phone_number.trim() && !email.trim()) {
-      setAlumnContactError("Debes ingresar al menos un teléfono o un correo electrónico.")
+      setAlumnContactError("Enter at least a phone number or email address.")
       return
     }
     setAlumnContactError('')
     if (!guardian.phone_number.trim() && !guardian.email.trim()) {
-      setGuardianContactError("Debes ingresar al menos un teléfono o un correo electrónico.")
+      setGuardianContactError("Enter at least a phone number or email address.")
       return
     }
     setGuardianContactError('')
     const parsedCustomPrice = Number(customPrice)
     if (!id && usesCustomPrice && (!customPrice || !Number.isFinite(parsedCustomPrice) || parsedCustomPrice <= 0)) {
-      setCustomPriceError("El precio personalizado debe ser mayor a 0.")
+      setCustomPriceError("The custom price must be greater than 0.")
       return
     }
     if (isMonthlyPaymentIncluded && (usesCustomPrice ? parsedCustomPrice : Number(monthlyPayment)) < Number(monthlyPayment)) {
-      setCustomPriceError(`El primer pago mensual no puede ser mayor al costo de la mensualidad.`);
+      setCustomPriceError(`The first monthly payment cannot exceed the monthly fee.`);
       return;
     }
     const alumn: IAlumnNew = {
@@ -533,7 +533,7 @@ export default function AlumnForm() {
                   <label className="flex items-center gap-3 text-body-md text-on-surface cursor-pointer">
                     <input id="usesCustomPrice" name="usesCustomPrice" type="checkbox" checked={usesCustomPrice} onChange={event => { setUsesCustomPrice(event.target.checked); setCustomPriceError('') }} className="w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" />Custom monthly payment
                   </label>
-                  <input onChange={event => { handlePriceInputChange(event, setCustomPrice); setCustomPriceError('') }} value={customPrice} type="number" id="customPrice" name="customPrice" min="0" step="0.01" disabled={!usesCustomPrice} className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-50`} placeholder="Precio personalizado (opcional)" aria-invalid={!!customPriceError} aria-describedby={customPriceError ? "customPriceError" : undefined} />{customPriceError && <p id="customPriceError" className="text-sm text-error">{customPriceError}</p>}</div>}
+                  <input onChange={event => { handlePriceInputChange(event, setCustomPrice); setCustomPriceError('') }} value={customPrice} type="number" id="customPrice" name="customPrice" min="0" step="0.01" disabled={!usesCustomPrice} className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-50`} placeholder="Custom price (optional)" aria-invalid={!!customPriceError} aria-describedby={customPriceError ? "customPriceError" : undefined} />{customPriceError && <p id="customPriceError" className="text-sm text-error">{customPriceError}</p>}</div>}
               <div className="space-y-2"><label htmlFor="special_med_conditions" className={labelClass}>Special medical conditions</label><textarea onChange={e => setSpecialMedConditions(e.target.value)} value={special_med_conditions} id="special_med_conditions" name="special_med_conditions" className={`${fieldClass} resize-none`} rows={3} placeholder="Allergies" required /><p className="text-xs text-on-surface-variant">Note any allergies or conditions instructors should be aware of.</p></div>
               <label className="flex items-start gap-3 rounded-lg bg-surface-container-low p-4 cursor-pointer"><input id="is_guardian_required_for_leaving" name="is_guardian_required_for_leaving" type="checkbox" checked={is_guardian_required_for_leaving} onKeyDown={e => { if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); document.getElementById('subscribedAt')?.focus() } }} onChange={e => setIsGuardianRequiredForLeaving(e.target.checked)} className="mt-0.5 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" /><span className="text-body-md text-on-surface">The student may leave the installations without a guardian.</span></label>
             </div>
@@ -564,7 +564,7 @@ export default function AlumnForm() {
                   <input onChange={e => handlePriceInputChange(e, setMonthlyPayment)} value={monthlyPayment} type="text" id="monthlyPayment" name="monthlyPayment" className={fieldClass} placeholder="$0.00" pattern="^\d+(\.\d{1,2})?$" /></div>}
               {(isSubscriptionPaymentIncluded || isMonthlyPaymentIncluded) && <>
                 <div className="space-y-2">
-                  <label htmlFor="payment_method" className={labelClass}>Método de Pago</label>
+                  <label htmlFor="payment_method" className={labelClass}>Payment Method</label>
                   <select
                     id="payment_method"
                     name="payment_method"
@@ -576,13 +576,13 @@ export default function AlumnForm() {
                     }}
                     className={fieldClass}
                   >
-                    <option value="cash">Efectivo</option>
-                    <option value="transfer">Transferencia</option>
-                    <option value="card">Tarjeta / Terminal</option>
+                    <option value="cash">Cash</option>
+                    <option value="transfer">Bank transfer</option>
+                    <option value="card">Card / terminal</option>
                   </select>
                 </div>
                 {payment_method !== 'cash' && <div className="space-y-2">
-                  <label htmlFor="reference" className={labelClass}>Folio / Referencia</label>
+                  <label htmlFor="reference" className={labelClass}>Reference number</label>
                   <input
                     id="reference"
                     name="reference"

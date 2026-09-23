@@ -101,7 +101,7 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
               if (blockDemoReadOnlyAction(e)) return;
               onOpenCreditModal(subscription);
             }}
-            title="Aplicar bono"
+            title="Apply credit"
           >
             <GiftIcon className="w-5 h-5" />
           </button>
@@ -115,7 +115,7 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
               if (blockDemoReadOnlyAction(e)) return;
               onNavigateToAlumnForm(subscription.alumn_id);
             }}
-            title="Editar alumno"
+            title="Edit student"
           >
             <PencilSquareIcon className="w-5 h-5" />
           </button>

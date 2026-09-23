@@ -11,7 +11,7 @@ export const LoadingSpinner = () => {
           aria-hidden="true"
         />
         <p className="font-body-md text-body-md text-on-surface-variant">
-          Conectando con Adagio...
+          Connecting to Adagio...
         </p>
       </div>
     </div>

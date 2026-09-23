@@ -18,6 +18,8 @@ import ExpensesPage from "./components/dashboard/expenses/ExpensesPage";
 import AdditionalIncomesPage from "./components/dashboard/additioinalIncomes/AdditionalIncomesPage";
 import DisciplinesTable from "./components/dashboard/disciplines/table";
 import DisciplineForm from "./components/dashboard/disciplines/form";
+import FinancialBalance from "./components/FinancialBalance";
+import NotFound from "./pages/NotFound";
 
 export function Router() {
   return (
@@ -48,7 +50,9 @@ export function Router() {
         <Route path="disciplines" element={<DisciplinesTable />}></Route>
         <Route path="disciplines/form" element={<DisciplineForm />}></Route>
         <Route path="disciplines/form/:id" element={<DisciplineForm />}></Route>
+        <Route path="balances" element={<FinancialBalance />}></Route>
       </Route>
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }
