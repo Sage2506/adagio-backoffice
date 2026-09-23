@@ -155,7 +155,7 @@ export default function SubscriptionsTable() {
 
       </div>
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-stack-sm w-full">
-        <div className="flex w-full flex-col flex-wrap overflow-y-hidden items-start gap-stack-sm lg:flex-row lg:items-end">
+        <div className="flex w-full flex-col flex-wrap items-start gap-stack-sm lg:flex-row lg:items-end">
           <div className="w-full md:w-80">
             <label htmlFor="table-search" className="block text-label-md font-label-md text-on-surface-variant">Search</label>
             <div className="relative mt-1 flex items-center">
