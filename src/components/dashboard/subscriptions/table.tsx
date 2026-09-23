@@ -11,7 +11,6 @@ import PaymentsModal from "../payments/paymentsModal";
 import { usePagination } from "../../../hooks/usePagination";
 import PaginationComponent from "../../utils/paginationComponent";
 import { formatCurrencyValue } from "../../../utils/numbers";
-import FinancialBalance from "../../FinancialBalance";
 import AgeRangeFilter from "../../utils/AgeRangeFilter";
 import DisciplineFilter from "../../utils/DisciplineFilter";
 
