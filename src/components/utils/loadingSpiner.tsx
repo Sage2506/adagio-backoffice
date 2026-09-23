@@ -1,4 +1,7 @@
+import { useLoadingLabel } from "../../hooks/useLoadingLabel";
+
 export const LoadingSpinner = () => {
+  const loadingMessage = useLoadingLabel("Connecting to Adagio",true);
   return (
     <div
       className="flex min-h-screen w-full items-center justify-center bg-background px-6 text-on-surface"
@@ -11,7 +14,7 @@ export const LoadingSpinner = () => {
           aria-hidden="true"
         />
         <p className="font-body-md text-body-md text-on-surface-variant">
-          Connecting to Adagio...
+          {loadingMessage}
         </p>
       </div>
     </div>
