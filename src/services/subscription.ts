@@ -4,6 +4,19 @@ import api, { CREATED, OK } from "./api";
 
 const path = "/subscriptions";
 
+export function exportSubscriptions(args: { params?: string }): Promise<Blob | IErrorResponse> {
+  return api.get(`${path}?export=excel&${args.params || ""}`, { responseType: "blob" }).then(response => {
+    if (response.status === OK) {
+      return response.data as Blob;
+    }
+
+    return { success: false as const, errors: [{ msj: response.status.toString() }] };
+  }).catch(error => ({
+    success: false as const,
+    errors: [{ msj: error.message }]
+  }));
+}
+
 export function getSubscriptions(args: { params?: string }): Promise<IGetSubscriptionsResponse | IErrorResponse> {
   return api.get<IGetSubscriptionsResponse>(`${path}?${args.params}`).then(response => {
     if (response.status === OK) {
@@ -80,7 +93,7 @@ export function putSubscriptionDueDate(args: { id: string, data: IDueDate }): Pr
   });
 }
 
-export function postSubscriptionAddCredit(args: { id: string, amount: number | string }): Promise<{ success: true, data: any } | { success: false, errors: { msj: string }[] }> {
+export function postSubscriptionAddCredit(args: { id: string, amount: number | string }): Promise<{ success: true, data: unknown } | { success: false, errors: { msj: string }[] }> {
   return api.post(`${path}/${args.id}/add_credit`, { amount: Number(args.amount) }).then(response => {
     if (response.status === OK) {
       return {
