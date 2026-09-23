@@ -1,13 +1,30 @@
-import React, { useCallback, useEffect, useState } from "react";
+import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
 import { useLoadingLabel } from "../../../hooks/useLoadingLabel";
 import PaginationComponent from "../../utils/paginationComponent";
 import api from "../../../services/api";
 import { usePagination } from "../../../hooks/usePagination";
+import type { ILinks } from "../../../types/common";
 import AdditionalIncomeRow from "./AdditionalIncomeRow";
 import NewAdditionalIncomeModal from "./NewAdditionalIncomeModal";
 
+interface AdditionalIncomeRecord {
+  id: number;
+  amount: number;
+  date: string;
+  description: string | null;
+  category: string;
+  payment_method: string;
+}
+
+interface AdditionalIncomesResponse {
+  data: AdditionalIncomeRecord[];
+  pages: number[];
+  links: ILinks;
+}
+
 export default function AdditionalIncomesPage() {
-  const [incomes, setIncomes] = useState([]);
+  const [incomes, setIncomes] = useState<AdditionalIncomeRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const loadingLabel = useLoadingLabel("Loading", isLoading);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,13 +47,16 @@ export default function AdditionalIncomesPage() {
     async function fetchIncomes() {
       setIsLoading(true);
       try {
-        const response = await api.get(`/additional_incomes${searchString ? `?${searchString}` : ""}`);
+        const response = await api.get<AdditionalIncomesResponse>(`/additional_incomes${searchString ? `?${searchString}` : ""}`);
         if (!isActive) return;
         setIncomes(response.data.data);
         setPagination({ pages: response.data.pages, links: response.data.links });
         setError("");
-      } catch (requestError) {
-        if (isActive) setError(requestError.response?.data?.error || "Unable to load additional incomes.");
+      } catch (requestError: unknown) {
+        const message = axios.isAxiosError<{ error?: string }>(requestError)
+          ? requestError.response?.data?.error
+          : undefined;
+        if (isActive) setError(message || "Unable to load additional incomes.");
       } finally {
         if (isActive) setIsLoading(false);
       }
@@ -51,7 +71,7 @@ export default function AdditionalIncomesPage() {
     setRefreshKey(value => value + 1);
   }, [resetPagination]);
 
-  const handleIncomeError = useCallback((message) => {
+  const handleIncomeError = useCallback((message: string) => {
     setError(message);
   }, []);
 

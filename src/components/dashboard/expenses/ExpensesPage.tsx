@@ -1,13 +1,29 @@
-import { useEffect, useState } from "react";
-import React from "react";
+import { useCallback, useEffect, useState } from "react";
+import axios from "axios";
 import { useLoadingLabel } from "../../../hooks/useLoadingLabel";
 import api from "../../../services/api";
+import { usePagination } from "../../../hooks/usePagination";
 import PaginationComponent from "../../utils/paginationComponent"
 import ExpenseRow from "./ExpenseRow";
 import NewExpenseModal from "./NewExpenseModal";
 
+interface ExpenseRecord {
+  id: number;
+  date: string;
+  description: string | null;
+  category: string;
+  payment_method: string;
+  amount: number;
+}
+
+interface ExpensesResponse {
+  data: ExpenseRecord[];
+  pages: number[];
+  links: Parameters<ReturnType<typeof usePagination>["setPagination"]>[0]["links"];
+}
+
 export default function ExpensesPage() {
-  const [expenses, setExpenses] = useState([]);
+  const [expenses, setExpenses] = useState<ExpenseRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState("");
@@ -29,13 +45,16 @@ export default function ExpensesPage() {
     async function fetchExpenses() {
       setIsLoading(true);
       try {
-        const response = await api.get(`/expenses${searchString ? `?${searchString}` : ""}`);
+        const response = await api.get<ExpensesResponse>(`/expenses${searchString ? `?${searchString}` : ""}`);
         if (!isActive) return;
         setExpenses(response.data.data);
         setPagination({ pages: response.data.pages, links: response.data.links });
         setError("");
       } catch (requestError) {
-        if (isActive) setError(requestError.response?.data?.error || "Unable to load expenses.");
+        const message = axios.isAxiosError<{ error?: string }>(requestError)
+          ? requestError.response?.data?.error
+          : undefined;
+        if (isActive) setError(message || "Unable to load expenses.");
       } finally {
         if (isActive) setIsLoading(false);
       }
@@ -45,16 +64,20 @@ export default function ExpensesPage() {
     return () => { isActive = false; };
   }, [searchString, refreshKey]);
 
-  function handleExpenseCreated() {
+  const handleExpenseCreated = useCallback(() => {
     setIsModalOpen(false);
     resetPagination();
     setRefreshKey(value => value + 1);
-  }
+  }, [resetPagination]);
   const loadingLabel = useLoadingLabel("Loading", isLoading);
 
-  function handleExpenseError(message) {
+  const handleExpenseError = useCallback((message: string) => {
     setError(message);
-  }
+  }, []);
+
+  const handleModalClose = useCallback(() => {
+    setIsModalOpen(false);
+  }, []);
 
   return (
     <main className="w-full min-w-0 space-y-6">
@@ -96,7 +119,7 @@ export default function ExpensesPage() {
 
       <NewExpenseModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleModalClose}
         onCreated={handleExpenseCreated}
         onError={handleExpenseError}
       />

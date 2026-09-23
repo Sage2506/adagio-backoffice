@@ -3,7 +3,28 @@ import { useLoadingLabel } from "../../../hooks/useLoadingLabel";
 import api from "../../../services/api";
 import { formatCurrencyValue } from "../../../utils/numbers";
 
-const initialBalance = {
+type BalanceBreakdownKey = "student_income" | "additional_income" | "expenses";
+
+interface BalanceValues {
+  cash: number;
+  digital: number;
+}
+
+interface FinancialBalanceData {
+  summary: {
+    total_available: number;
+    cash_on_hand: number;
+    in_bank_account: number;
+  };
+  breakdown: Record<BalanceBreakdownKey, BalanceValues>;
+}
+
+interface BreakdownSection {
+  key: BalanceBreakdownKey;
+  label: string;
+}
+
+const initialBalance: FinancialBalanceData = {
   summary: {
     total_available: 0,
     cash_on_hand: 0,
@@ -16,14 +37,14 @@ const initialBalance = {
   },
 };
 
-const breakdownSections = [
+const breakdownSections: BreakdownSection[] = [
   { key: "student_income", label: "Student Income" },
   { key: "additional_income", label: "Additional Income" },
   { key: "expenses", label: "Expenses" },
 ];
 
 function FinancialBalance() {
-  const [balance, setBalance] = useState(initialBalance);
+  const [balance, setBalance] = useState<FinancialBalanceData>(initialBalance);
   const [isLoading, setIsLoading] = useState(true);
   const loadingLabel = useLoadingLabel("Loading balance", isLoading);
   const [error, setError] = useState("");
@@ -35,11 +56,14 @@ function FinancialBalance() {
       try {
         setIsLoading(true);
         setError("");
-        const response = await api.get("/balance");
+        const response = await api.get<{ data: FinancialBalanceData }>("/balance");
         if (isActive) setBalance(response.data.data);
-      } catch (requestError) {
+      } catch (requestError: unknown) {
         if (!isActive) return;
-        setError(requestError.response?.data?.error || "Unable to load financial balance.");
+        const message = typeof requestError === "object" && requestError !== null && "response" in requestError
+          ? (requestError.response as { data?: { error?: string } }).data?.error
+          : undefined;
+        setError(message || "Unable to load financial balance.");
       } finally {
         if (isActive) setIsLoading(false);
       }
