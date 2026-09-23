@@ -1,11 +1,12 @@
+import { memo } from "react";
 import type { IPaymentRecord } from "../../../types/payments";
-import {formatPrettyLongDateShort } from "../../../utils/numbers";
+import { formatPrettyLongDateShort } from "../../../utils/numbers";
 
 interface IPaymentsRow {
   payment: IPaymentRecord
 }
 
-export default function PaymentsRow({payment}: IPaymentsRow) {
+function PaymentsRow({ payment }: IPaymentsRow) {
 
   return (
     <tr className={"odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700 capitalize"}>
@@ -21,3 +22,5 @@ export default function PaymentsRow({payment}: IPaymentsRow) {
     </tr>
   );
 };
+
+export default memo(PaymentsRow);

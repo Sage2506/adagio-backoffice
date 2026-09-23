@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import api from "../services/api";
-import { formatCurrencyValue } from "../utils/numbers";
+import { memo, useEffect, useMemo, useState } from "react";
+import api from "../../../services/api";
+import { formatCurrencyValue } from "../../../utils/numbers";
 
 const initialBalance = {
   summary: {
@@ -21,7 +21,7 @@ const breakdownSections = [
   { key: "expenses", label: "Expenses" },
 ];
 
-export default function FinancialBalance() {
+function FinancialBalance() {
   const [balance, setBalance] = useState(initialBalance);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -50,6 +50,12 @@ export default function FinancialBalance() {
     };
   }, []);
 
+  const summaryCards = useMemo(() => [
+    { label: "Total Available", value: balance.summary.total_available, accent: "text-primary" },
+    { label: "Cash on Hand", value: balance.summary.cash_on_hand, accent: "text-on-surface" },
+    { label: "In Bank", value: balance.summary.in_bank_account, accent: "text-tertiary" },
+  ], [balance.summary]);
+
   if (isLoading) {
     return (
       <div className="flex min-h-64 items-center justify-center rounded-xl border border-outline-variant bg-surface-container-lowest p-8 text-body-md text-on-surface-variant shadow-soft">
@@ -65,12 +71,6 @@ export default function FinancialBalance() {
       </div>
     );
   }
-
-  const summaryCards = [
-    { label: "Total Available", value: balance.summary.total_available, accent: "text-primary" },
-    { label: "Cash on Hand", value: balance.summary.cash_on_hand, accent: "text-on-surface" },
-    { label: "In Bank", value: balance.summary.in_bank_account, accent: "text-tertiary" },
-  ];
 
   return (
     <main className="w-full min-w-0 flex flex-col gap-stack-lg">
@@ -117,3 +117,5 @@ export default function FinancialBalance() {
     </main>
   );
 }
+
+export default memo(FinancialBalance);

@@ -1,6 +1,6 @@
 import type { IErrorResponse } from "../types/errors";
 import type { IGetProductResponse, IGetProductsResponse, IProductNew, IProductRecord } from "../types/products";
-import api, { CREATED, OK } from "./api";
+import api, { CREATED, NO_CONTENT, OK } from "./api";
 
 const path = "/products";
 
@@ -69,4 +69,17 @@ export function putProduct(args: { id: string, data: { product: IProductNew } })
       errors: [{ msj: error.message }]
     };
   });
+}
+
+export function deleteProduct(args: { id: number }): Promise<{ success: true } | IErrorResponse> {
+  return api.delete(`${path}/${args.id}`).then(response => {
+    if (response.status === OK || response.status === NO_CONTENT) {
+      return { success: true as const };
+    }
+
+    return { success: false as const, errors: [{ msj: response.status.toString() }] };
+  }).catch(error => ({
+    success: false as const,
+    errors: [{ msj: error.message }]
+  }));
 }

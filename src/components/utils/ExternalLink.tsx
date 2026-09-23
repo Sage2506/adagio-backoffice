@@ -1,5 +1,5 @@
 // src/components/ExternalLink.tsx
-import { trackExternalLink } from '../lib/analytics';
+import { trackExternalLink } from '../../lib/analytics';
 
 interface ExternalLinkProps {
   href: string;

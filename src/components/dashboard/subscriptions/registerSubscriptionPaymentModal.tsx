@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import type { IPaymentMethod, IPaymentNew } from "../../../types/payments";
 import { postPayment } from "../../../services/payment";
@@ -14,7 +14,7 @@ interface RegisterSubscriptionPaymentModalProps {
   subscription: ISubscriptionAlumnPlanRecord | null;
 }
 
-export default function RegisterSubscriptionPaymentModal({
+function RegisterSubscriptionPaymentModal({
   isOpen,
   onSubscriptionPaid,
   subscription,
@@ -25,14 +25,24 @@ export default function RegisterSubscriptionPaymentModal({
   const [paid_at, setPaidAt] = useState<Date | null>(null);
   const [payment_method, setPaymentMethod] = useState<IPaymentMethod>('cash');
   const [reference, setReference] = useState<string>('');
-  const [alumnFullName, setAlumnFullName] = useState<string>('');
   const isReadOnly = isDemoReadOnlySession();
+  const alumnFullName = useMemo(
+    () => subscription ? `${subscription.alumn.name} ${subscription.alumn.last_name}` : '',
+    [subscription]
+  );
+  const cardPaymentBreakdown = useMemo(() => {
+    const currentQuantity = Number(quantity) || 0;
+
+    return {
+      commission: (currentQuantity * 0.0406).toFixed(2),
+      total: (currentQuantity * 0.9594).toFixed(2),
+    };
+  }, [quantity]);
 
   useEffect(() => {
     if (subscription) {
       const subscriptionPrice = subscription.custom_price ?? subscription.plan.price;
       setQuantity((subscriptionPrice - subscription.paid_amount).toString())
-      setAlumnFullName(subscription.alumn.name + ' ' + subscription.alumn.last_name);
     }
   }, [subscription])
 
@@ -158,6 +168,18 @@ export default function RegisterSubscriptionPaymentModal({
                     className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-shadow placeholder-outline"
                     id="quantity" placeholder="0" type="number" />
                 </div>
+                {payment_method === 'card' && (
+                  <dl className="mt-2 space-y-1 text-sm text-on-surface-variant">
+                    <div className="flex items-center justify-between">
+                      <dt>Comission + IVA</dt>
+                      <dd>{cardPaymentBreakdown.commission}</dd>
+                    </div>
+                    <div className="flex items-center justify-between font-medium text-on-surface">
+                      <dt>Total</dt>
+                      <dd>{cardPaymentBreakdown.total}</dd>
+                    </div>
+                  </dl>
+                )}
               </div>
               <div className="flex flex-col gap-base">
                 <label className="font-label-md text-label-md text-on-surface-variant">Paid Date</label>
@@ -231,3 +253,5 @@ export default function RegisterSubscriptionPaymentModal({
     </Transition>
   );
 }
+
+export default memo(RegisterSubscriptionPaymentModal);

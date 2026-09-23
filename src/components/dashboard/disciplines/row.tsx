@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import type { IDisciplineRecord } from "../../../types/disciplines";
 import { blockDemoReadOnlyAction, isDemoReadOnlySession } from "../../../utils/demoMode";
@@ -8,7 +9,7 @@ interface DisciplineRowProps {
   onDelete: (event: React.MouseEvent, discipline: IDisciplineRecord) => void;
 }
 
-export default function DisciplineRow({ discipline, onEdit, onDelete }: DisciplineRowProps) {
+function DisciplineRow({ discipline, onEdit, onDelete }: DisciplineRowProps) {
   const isReadOnly = isDemoReadOnlySession();
 
   return (
@@ -31,3 +32,5 @@ export default function DisciplineRow({ discipline, onEdit, onDelete }: Discipli
     </tr>
   );
 }
+
+export default memo(DisciplineRow);

@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { getBirthdaysOfMonth } from "../../../services/alumn";
 import type { IBirthdayAlumn } from "../../../types/alumns";
-import CalendarWidget from "../../CalendarWidget";
+import CalendarWidget from "../../utils/CalendarWidget";
 
 // Helper para parsear fechas como locales sin conversión UTC
 const parseDateLocal = (dateString: string): Date => {
   const [year, month, day] = dateString.split('-').map(Number);
   return new Date(year, month - 1, day); // month - 1 porque JavaScript usa 0-11
 };
+
+const monthNames = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
 
 const BirthdaysSection: React.FC = () => {
   const [birthdays, setBirthdays] = useState<IBirthdayAlumn[]>([]);
@@ -17,11 +22,6 @@ const BirthdaysSection: React.FC = () => {
   const today = new Date();
   const [selectedMonth, setSelectedMonth] = useState<number>(today.getMonth());
   const [selectedYear, setSelectedYear] = useState<number>(today.getFullYear());
-
-  const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
 
   useEffect(() => {
     const fetchBirthdays = async () => {
@@ -45,13 +45,16 @@ const BirthdaysSection: React.FC = () => {
     fetchBirthdays();
   }, [selectedMonth]);
 
-  const handleMonthChange = (month: number, year: number) => {
+  const handleMonthChange = useCallback((month: number, year: number) => {
     setSelectedMonth(month);
     setSelectedYear(year);
-  };
+  }, []);
 
   // Extraer solo las fechas para el calendario
-  const birthdayDates = birthdays.map(birthday => parseDateLocal(birthday.birth_date));
+  const birthdayDates = useMemo(
+    () => birthdays.map(birthday => parseDateLocal(birthday.birth_date)),
+    [birthdays]
+  );
 
   if (loading) {
     return (
@@ -123,4 +126,4 @@ const BirthdaysSection: React.FC = () => {
   );
 };
 
-export default BirthdaysSection;
+export default memo(BirthdaysSection);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PaginationComponent from "../../utils/paginationComponent";
 import api from "../../../services/api";
 import { usePagination } from "../../../hooks/usePagination";
@@ -44,14 +44,18 @@ export default function AdditionalIncomesPage() {
     return () => { isActive = false; };
   }, [searchString, refreshKey]);
 
-  function handleIncomeCreated() {
+  const handleIncomeCreated = useCallback(() => {
     resetPagination();
     setRefreshKey(value => value + 1);
-  }
+  }, [resetPagination]);
 
-  function handleIncomeError(message) {
+  const handleIncomeError = useCallback((message) => {
     setError(message);
-  }
+  }, []);
+
+  const handleModalClose = useCallback(() => {
+    setIsModalOpen(false);
+  }, []);
 
   return (
     <main className="w-full min-w-0 space-y-6">
@@ -93,7 +97,7 @@ export default function AdditionalIncomesPage() {
 
       <NewAdditionalIncomeModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleModalClose}
         onCreated={handleIncomeCreated}
         onError={handleIncomeError}
       />

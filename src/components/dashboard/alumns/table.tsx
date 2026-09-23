@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { deleteAlumn, getAlumns, } from "../../../services/alumn";
 import { useNavigate } from "react-router";
 import type { IAlumnRecord } from "../../../types/alumns";
@@ -65,11 +65,11 @@ export default function AlumnsTable() {
     }
   };
 
-  function handleDelete(e: React.FormEvent, alumn: IAlumnRecord) {
-    e.stopPropagation()
+  const handleDelete = useCallback((event: React.MouseEvent, alumn: IAlumnRecord) => {
+    event.stopPropagation()
     setAlumnToDelete(alumn)
     setIsModalOpen(true);
-  }
+  }, [])
 
   function onConfirmResponse(accepted: boolean) {
     if (alumnToDelete) {
@@ -103,7 +103,7 @@ export default function AlumnsTable() {
         confirmText="Yes"
         rejectText="No"
         isModalOpen={isModalOpen}
-        onConfirmResponse={((accepted: boolean) => onConfirmResponse(accepted))}
+        onConfirmResponse={onConfirmResponse}
       />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-sm w-full">
         <div className="flex w-full flex-col flex-wrap items-start gap-stack-sm lg:flex-row lg:items-end">

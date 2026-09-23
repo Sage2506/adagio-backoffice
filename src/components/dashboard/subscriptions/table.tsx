@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { EyeSlashIcon, EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router";
 import { getMonthlyIncome, getSubscriptions, putSubscription } from "../../../services/subscription";
@@ -82,29 +82,29 @@ export default function SubscriptionsTable() {
     }
   }
 
-  function openPaySubscriptionModal(subscription: ISubscriptionAlumnPlanRecord) {
+  const openPaySubscriptionModal = useCallback((subscription: ISubscriptionAlumnPlanRecord) => {
     setSelectedSubscription(subscription);
     setIsSubscriptionPaymentModalOpen(true);
-  }
+  }, []);
 
-  function showPaymentModal(subscription: ISubscriptionAlumnPlanRecord) {
+  const showPaymentModal = useCallback((subscription: ISubscriptionAlumnPlanRecord) => {
     setSelectedSubscription(subscription);
     setIsPaymentsModalOpen(true);
-  }
+  }, []);
 
-  function openCreditModal(subscription: ISubscriptionAlumnPlanRecord) {
+  const openCreditModal = useCallback((subscription: ISubscriptionAlumnPlanRecord) => {
     setSelectedSubscription(subscription);
     setIsSubscriptionCreditModalOpen(true);
-  }
+  }, []);
 
-  function openDueDateModal(subscription: ISubscriptionAlumnPlanRecord) {
+  const openDueDateModal = useCallback((subscription: ISubscriptionAlumnPlanRecord) => {
     setSelectedSubscription(subscription);
     setIsEditDueDateModalOpen(true);
-  }
+  }, []);
 
-  function navigateToAlumnForm(alumnId: number) {
+  const navigateToAlumnForm = useCallback((alumnId: number) => {
     navigate(`/dashboard/alumns/form/${alumnId}`);
-  }
+  }, [navigate]);
 
   function subscriptionPaid(successful: boolean) {
     setIsSubscriptionPaymentModalOpen(false)
@@ -261,7 +261,7 @@ export default function SubscriptionsTable() {
                     toggleSubscriptionStatus={toggleSubscriptionStatus}
                     key={`subscription_${subscription.id}`}
                     subscription={subscription}
-                    onClick={() => openPaySubscriptionModal(subscription)}
+                    onClick={openPaySubscriptionModal}
                     showPaymentModal={showPaymentModal}
                     onOpenCreditModal={openCreditModal}
                     onOpenDueDateModal={openDueDateModal}

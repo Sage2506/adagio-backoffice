@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
 import { formatPrettyDateShort } from "../../../utils/numbers";
 import { PowerIcon, GiftIcon, PencilSquareIcon } from "@heroicons/react/24/solid";
@@ -5,13 +6,13 @@ import { getSubscriptionStatus } from "../../../utils/subscriptionStatus";
 import { blockDemoReadOnlyAction, isDemoReadOnlySession } from "../../../utils/demoMode";
 
 interface ISubscriptionRow {
-  onClick: (e: React.MouseEvent<HTMLElement>) => void;
-  showPaymentModal: Function;
+  onClick: (subscription: ISubscriptionAlumnPlanRecord) => void;
+  showPaymentModal: (subscription: ISubscriptionAlumnPlanRecord) => void;
   onOpenCreditModal: (subscription: ISubscriptionAlumnPlanRecord) => void;
   onOpenDueDateModal: (subscription: ISubscriptionAlumnPlanRecord) => void;
   onNavigateToAlumnForm: (alumnId: number) => void;
   subscription: ISubscriptionAlumnPlanRecord;
-  toggleSubscriptionStatus: Function;
+  toggleSubscriptionStatus: (subscription: ISubscriptionAlumnPlanRecord) => void;
   reloadSubscriptions?: () => void;
 }
 
@@ -28,7 +29,7 @@ function getDateStatusStyle(subscription: ISubscriptionAlumnPlanRecord) {
   return paidStatusStyle;
 }
 
-export default function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubscriptionStatus, onOpenCreditModal, onOpenDueDateModal, onNavigateToAlumnForm }: ISubscriptionRow) {
+function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubscriptionStatus, onOpenCreditModal, onOpenDueDateModal, onNavigateToAlumnForm }: ISubscriptionRow) {
   const isReadOnly = isDemoReadOnlySession();
 
   function onShowPaymentsModal(e: React.MouseEvent<HTMLElement>) {
@@ -44,7 +45,7 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
 
   return (
     <>
-    <tr key={`subscription_${subscription.id}`} onClick={(e) => onClick(e)} className={getDateStatusStyle(subscription)}>
+    <tr key={`subscription_${subscription.id}`} onClick={() => onClick(subscription)} className={getDateStatusStyle(subscription)}>
       <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white capitalize">
         {subscription.id}
       </th>
@@ -125,3 +126,5 @@ export default function SubscriptionsRow({ subscription, onClick, showPaymentMod
     </>
   );
 };
+
+export default memo(SubscriptionsRow);
