@@ -1,25 +1,27 @@
+import { lazy } from "react";
 import { Route, Routes } from "react-router";
 import LandingPage from "./pages/landing/LandingPage";
 import DashboardLayout from "./layouts/dashboard";
 import Login from "./components/auth/login";
 import LogOut from "./components/auth/logout";
-import AlumnForm from "./components/dashboard/alumns/form";
-import SubscriptionsTable from "./components/dashboard/subscriptions/table";
-import PlansTable from "./components/dashboard/plans/table";
-import PlanForm from "./components/dashboard/plans/form";
-import ProductsTable from "./components/dashboard/products/table";
-import ProductForm from "./components/dashboard/products/form";
-import OrdersTable from "./components/dashboard/orders/table";
-import OrdersForm from "./components/dashboard/orders/form";
-import OrderDetail from "./components/dashboard/orders/detail";
-import AlumnsTable from "./components/dashboard/alumns/table";
 import ProtectedRoute from "./components/auth/protectedRoute";
-import ExpensesPage from "./components/dashboard/expenses/ExpensesPage";
-import AdditionalIncomesPage from "./components/dashboard/additioinalIncomes/AdditionalIncomesPage";
-import DisciplinesTable from "./components/dashboard/disciplines/table";
-import DisciplineForm from "./components/dashboard/disciplines/form";
-import FinancialBalance from "./components/dashboard/balances/FinancialBalance";
 import NotFound from "./pages/NotFound";
+
+const AlumnForm = lazy(() => import("./components/dashboard/alumns/form"));
+const SubscriptionsTable = lazy(() => import("./components/dashboard/subscriptions/table"));
+const PlansTable = lazy(() => import("./components/dashboard/plans/table"));
+const PlanForm = lazy(() => import("./components/dashboard/plans/form"));
+const ProductsTable = lazy(() => import("./components/dashboard/products/table"));
+const ProductForm = lazy(() => import("./components/dashboard/products/form"));
+const OrdersTable = lazy(() => import("./components/dashboard/orders/table"));
+const OrdersForm = lazy(() => import("./components/dashboard/orders/form"));
+const OrderDetail = lazy(() => import("./components/dashboard/orders/detail"));
+const AlumnsTable = lazy(() => import("./components/dashboard/alumns/table"));
+const ExpensesPage = lazy(() => import("./components/dashboard/expenses/ExpensesPage"));
+const AdditionalIncomesPage = lazy(() => import("./components/dashboard/additioinalIncomes/AdditionalIncomesPage"));
+const DisciplinesTable = lazy(() => import("./components/dashboard/disciplines/table"));
+const DisciplineForm = lazy(() => import("./components/dashboard/disciplines/form"));
+const FinancialBalance = lazy(() => import("./components/dashboard/balances/FinancialBalance"));
 
 export function Router() {
   return (
