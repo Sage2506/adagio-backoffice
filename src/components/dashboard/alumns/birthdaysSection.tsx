@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { getBirthdaysOfMonth } from "../../../services/alumn";
 import type { IBirthdayAlumn } from "../../../types/alumns";
 import CalendarWidget from "../../utils/CalendarWidget";
