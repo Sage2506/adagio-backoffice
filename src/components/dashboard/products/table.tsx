@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useLoadingLabel } from "../../../hooks/useLoadingLabel";
 import { useNavigate } from "react-router";
 import type { IProductRecord } from "../../../types/products";
 import { deleteProduct, getProducts } from "../../../services/product";
@@ -12,6 +13,8 @@ export default function ProductsTable() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
   const [searchValue, setSearchValue] = useState('');
+  const loadingLabel = useLoadingLabel("Loading", isLoading);
+  
   const {
     currentPage,
     pages,
@@ -125,7 +128,7 @@ export default function ProductsTable() {
             <tr>
               <td colSpan={4} style={{ padding: 0, border: 'none' }}>
                 <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
-                  <span className="text-lg text-gray-500">Loading...</span>
+                  <span className="text-lg text-gray-500">{loadingLabel}</span>
                 </div>
               </td>
             </tr>

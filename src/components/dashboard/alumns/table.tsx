@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useLoadingLabel } from "../../../hooks/useLoadingLabel";
 import { deleteAlumn, exportAlumns, getAlumns, } from "../../../services/alumn";
 import { useNavigate } from "react-router";
 import type { IAlumnRecord } from "../../../types/alumns";
@@ -19,6 +20,8 @@ export default function AlumnsTable() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [alumnToDelete, setAlumnToDelete] = useState<IAlumnRecord>();
   const [isExporting, setIsExporting] = useState(false);
+  const loadingLabel = useLoadingLabel("Loading", isLoading);
+  const exportingLabel = useLoadingLabel("Exporting", isExporting);
   const {
     currentPage,
     pages,
@@ -155,7 +158,7 @@ export default function AlumnsTable() {
           </button>
           <button onClick={handleExport} disabled={isExporting} className="border border-outline text-on-surface font-bold py-2 px-6 rounded-lg flex items-center gap-2 hover:bg-surface-container-low transition-colors whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-50" type="button">
             <ArrowDownTrayIcon className="h-5 w-5" />
-            {isExporting ? 'Exporting...' : 'Export Excel'}
+            {isExporting ? exportingLabel : 'Export Excel'}
           </button>
         </div>
       </div>
@@ -187,7 +190,7 @@ export default function AlumnsTable() {
               <tr>
                 <td colSpan={5} style={{ padding: 0, border: 'none' }}>
                   <div className="flex items-center justify-center" style={{ minHeight: '60vh' }}>
-                    <span className="text-lg text-gray-500">Loading...</span>
+                    <span className="text-lg text-gray-500">{loadingLabel}</span>
                   </div>
                 </td>
               </tr>
