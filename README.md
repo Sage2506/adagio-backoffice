@@ -1,166 +1,123 @@
-# adagio-backoffice
+# Adagio Backoffice
 
-Adagio backoffice is a React + TypeScript frontend for operational management.
-It connects to `adagio_backend` APIs and provides authenticated workflows for:
+## Project description
 
-- students and guardians
-- subscriptions and subscription payments
-- plans and products
-- orders
+Adagio Backoffice is the React web application used to operate the Adagio
+platform. Staff use it to manage students and guardians, plans and products,
+subscriptions and payments, and orders. It communicates with the Adagio
+Backend API, whose routes are available under `/api/v1`.
 
-## 1) Onboarding Quick Start (10-15 minutes)
+## Tech stack
 
-Use this path for a reliable first-day setup.
+- React 19 and TypeScript 5.8
+- Vite 7 for development and bundling
+- Tailwind CSS 4 and Headless UI for styling and accessible UI components
+- React Router 7 for navigation
+- TanStack Query 5 and Axios for data fetching and API requests
+- ESLint 9 and Vitest 4 for linting and tests
 
-### Prerequisites
+## Run locally
 
-- Node.js 20+ (recommended for current Vite versions)
+### Requirements
+
+- Node.js 24.x (also specified in `.nvmrc` and `package.json`)
 - npm
-- Running backend API (`adagio_backend`)
+- A running Adagio Backend API and a valid Cognito account to sign in
 
-### Step-by-step
+### Setup and start
 
-1. Install dependencies
+1. Install and activate Node.js 24.x. For example, with `nvm`:
 
-```bash
-npm install
-```
+   ```bash
+   nvm install
+   nvm use
+   ```
 
-2. Create environment file
+2. From the project root, install the locked dependencies:
 
-Create `.env.local` in project root with:
+   ```bash
+   npm ci
+   ```
 
-```env
-VITE_API_BASE_URL=http://localhost:3000/api/v1/
-```
+3. Create `.env.local` in the project root with the backend API URL:
 
-3. Start development server
+   ```env
+   VITE_API_BASE_URL=http://localhost:3000/api/v1/
+   ```
 
-```bash
-npm run dev
-```
+   If the backend runs on another host or port, set the URL accordingly. The
+   backend must allow the frontend origin (`http://localhost:5173`) in its CORS
+   configuration and support credentialed requests.
+4. Start the Vite development server:
 
-4. Open app
+   ```bash
+   npm run dev
+   ```
 
-- Default Vite URL is shown in terminal (usually `http://localhost:5173`)
-- Login with a valid backend/Cognito user
+5. Open the local URL printed by Vite (normally `http://localhost:5173`) and
+   sign in with a valid backend/Cognito user.
 
-## 2) First-Day Operational Checklist
+The frontend sends and receives the backend's HTTP-only authentication cookies.
+You do not need to configure or store an API token in frontend browser storage.
+Without a running backend, the app can start but login and API-backed pages
+will not work.
 
-Run this checklist in order:
+### Environment variables
 
-- [ ] App boots without build/runtime errors
-- [ ] Login screen loads at `/login`
-- [ ] Login returns token and redirects into protected area
-- [ ] Navigation to `alumns`, `orders`, `plans`, `products`, `subscriptions` works
-- [ ] API requests succeed against configured backend
-- [ ] `npm run lint` passes
-- [ ] `npm run build` passes
+- `VITE_API_BASE_URL` (required): backend API base URL, including `/api/v1/`.
+- `VITE_GA_MEASUREMENT_ID` (optional): Google Analytics measurement ID. Analytics
+  is initialized only in production builds and only when this value is set.
 
-If any item fails, jump to troubleshooting.
+Vite embeds `VITE_` variables into the client bundle; do not put secrets in
+these variables.
 
-## 3) Local Development Runbook
-
-### Daily start
-
-```bash
-npm run dev
-```
-
-### Quality gates
+### Common commands
 
 ```bash
-npm run lint
-npm run build
+npm run dev       # Start the local development server
+npm run test      # Run the Vitest test suite
+npm run lint      # Run ESLint
+npm run build     # Type-check, build client/server bundles, and prerender
+npm run preview   # Preview the production build locally
 ```
 
-### Production preview (optional)
+## Authentication and backend integration
 
-```bash
-npm run preview
-```
+- Login uses the backend endpoint `POST /api/v1/auth/login`.
+- The API client sends credentialed requests so the browser can use the
+  backend's HTTP-only JWT and refresh-token cookies.
+- Backend CORS must allow the frontend origin and credentialed requests.
+- Login and protected API routes require the backend's AWS Cognito integration
+  and a valid account.
+- The API client emits an `unauthorized` event for HTTP 401 and network errors;
+  the auth flow handles session refresh and sign-out.
 
-## 4) Environment Configuration
+## Application map
 
-The app currently uses this environment variable:
-
-- `VITE_API_BASE_URL`: backend base URL used by Axios client
-
-Example:
-
-```env
-VITE_API_BASE_URL=http://localhost:3000/api/v1/
-```
-
-Notes:
-
-- Include `/api/v1/` so service paths resolve as expected.
-- If backend runs on a different host/port, update this value accordingly.
-
-## 5) Auth and Session Behavior
-
-- Login calls backend `POST auth/login` through the configured base URL.
-- Token (`id_token`) is stored in `localStorage` or `sessionStorage`.
-- Axios automatically sends `Authorization: Bearer <token>` on requests.
-- On `401` or network errors, token is removed and app emits `unauthorized` event.
-
-## 6) Application Map
-
-### Routing
-
-- Public routes: `/login`, `/logout`
-- Protected shell: dashboard layout wrapped by auth guard
-- Main sections:
-  - `/` (students list)
-  - `/alumns/form`, `/alumns/form/:id`
-  - `/orders`, `/orders/form`
-  - `/plans`, `/plans/form`, `/plans/form/:id`
-  - `/products`, `/products/form`, `/products/form/:id`
-  - `/subscriptions`, `/subscriptions/pay`
-
-### Key folders
-
-- `src/components/auth`: login/logout/protected route/auth hook
+- `src/components/auth`: login, logout, protected routes, and session handling
 - `src/components/dashboard`: business views and forms
-- `src/services`: API clients per domain
-- `src/types`: TypeScript models/contracts
+- `src/services`: API clients and domain services
+- `src/types`: TypeScript models and API contracts
 - `src/layouts`: dashboard shell
+- `src/routes`: application route definitions
 
-## 7) Backend Integration Expectations
+## Troubleshooting
 
-For stable local development:
+### The app will not start or build
 
-- Backend should be reachable at `VITE_API_BASE_URL`
-- Backend CORS must allow this frontend origin (commonly `http://localhost:5173`)
-- Backend auth endpoint must return valid `id_token`
+- Confirm `node --version` reports Node 24.x.
+- Run `npm ci` to install dependencies from `package-lock.json`.
+- Check the terminal for Vite, TypeScript, or ESLint errors.
 
-## 8) Troubleshooting
+### Login fails or API requests are blocked
 
-### Blank page or startup failure
+- Confirm the backend is running and `VITE_API_BASE_URL` ends in `/api/v1/`.
+- Confirm the backend is configured with valid Cognito credentials and user
+  details.
+- Confirm backend CORS allows `http://localhost:5173` with credentials.
+- Restart Vite after changing `.env.local` so it reloads the environment.
 
-- Confirm `npm install` completed successfully
-- Check terminal for TypeScript/Vite errors
-- Verify Node version compatibility
+### Production build
 
-### Login fails
-
-- Verify `VITE_API_BASE_URL` points to backend `/api/v1/`
-- Verify backend is running and Cognito credentials are valid
-- Confirm browser sends expected login payload
-
-### Unauthorized loops / forced logout
-
-- Inspect browser storage for `id_token`
-- Verify token is not expired/invalid
-- Check backend token verification against the same Cognito pool/client
-
-### CORS errors
-
-- Ensure backend CORS includes frontend origin
-- Confirm frontend is calling the intended backend host/port
-
-## 9) Build and Release Notes
-
-- Build command: `npm run build`
-- Output folder: `dist/`
-- Use `npm run preview` for local validation of production build
+`npm run build` writes generated files to `dist/`. Use `npm run preview` to
+check the production build locally before deployment.
