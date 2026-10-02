@@ -76,14 +76,16 @@ function RegisterSubscriptionPaymentModal({
         payment: {
           alumn_id: subscription.alumn.id.toString(),
           quantity,
-          payment_method,
-          reference,
+          payment_method
         },
         payable_id: subscription.id.toString(),
         payable_type: "subscription",
       }
       if (paid_at) {
         data.payment['paid_at'] = parseDateToYYYYMMDD(paid_at)
+      }
+      if (payment_method !== 'cash'){
+        data.payment['reference'] = reference.trim();
       }
       setIsLoading(true);
       const response = await postPayment({ data });
