@@ -180,7 +180,6 @@ export default function SubscriptionsTable() {
   const copyReminderToClipboard = async () => {
     const today = new Date()
     const dueDay: 1 | 15 = today.getDate() < 15 ? 1 : 15;
-    console.log("dueDay: ", dueDay);
     const type = "text/plain";
     const msg = `¡Hola, mamás! 👋 Esperamos que estén teniendo una semana muy bonita. ✨
                 \nPasamos a dejarles este pequeño recordatorio de que ya estamos recibiendo las mensualidades correspondientes al día ${dueDay} del mes de ${spanishMonthsNames[today.getMonth()]}. 🩰
@@ -277,6 +276,7 @@ export default function SubscriptionsTable() {
             {isExporting ? exportingLabel : 'Export Excel'}
           </button>
           <button
+            title="Generate general monthly reminder message"
             type="button"
             onClick={copyReminderToClipboard}
             className="px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
