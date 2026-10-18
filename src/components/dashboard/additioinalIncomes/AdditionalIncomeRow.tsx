@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { formatCurrencyValue } from "../../../utils/numbers";
+import { formatCurrencyValue, formatDayMonth } from "../../../utils/numbers";
 
 function labelFor(value : string) {
   return value.replaceAll("_", " ").replace(/\b\w/g, character => character.toUpperCase());
@@ -9,7 +9,7 @@ function AdditionalIncomeRow({ income }: { income: { date: string; description: 
   return (
     <tr className="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
       <td className="py-4 px-6 text-on-surface-variant">
-        {income.date}
+        {formatDayMonth(income.date)}
       </td>
       <td className="py-4 px-6 text-on-surface">
         {income.description || "-"}

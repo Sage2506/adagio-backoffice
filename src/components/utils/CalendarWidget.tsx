@@ -1,4 +1,5 @@
 import { memo, useMemo } from "react";
+import { monthNames } from "../../utils/monthsNames";
 
 interface CalendarWidgetProps {
   selectedDates: Date[];
@@ -8,10 +9,6 @@ interface CalendarWidgetProps {
   onMonthChange?: (month: number, year: number) => void;
 }
 
-const monthNames = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
-];
 
 const CalendarWidget: React.FC<CalendarWidgetProps> = ({
   selectedDates,

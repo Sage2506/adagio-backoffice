@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { EyeSlashIcon, EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { EyeSlashIcon, EyeIcon, TrashIcon, ClipboardIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router";
 import { exportSubscriptions, getMonthlyIncome, getSubscriptions, putSubscription } from "../../../services/subscription";
 import type { ISubscriptionAlumnPlanRecord, ISubscriptionNew } from "../../../types/subscriptions";
@@ -15,6 +15,8 @@ import AgeRangeFilter from "../../utils/AgeRangeFilter";
 import DisciplineFilter from "../../utils/DisciplineFilter";
 import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { useLoadingLabel } from "../../../hooks/useLoadingLabel";
+import { spanishMonthsNames } from "../../../utils/monthsNames";
+import { useCopied } from "../../../hooks/useCopied";
 
 
 export default function SubscriptionsTable() {
@@ -43,6 +45,7 @@ export default function SubscriptionsTable() {
     getPageTarget,
     getLinkTarget,
   } = usePagination({ resourcePath: "subscriptions" });
+  const { copied, setCopied } = useCopied();
 
   useEffect(() => {
     if (searchParams.has('q[full_name_cont]')) {
@@ -174,6 +177,24 @@ export default function SubscriptionsTable() {
     }
   }
 
+  const copyReminderToClipboard = async () => {
+    const today = new Date()
+    const dueDay: 1 | 15 = today.getDate() < 15 ? 1 : 15;
+    const type = "text/plain";
+    const msg = `¡Hola, mamás! 👋 Esperamos que estén teniendo una semana muy bonita. ✨
+                \nPasamos a dejarles este pequeño recordatorio de que ya estamos recibiendo las mensualidades correspondientes al día ${dueDay} del mes de ${spanishMonthsNames[today.getMonth()]}. 🩰
+                \nRecuerden que para conservar su precio regular, los pagos se reciben del día ${dueDay} al ${dueDay + 4}. A partir del día ${dueDay + 5}, se aplica un cargo adicional de $100 pesos por pago tardío. 🗓️
+                \n¡Muchísimas gracias a todas por su apoyo y por estar siempre al pendiente!. 💕
+                \nQuienes tengan duda que día les corresponde con toda confianza pueden mandar mensaje.`
+    const clipboardItemData = {
+      [type]: msg,
+    };
+
+    const clipboardItem = new ClipboardItem(clipboardItemData);
+    await navigator.clipboard.write([clipboardItem])
+    setCopied(true);
+  }
+
   return (
     <div className="w-full min-w-0 flex flex-col gap-stack-md">
       <div>
@@ -197,7 +218,7 @@ export default function SubscriptionsTable() {
                 id="table-search" className="w-full pl-10 pr-10 py-2 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary bg-surface-lowest text-on-surface text-body-md font-body-md outline-none transition-all" placeholder="Search for subscriptions" />
               <button
                 type="button"
-                className="absolute right-1 p-2 rounded-md text-on-surface-variant hover:bg-surface-container focus:outline-none focus:ring-1 focus:ring-primary"
+                className="absolute right-1 p-2 rounded-md text-on-surface-variant hover:bg-surface-container focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                 title="Clear search"
                 onClick={() => {
                   setSearchValue('');
@@ -221,7 +242,7 @@ export default function SubscriptionsTable() {
           </div>
           <button
             type="button"
-            className={`px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 ${searchParams.get('include_inactive') === 'true' ? 'bg-primary-container text-on-primary-container border-primary-container' : 'bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container'}`}
+            className={`px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 cursor-pointer ${searchParams.get('include_inactive') === 'true' ? 'bg-primary-container text-on-primary-container border-primary-container' : 'bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container'}`}
             onClick={() => {
               const newParams = new URLSearchParams(searchParams);
               if (newParams.get('include_inactive') === 'true') {
@@ -249,10 +270,19 @@ export default function SubscriptionsTable() {
             type="button"
             onClick={handleExport}
             disabled={isExporting}
-            className="px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50"
+            className="px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
           >
             <ArrowDownTrayIcon className="w-5 h-5" />
             {isExporting ? exportingLabel : 'Export Excel'}
+          </button>
+          <button
+            title="Generate general monthly reminder message"
+            type="button"
+            onClick={copyReminderToClipboard}
+            className="px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+          >
+            <ClipboardIcon className="w-5 h-5" />
+            {copied ? 'Copied' : 'Copy reminder'}
           </button>
         </div>
       </div>

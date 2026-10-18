@@ -1,7 +1,7 @@
 import { memo } from "react";
 import type { ISubscriptionAlumnPlanRecord } from "../../../types/subscriptions";
-import { formatPrettyDateShort } from "../../../utils/numbers";
-import { PowerIcon, GiftIcon, PencilSquareIcon } from "@heroicons/react/24/solid";
+import { formatDayMonth } from "../../../utils/numbers";
+import { PowerIcon, GiftIcon, PencilSquareIcon, ChatBubbleLeftRightIcon } from "@heroicons/react/24/solid";
 import { getSubscriptionStatus } from "../../../utils/subscriptionStatus";
 import { blockDemoReadOnlyAction, isDemoReadOnlySession } from "../../../utils/demoMode";
 
@@ -31,6 +31,9 @@ function getDateStatusStyle(subscription: ISubscriptionAlumnPlanRecord) {
 
 function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubscriptionStatus, onOpenCreditModal, onOpenDueDateModal, onNavigateToAlumnForm }: ISubscriptionRow) {
   const isReadOnly = isDemoReadOnlySession();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const isPastDue = "late" === getSubscriptionStatus(subscription.due_date)
 
   function onShowPaymentsModal(e: React.MouseEvent<HTMLElement>) {
     e.stopPropagation();
@@ -60,14 +63,14 @@ function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubsc
       <td className="px-6 py-4">
         <button className="rounded-xs shadow-lg p-0.5" onClick={(e) => onShowPaymentsModal(e)}>
           <p className="cursor-pointer">
-            {subscription.last_payment_date ? formatPrettyDateShort(subscription.last_payment_date) : "No payments yet"}
+            {subscription.last_payment_date ? formatDayMonth(subscription.last_payment_date) : "No payments yet"}
           </p>
         </button>
       </td>
       <td className="px-6 py-4">
         <button className="rounded-xs shadow-lg p-0.5" onClick={(e) => { e.stopPropagation(); onOpenDueDateModal(subscription); }}>
           <p className="cursor-pointer">
-            {formatPrettyDateShort(subscription.due_date)}
+            {formatDayMonth(subscription.due_date)}
           </p>
         </button>
       </td>
@@ -120,6 +123,25 @@ function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubsc
           >
             <PencilSquareIcon className="w-5 h-5" />
           </button>
+
+          {isPastDue && (
+            <button
+              type="button"
+              className="p-2 rounded-md border border-green-600/40 bg-green-50 text-green-700 hover:bg-green-100 transition-colors focus:outline-none focus:ring-1 focus:ring-green-600"
+              onClick={(e) => {
+                e.stopPropagation();
+                const message = subscription.whatsapp_reminder_message
+                const cleanPhone = subscription.guardian_phone_number.replace(/\D/g, '');
+                const finalPhone = cleanPhone.length === 10 ? `52${cleanPhone}` : cleanPhone;
+                const encodedMessage = encodeURIComponent(message);
+                window.open(`https://web.whatsapp.com/send?phone=${finalPhone}&text=${encodedMessage}`, '_blank', 'noopener,noreferrer');
+              }}
+              title="Send WhatsApp reminder"
+              aria-label={`Send WhatsApp reminder to ${subscription.alumn.name}`}
+            >
+              <ChatBubbleLeftRightIcon className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </td>
     </tr >

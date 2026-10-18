@@ -8,6 +8,7 @@ export interface IGuadianRecord {
   is_active: boolean
   created_at: string
   updated_at: string
+  primary?: boolean
 }
 
 export interface IGuardianNew {
@@ -16,6 +17,7 @@ export interface IGuardianNew {
   phone_number?: string
   email?: string
   alumn_id?: string
+  primary?: boolean
 }
 
 export interface IGuardianRecord {
