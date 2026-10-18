@@ -1,4 +1,4 @@
-import { formatCurrencyValue } from "../../../utils/numbers";
+import { formatCurrencyValue, formatDayMonth } from "../../../utils/numbers";
 
 function labelFor(value : string) {
   return value.replaceAll("_", " ").replace(/\b\w/g, character => character.toUpperCase());
@@ -8,7 +8,7 @@ export default function ExpenseRow({ expense }: { expense: { date: string; descr
   return (
     <tr className="border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
       <td className="py-4 px-6 text-on-surface-variant">
-        {expense.date}
+        {formatDayMonth(expense.date)}
       </td>
       <td className="py-4 px-6 text-on-surface">
         {expense.description || "-"}

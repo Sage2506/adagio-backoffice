@@ -26,6 +26,18 @@ export const formatPrettyDateShort = (dateString: string): string => {
     return `${day.padStart(2, '0')}-${monthShort}-${year}`;
 }
 
+// dd/mm for table date columns; timestamps use UTC like formatPrettyLongDateShort
+export const formatDayMonth = (dateString?: string | null): string => {
+    if (!dateString) return "N/A";
+    if (dateString.includes('T')) {
+        const date = new Date(dateString);
+        if (Number.isNaN(date.getTime())) return "N/A";
+        return `${String(date.getUTCDate()).padStart(2, '0')}/${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
+    }
+    const [, month, day] = dateString.split('-');
+    return day && month ? `${day.padStart(2, '0')}/${month.padStart(2, '0')}` : "N/A";
+}
+
 export const formatPrettyLongDateShort = (dateString: string): string => {
     if (!dateString) return "N/A"
     const date = new Date(dateString)

@@ -2,7 +2,7 @@ import { memo } from "react";
 import { BanknotesIcon, CreditCardIcon, EyeIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router";
 import type { IOrderRecord } from "../../../types/orders";
-import { formatPrettyLongDateShort, formatPrice } from "../../../utils/numbers";
+import { formatDayMonth, formatPrice } from "../../../utils/numbers";
 
 const statusStyles = {
   pending: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
@@ -31,7 +31,7 @@ function OrdersRow({ order }: OrdersRowProps) {
           {order.status}
         </span>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap">{formatPrettyLongDateShort(order.created_at)}</td>
+      <td className="px-6 py-4 whitespace-nowrap">{formatDayMonth(order.created_at)}</td>
       <td className="px-6 py-4">
         <div className="flex justify-end gap-1">
           <button type="button" onClick={() => navigate(`/dashboard/orders/${order.id}`)} className="p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" title="View order detail" aria-label={`View order ${order.id} detail`}>

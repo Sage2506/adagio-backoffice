@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeftIcon, ChevronRightIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
+import { formatDateDDMMYYYY, maskDateInput, parseDateDDMMYYYY } from '../../utils/dateInput';
 
 interface CalendarDay {
   date: Date;
@@ -13,13 +14,20 @@ interface DatePickerProps {
   id?: string;
   name?: string;
   placeholder?: string;
+  required?: boolean;
 }
 
 type CalendarView = 'days' | 'months';
 
-const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps) => {
+const INVALID_DATE_MESSAGE = 'Enter a valid date (dd/mm/yyyy)';
+
+const DatePicker = ({ value, onChange, id, name, placeholder, required }: DatePickerProps) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(value || null);
+  const [dateText, setDateText] = useState<string>(formatDateDDMMYYYY(value ?? null));
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const inputRef = useRef<HTMLInputElement>(null);
+  // Last date this component reported through onChange, to tell typed changes apart from external ones.
+  const lastEmittedTime = useRef<number | null>(value ? value.getTime() : null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [currentView, setCurrentView] = useState<CalendarView>('days');
   const [popupPosition, setPopupPosition] = useState<{ top: number, left: number, width: number } | null>(null);
@@ -83,15 +91,24 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
     };
   }, [isOpen, currentView]);
 
-  // Update internal state if value prop changes
+  // Update internal state if value prop changes (compared by time because parents often pass a new Date each render)
+  const valueTime = value === undefined ? undefined : value ? value.getTime() : null;
   useEffect(() => {
-    if (value !== undefined) {
-      setSelectedDate(value);
-      if (value) {
-        setCurrentDate(new Date(value.getFullYear(), value.getMonth(), 1));
-      }
+    if (valueTime === undefined || valueTime === lastEmittedTime.current) return;
+    const nextValue = valueTime === null ? null : new Date(valueTime);
+    lastEmittedTime.current = valueTime;
+    setSelectedDate(nextValue);
+    setDateText(formatDateDDMMYYYY(nextValue));
+    if (nextValue) {
+      setCurrentDate(new Date(nextValue.getFullYear(), nextValue.getMonth(), 1));
     }
-  }, [value]);
+  }, [valueTime]);
+
+  // Typed text that is not a complete valid date blocks form submission with a message
+  useEffect(() => {
+    const isInvalid = dateText !== '' && parseDateDDMMYYYY(dateText) === null;
+    inputRef.current?.setCustomValidity(isInvalid ? INVALID_DATE_MESSAGE : '');
+  }, [dateText]);
 
   const getMonthName = (date: Date): string => {
     return date.toLocaleString('default', { month: 'long' });
@@ -152,11 +169,30 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
     return days;
   };
 
-  const handleDateSelect = (date: Date): void => {
+  const emitDate = (date: Date | null): void => {
+    lastEmittedTime.current = date ? date.getTime() : null;
     setSelectedDate(date);
     onChange?.(date);
+  };
+
+  const handleDateSelect = (date: Date): void => {
+    setDateText(formatDateDDMMYYYY(date));
+    emitDate(date);
     setIsOpen(false);
     setCurrentView('days');
+  };
+
+  const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const text = maskDateInput(event.target.value, dateText);
+    setDateText(text);
+    const parsed = parseDateDDMMYYYY(text);
+    if (parsed) {
+      setCurrentDate(new Date(parsed.getFullYear(), parsed.getMonth(), 1));
+    }
+    // Incomplete or invalid text clears the date so a stale value is never submitted
+    if (parsed?.getTime() !== selectedDate?.getTime()) {
+      emitDate(parsed);
+    }
   };
 
   const handleMonthSelect = (month: number): void => {
@@ -166,15 +202,6 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
 
   const handleMonthClick = (): void => {
     setCurrentView('months');
-  };
-
-  const formatDate = (date: Date | null): string => {
-    if (!date) return '';
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const formattedDate = `${year}-${month}-${day}`;
-    return formattedDate;
   };
 
   const getMonthNames = (): string[] => {
@@ -197,17 +224,21 @@ const DatePicker = ({ value, onChange, id, name, placeholder }: DatePickerProps)
     <div className="relative" ref={calendarRef}>
       <div className="flex items-center w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-lowest text-on-surface focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all font-body-md">
         <input
+          ref={inputRef}
           type="text"
-          readOnly
-          value={formatDate(selectedDate)}
-          placeholder={placeholder || "Select date"}
+          inputMode="numeric"
+          autoComplete="off"
+          maxLength={10}
+          value={dateText}
+          onChange={handleTextChange}
+          placeholder={placeholder || "dd/mm/yyyy"}
+          required={required}
           className="flex-grow outline-none bg-transparent"
-          onClick={toggleCalendar}
           onKeyDown={e => {
-            // Permite abrir el calendario con Space/Enter apenas el input recibe foco (sin un segundo Tab)
-            if (e.key === ' ' || e.key === 'Enter') {
+            // Enter or ArrowDown open the calendar from the keyboard
+            if (e.key === 'Enter' || e.key === 'ArrowDown') {
               e.preventDefault();
-              toggleCalendar();
+              if (!isOpen) toggleCalendar();
             }
           }}
           id={id}

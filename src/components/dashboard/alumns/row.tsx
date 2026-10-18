@@ -3,6 +3,7 @@ import type { IAlumnRecord } from "../../../types/alumns";
 import { useNavigate } from "react-router";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import { blockDemoReadOnlyAction, isDemoReadOnlySession } from "../../../utils/demoMode";
+import { formatDayMonth } from "../../../utils/numbers";
 
 interface IAlumnsRow {
   alumn: IAlumnRecord
@@ -24,7 +25,7 @@ function AlumnsRow({ alumn, handleDelete }: IAlumnsRow) {
         {alumn.last_name}
       </td>
       <td className="py-4 px-6 text-on-surface-variant">
-        {alumn.birth_date}
+        {formatDayMonth(alumn.birth_date)}
       </td>
       <td className="py-4 px-6 text-center">
         <button

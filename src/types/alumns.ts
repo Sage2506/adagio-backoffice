@@ -12,6 +12,7 @@ export interface IAlumnNew {
   special_med_conditions: string
   is_guardian_required_for_leaving: boolean
   guardian_ids: number[]
+  primary_guardian_id?: number | null
   subscription_attributes?: {
     plan_id: string
     subscribed_at?: string

@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Transition, TransitionChild } from "@headlessui/react";
 import api from "../../../services/api";
+import DatePicker from "../../utils/datePicker";
+import { parseYYYYMMDDToDate } from "../../../utils/dateInput";
+import { parseDateToYYYYMMDD } from "../../../utils/stringFormatters";
 
 interface NewExpenseModalProps {
   isOpen: boolean;
@@ -120,7 +123,13 @@ export default function NewExpenseModal({ isOpen, onClose, onCreated, onError }:
               </div>
               <div className="flex flex-col gap-base">
                 <label htmlFor="expense_date" className="font-label-md text-label-md text-on-surface-variant">Date</label>
-                <input id="expense_date" required type="date" name="date" value={form.date} onChange={updateField} className="w-full bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-shadow" />
+                <DatePicker
+                  id="expense_date"
+                  name="date"
+                  required
+                  value={parseYYYYMMDDToDate(form.date)}
+                  onChange={date => setForm(current => ({ ...current, date: parseDateToYYYYMMDD(date) }))}
+                />
               </div>
               <div className="flex flex-col gap-base">
                 <label htmlFor="expense_description" className="font-label-md text-label-md text-on-surface-variant">Description</label>

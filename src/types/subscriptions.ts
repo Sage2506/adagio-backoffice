@@ -23,18 +23,21 @@ export interface ISubscriptionRecord {
 }
 
 export interface ISubscriptionAlumnPlanRecord {
-  plan_id: number
   alumn_id: number
-  id: number
-  due_date: string
-  status: string
-  last_payment_date: string
-  created_at: string
-  updated_at: string
   alumn: IAlumnRecord
-  plan: IPlanRecord,
-  paid_amount: number
+  created_at: string
   custom_price: number | null
+  due_date: string
+  guardian_phone_number: string,
+  id: number
+  is_past_due?: boolean
+  last_payment_date: string
+  paid_amount: number
+  plan_id: number
+  plan: IPlanRecord,
+  status: string
+  updated_at: string
+  whatsapp_reminder_message: string
 }
 
 export interface IPostSubscriptionResponse {
