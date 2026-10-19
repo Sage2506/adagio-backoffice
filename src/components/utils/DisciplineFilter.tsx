@@ -58,7 +58,7 @@ export default function DisciplineFilter({ idPrefix }: DisciplineFilterProps) {
   const buttonLabel = selectedNames.length === 0 ? "Disciplines" : selectedNames.length <= 2 ? selectedNames.join(", ") : `${selectedNames.length} disciplines`;
 
   return (
-    <div className="relative w-full lg:w-auto">
+    <div className="relative w-fit lg:w-auto">
       <span className="block text-label-md font-label-md text-on-surface-variant">Discipline</span>
       <button type="button" onClick={() => setIsOpen(open => !open)} aria-expanded={isOpen} aria-controls={`${idPrefix}-discipline-options`} className="mt-1 flex min-h-10 w-full min-w-48 items-center justify-between gap-3 rounded-lg border border-outline-variant bg-surface-lowest px-3 py-2 text-left text-body-md font-body-md text-on-surface transition-colors hover:bg-surface-container focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
         <span className="truncate">{buttonLabel}</span>
