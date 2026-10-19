@@ -17,6 +17,7 @@ import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { useLoadingLabel } from "../../../hooks/useLoadingLabel";
 import { spanishMonthsNames } from "../../../utils/monthsNames";
 import { useCopied } from "../../../hooks/useCopied";
+import { getSubscriptionStatus } from "../../../utils/subscriptionStatus";
 
 
 export default function SubscriptionsTable() {
@@ -24,6 +25,13 @@ export default function SubscriptionsTable() {
   const [subscriptions, setSubscriptions] = useState<ISubscriptionAlumnPlanRecord[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [monthlyIncome, setMonthlyIncome] = useState<number>(0);
+  const totalPending = subscriptions.reduce((total, subscription) => {
+    const paymentStatus = getSubscriptionStatus(subscription.due_date);
+    if (paymentStatus !== "late" && paymentStatus !== "pending") return total;
+
+    const price = subscription.custom_price ?? subscription.plan.price;
+    return total + Math.max(price - subscription.paid_amount, 0);
+  }, 0);
   const [isSubscriptionPaymentModalOpen, setIsSubscriptionPaymentModalOpen] = useState<boolean>(false);
   const [isSubscriptionCreditModalOpen, setIsSubscriptionCreditModalOpen] = useState<boolean>(false);
   const [isEditDueDateModalOpen, setIsEditDueDateModalOpen] = useState<boolean>(false);
@@ -236,9 +244,12 @@ export default function SubscriptionsTable() {
           <AgeRangeFilter idPrefix="subscriptions" />
           <DisciplineFilter idPrefix="subscriptions" />
           <div
-            className={`px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container'}`}
+            className="px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container"
           >
             <p>Monthly Income: {formatCurrencyValue(monthlyIncome)}</p>
+          </div>
+          <div className="px-3 py-2 rounded-lg border text-label-md font-label-md focus:outline-none transition-colors flex items-center gap-2 bg-surface-lowest text-on-surface-variant border-outline-variant hover:bg-surface-container">
+            <p>Total Pending: {formatCurrencyValue(totalPending)}</p>
           </div>
           <button
             type="button"
