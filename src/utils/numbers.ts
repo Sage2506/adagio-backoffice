@@ -1,5 +1,35 @@
 import type { Dispatch, SetStateAction } from "react";
 
+interface DateParts {
+    year: number;
+    month: number;
+    day: number;
+}
+
+function getDateParts(dateString: string): DateParts | null {
+    const match = /^(\d{4})-(\d{2})-(\d{2})(?:T.*)?$/.exec(dateString);
+    if (!match) return null;
+
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+
+    if (!month || month > 12 || !day || day > new Date(Date.UTC(year, month, 0)).getUTCDate()) {
+        return null;
+    }
+
+    if (!dateString.includes('T')) return { year, month, day };
+
+    const timestamp = new Date(dateString);
+    if (Number.isNaN(timestamp.getTime())) return null;
+
+    return {
+        year: timestamp.getUTCFullYear(),
+        month: timestamp.getUTCMonth() + 1,
+        day: timestamp.getUTCDate(),
+    };
+}
+
 export const formatPrice = (amount: number): string => {
     return Intl.NumberFormat('es-MX', {
         style: 'currency',
@@ -18,33 +48,33 @@ export const formatCurrencyValue = (amount: number): string => {
 
 export const formatPrettyDateShort = (dateString: string): string => {
     if (!dateString) return "N/A";
-    // Extrae solo la parte de la fecha (YYYY-MM-DD)
-    const [year, month, day] = dateString.split('T')[0].split('-');
-    // Obtiene el nombre corto del mes
-    const date = new Date(Number(year), Number(month) - 1, Number(day));
-    const monthShort = date.toLocaleString('es-MX', { month: 'short' });
-    return `${day.padStart(2, '0')}-${monthShort}-${year}`;
+    const parts = getDateParts(dateString);
+    if (!parts) return "N/A";
+    const { year, month, day } = parts;
+    const monthShort = new Date(Date.UTC(year, month - 1, day)).toLocaleString('es-MX', {
+        month: 'short',
+        timeZone: 'UTC',
+    });
+    return `${String(day).padStart(2, '0')}-${monthShort}-${year}`;
 }
 
-// dd/mm for table date columns; timestamps use UTC like formatPrettyLongDateShort
+// Date-only values are calendar dates; timestamps are formatted in UTC.
 export const formatDayMonth = (dateString?: string | null): string => {
     if (!dateString) return "N/A";
-    if (dateString.includes('T')) {
-        const date = new Date(dateString);
-        if (Number.isNaN(date.getTime())) return "N/A";
-        return `${String(date.getUTCDate()).padStart(2, '0')}/${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
-    }
-    const [, month, day] = dateString.split('-');
-    return day && month ? `${day.padStart(2, '0')}/${month.padStart(2, '0')}` : "N/A";
+    const parts = getDateParts(dateString);
+    if (!parts) return "N/A";
+    return `${String(parts.day).padStart(2, '0')}/${String(parts.month).padStart(2, '0')}`;
 }
 
 export const formatPrettyLongDateShort = (dateString: string): string => {
-    if (!dateString) return "N/A"
-    const date = new Date(dateString)
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const month = date.toLocaleString('default', { month: 'short', timeZone: 'UTC' });
-    const year = String(date.getUTCFullYear());
-    return `${day}-${month}-${year}`;
+    if (!dateString) return "N/A";
+    const parts = getDateParts(dateString);
+    if (!parts) return "N/A";
+    const { year, month, day } = parts;
+    const date = new Date(Date.UTC(year, month - 1, day));
+    const monthShort = date.toLocaleString('default', { month: 'short', timeZone: 'UTC' });
+    const dayString = String(day).padStart(2, '0');
+    return `${dayString}-${monthShort}-${year}`;
 }
 
 export const handlePriceInputChange = (event: React.ChangeEvent<HTMLInputElement>, setState: Dispatch<SetStateAction<string>>) => {
@@ -59,5 +89,4 @@ export const handlePriceInputChange = (event: React.ChangeEvent<HTMLInputElement
         setState(value)
     }
 }
-
 

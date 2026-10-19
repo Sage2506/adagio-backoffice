@@ -21,19 +21,20 @@ const pendingStatusStyle = "odd:bg-yellow-50 even:bg-yellow-100 border-b border-
 const lateStatusStyle = "odd:bg-red-100 even:bg-red-200 border-b border-red-300 hover:bg-red-200 odd:dark:bg-red-900 even:dark:bg-red-800 dark:border-red-700 dark:hover:bg-red-600 even:dark:hover:bg-red-700";
 const cancelledStatusStyle = "bg-gray-200 text-gray-400 dark:bg-gray-800 dark:text-gray-500 border-b border-gray-300 dark:border-gray-700 opacity-70";
 
-function getDateStatusStyle(subscription: ISubscriptionAlumnPlanRecord) {
-  if (subscription.status === "cancelled") return cancelledStatusStyle;
-  const status = getSubscriptionStatus(subscription.due_date);
-  if (status === "late") return lateStatusStyle;
-  if (status === "pending") return pendingStatusStyle;
+function getDateStatusStyle(
+  status: string,
+  paymentStatus: ReturnType<typeof getSubscriptionStatus>
+) {
+  if (status === "cancelled") return cancelledStatusStyle;
+  if (paymentStatus === "late") return lateStatusStyle;
+  if (paymentStatus === "pending") return pendingStatusStyle;
   return paidStatusStyle;
 }
 
 function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubscriptionStatus, onOpenCreditModal, onOpenDueDateModal, onNavigateToAlumnForm }: ISubscriptionRow) {
   const isReadOnly = isDemoReadOnlySession();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const isPastDue = "late" === getSubscriptionStatus(subscription.due_date)
+  const paymentStatus = getSubscriptionStatus(subscription.due_date);
+  const showWhastappReminder = paymentStatus === "late" || paymentStatus ==="pending"
 
   function onShowPaymentsModal(e: React.MouseEvent<HTMLElement>) {
     e.stopPropagation();
@@ -48,7 +49,7 @@ function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubsc
 
   return (
     <>
-    <tr key={`subscription_${subscription.id}`} onClick={() => onClick(subscription)} className={getDateStatusStyle(subscription)}>
+    <tr key={`subscription_${subscription.id}`} onClick={() => onClick(subscription)} className={getDateStatusStyle(subscription.status, paymentStatus)}>
       <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white capitalize">
         {subscription.id}
       </th>
@@ -124,7 +125,7 @@ function SubscriptionsRow({ subscription, onClick, showPaymentModal, toggleSubsc
             <PencilSquareIcon className="w-5 h-5" />
           </button>
 
-          {isPastDue && (
+          {showWhastappReminder && (
             <button
               type="button"
               className="p-2 rounded-md border border-green-600/40 bg-green-50 text-green-700 hover:bg-green-100 transition-colors focus:outline-none focus:ring-1 focus:ring-green-600"
