@@ -132,7 +132,7 @@ export default function AlumnsTable() {
         onConfirmResponse={onConfirmResponse}
       />
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-stack-sm w-full">
-        <div className="flex w-full flex-col flex-wrap items-start gap-stack-sm lg:flex-row lg:items-end">
+        <div className="flex w-full flex-wrap items-start gap-stack-sm lg:flex-row lg:items-end">
           <div className="w-full md:w-80">
             <label htmlFor="table-search" className="block text-label-md font-label-md text-on-surface-variant">Search</label>
             <div className="relative mt-1 flex items-center">
