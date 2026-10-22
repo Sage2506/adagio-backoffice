@@ -1,8 +1,9 @@
 import { memo } from "react";
-import { BanknotesIcon, CreditCardIcon, EyeIcon } from "@heroicons/react/24/outline";
+import { BanknotesIcon, CreditCardIcon, EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router";
 import type { IOrderRecord } from "../../../types/orders";
 import { formatDayMonth, formatPrice } from "../../../utils/numbers";
+import { blockDemoReadOnlyAction, isDemoReadOnlySession } from "../../../utils/demoMode";
 
 const statusStyles = {
   pending: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
@@ -12,10 +13,12 @@ const statusStyles = {
 
 interface OrdersRowProps {
   order: IOrderRecord;
+  onDelete: (event: React.MouseEvent, order: IOrderRecord) => void;
 }
 
-function OrdersRow({ order }: OrdersRowProps) {
+function OrdersRow({ order, onDelete }: OrdersRowProps) {
   const navigate = useNavigate();
+  const isReadOnly = isDemoReadOnlySession();
 
   return (
     <tr className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 even:dark:hover:bg-gray-700">
@@ -42,6 +45,9 @@ function OrdersRow({ order }: OrdersRowProps) {
           </button>
           <button type="button" disabled={order.status === "paid"} onClick={() => navigate(`/dashboard/orders/${order.id}#payment-form`)} className="p-2 text-blue-600 hover:bg-blue-50 hover:text-blue-800 disabled:cursor-not-allowed disabled:text-gray-300 dark:text-blue-400 dark:hover:bg-gray-700 dark:disabled:text-gray-600" title={order.status === "paid" ? "Order is paid" : "Register payment"} aria-label={`Register payment for order ${order.id}`}>
             <CreditCardIcon className="h-5 w-5" />
+          </button>
+          <button type="button" disabled={isReadOnly} onClick={event => { if (blockDemoReadOnlyAction(event)) return; onDelete(event, order); }} className="p-2 text-red-600 hover:bg-red-50 hover:text-red-800 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-gray-700" title="Delete order" aria-label={`Delete order ${order.id}`}>
+            <TrashIcon className="h-5 w-5" />
           </button>
         </div>
       </td>
