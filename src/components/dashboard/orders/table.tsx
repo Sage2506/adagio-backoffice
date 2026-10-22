@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import type { IOrderRecord } from "../../../types/orders";
-import { getOrders } from "../../../services/order";
+import { deleteOrder, getOrders } from "../../../services/order";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { usePagination } from "../../../hooks/usePagination";
 import PaginationComponent from "../../utils/paginationComponent";
+import ConfirmationModal from "../../utils/confirmationModal";
 import OrdersRow from "./row";
 
 export default function OrdersTable() {
@@ -12,6 +13,9 @@ export default function OrdersTable() {
   const [orders, setOrders] = useState<IOrderRecord[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ msj: string }[]>([]);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<IOrderRecord>();
   const {
     currentPage,
     pages,
@@ -33,6 +37,7 @@ export default function OrdersTable() {
         const { data, pages, links, total } = response
         setOrders(data);
         setPagination({ pages, links, total });
+        setErrors([]);
       } else {
         setErrors(response.errors)
       }
@@ -41,7 +46,35 @@ export default function OrdersTable() {
     })
 
     return () => { active = false; };
-  }, [searchString])
+  }, [searchString, reloadKey])
+
+  function handleDelete(event: React.MouseEvent, order: IOrderRecord) {
+    event.stopPropagation();
+    setOrderToDelete(order);
+    setIsModalOpen(true);
+  }
+
+  async function confirmDelete(accepted: boolean) {
+    setIsModalOpen(false);
+    if (!accepted || !orderToDelete) return;
+
+    setIsLoading(true);
+    const response = await deleteOrder({ id: orderToDelete.id });
+    if (!response.success) {
+      setErrors(response.errors);
+      setIsLoading(false);
+      return;
+    }
+
+    setErrors([]);
+    setOrderToDelete(undefined);
+    // Deleting the only row of a later page would reload an empty page.
+    if (orders.length === 1 && currentPage > 1) {
+      navigate(getPageTarget(currentPage - 1), { replace: true });
+    } else {
+      setReloadKey(current => current + 1);
+    }
+  }
 
   return (
     <div className="w-full min-w-0 flex flex-col gap-stack-md">
@@ -50,6 +83,14 @@ export default function OrdersTable() {
           {errors.map((error, index) => <p key={`${error.msj}_${index}`}>{error.msj}</p>)}
         </div>
       )}
+      <ConfirmationModal
+        titleText="Delete Order"
+        bodyText={`You're about to delete order #${orderToDelete?.id} of ${orderToDelete?.alumn.name} ${orderToDelete?.alumn.last_name}, are you sure?`}
+        confirmText="Yes"
+        rejectText="No"
+        isModalOpen={isModalOpen}
+        onConfirmResponse={confirmDelete}
+      />
       <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between">
         <div />
         <div className="relative">
@@ -96,7 +137,7 @@ export default function OrdersTable() {
               </td>
             </tr>
           ) : (
-            orders.map(order => <OrdersRow key={`order_${order.id}`} order={order} />)
+            orders.map(order => <OrdersRow key={`order_${order.id}`} order={order} onDelete={handleDelete} />)
           )}
         </tbody>
       </table>

@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { IErrorResponse } from "../types/errors";
 import type { IGetOrderResponse, IGetOrdersResponse, IOrderNew, IOrderRecord } from "../types/orders";
-import api, { CREATED, OK } from "./api";
+import api, { CREATED, NO_CONTENT, OK } from "./api";
 
 const path = "/orders";
 
@@ -67,6 +67,16 @@ export function putOrder(args: { id: string, data: { order: IOrderNew } }): Prom
   });
 }
 
+export function deleteOrder(args: { id: number }): Promise<{ success: true } | IErrorResponse> {
+  return api.delete(`${path}/${args.id}`).then(response => {
+    if (response.status === OK || response.status === NO_CONTENT) {
+      return { success: true as const };
+    }
+
+    return { success: false as const, errors: [{ msj: response.status.toString() }] };
+  }).catch(formatOrderError);
+}
+
 interface OrderErrorPayload {
   errors?: Record<string, string[]>
   error?: string
@@ -87,5 +97,5 @@ function formatOrderError(error: unknown): IErrorResponse {
     return { success: false, errors: [{ msj: payload?.error || error.message }] };
   }
 
-  return { success: false, errors: [{ msj: "Unable to create order" }] };
+  return { success: false, errors: [{ msj: error instanceof Error ? error.message : "Unable to complete the request" }] };
 }
