@@ -7,6 +7,7 @@ import SearchCombobox from "../../utils/searchCombobox";
 import { getProducts } from "../../../services/product";
 import { formatPrice, handlePriceInputChange } from "../../../utils/numbers";
 import type { IOrderNew } from "../../../types/orders";
+import type { IPaymentMethod } from "../../../types/payments";
 import { postOrder } from "../../../services/order";
 import { useNavigate } from "react-router";
 import { TrashIcon } from "@heroicons/react/16/solid";
@@ -25,6 +26,8 @@ export default function OrdersForm() {
   const [products, setProducts] = useState<Product[]>([])
   const [advancePercent, setAdvancePercent] = useState<20 | 30 | 50>()
   const [advance, setAdvance] = useState<string>('')
+  const [paymentMethod, setPaymentMethod] = useState<IPaymentMethod>('cash')
+  const [reference, setReference] = useState<string>('')
   const [description, setDescription] = useState<string>('')
   const [errors, setErrors] = useState<{ msj: string }[]>([])
 
@@ -111,7 +114,9 @@ export default function OrdersForm() {
       order: {
         alumn_id: alumnId,
         description: description.trim(),
-        paid_amount: advanceAmount
+        paid_amount: advanceAmount,
+        payment_method: paymentMethod,
+        ...(paymentMethod !== 'cash' && reference.trim() ? { reference: reference.trim() } : {})
       },
       products: products.map(product => ({ id: product.id, quantity: Number(product.quantity) }))
     }
@@ -191,6 +196,8 @@ export default function OrdersForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
             <div><label htmlFor="advance" className={labelClass}>Anticipo (Deposit)</label><div className="relative"><span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-bold">$</span><input type="number" min="0" max={orderTotal} step="0.01" id="advance" name="advance" value={advance} onChange={e => { setAdvancePercent(undefined); handlePriceInputChange(e, setAdvance) }} className={`${fieldClass} pl-8`} placeholder="0.00" /></div></div>
             <div><p className={labelClass}>Quick Percentage</p><div className="flex rounded-lg border border-outline-variant overflow-hidden">{([20, 30, 50] as const).map(percent => <button key={percent} type="button" onClick={() => advanceSelected(percent)} className={`flex-1 py-3 text-body-md font-body-md border-r border-outline-variant last:border-r-0 transition-colors ${advancePercent === percent ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-on-surface-variant hover:bg-surface-container'}`}>{percent}%</button>)}</div></div>
+            <div><label htmlFor="payment_method" className={labelClass}>Payment Method</label><select id="payment_method" name="payment_method" value={paymentMethod} onChange={e => { setPaymentMethod(e.target.value as IPaymentMethod); setReference('') }} className={`${fieldClass} bg-surface-container-lowest`}><option value="cash">Cash</option><option value="transfer">Bank transfer</option><option value="card">Card / terminal</option></select></div>
+            {paymentMethod !== 'cash' && <div><label htmlFor="reference" className={labelClass}>Reference</label><input type="text" id="reference" name="reference" value={reference} onChange={e => setReference(e.target.value)} className={fieldClass} placeholder="Reference number" /></div>}
           </div>
         </section>
 

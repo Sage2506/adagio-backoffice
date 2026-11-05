@@ -1,6 +1,6 @@
 import type { IAlumnRecord } from "./alumns"
 import type { ILinks } from "./common"
-import type { IPaymentRecord } from "./payments"
+import type { IPaymentMethod, IPaymentRecord } from "./payments"
 import type { IProductRecord } from "./products"
 
 export type OrderStatus = "pending" | "partial" | "paid"
@@ -34,6 +34,8 @@ export interface IOrderNew {
     alumn_id: number
     description: string
     paid_amount?: number
+    payment_method?: IPaymentMethod
+    reference?: string
   }
   products: { id: number, quantity: number }[]
 }
