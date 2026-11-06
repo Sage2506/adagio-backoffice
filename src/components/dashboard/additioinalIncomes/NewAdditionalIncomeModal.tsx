@@ -12,7 +12,18 @@ interface NewAdditionalIncomeModalProps {
   onError: (message: string) => void;
 }
 
-const categories = ["space_rental", "events", "initial_balance", "other"];
+const categories = [
+  "space_rental",
+  "events",
+  "initial_balance",
+  "other",
+  "late_fees",
+  "merchandise",
+  "plan_upgrade",
+  "owner_contribution",
+  "financial_yields"
+];
+
 const paymentMethods = ["cash", "transfer", "card"];
 const emptyForm = { amount: "", date: "", description: "", category: "space_rental", payment_method: "cash" };
 
@@ -69,7 +80,7 @@ function NewAdditionalIncomeModal({ isOpen, onClose, onCreated, onError }: NewAd
     event.preventDefault();
     setIsSaving(true);
     try {
-      await api.post("/additional_incomes", { additional_income: { ...form, amount: Number(form.amount) } });
+      await api.post("/additional_incomes", { additional_income: { ...form, amount: Number(form.amount), date: form.date || undefined } });
       setForm(emptyForm);
       onCreated();
       onClose();
@@ -126,7 +137,6 @@ function NewAdditionalIncomeModal({ isOpen, onClose, onCreated, onError }: NewAd
                 <DatePicker
                   id="additional_income_date"
                   name="date"
-                  required
                   value={parseYYYYMMDDToDate(form.date)}
                   onChange={date => setForm(current => ({ ...current, date: parseDateToYYYYMMDD(date) }))}
                 />

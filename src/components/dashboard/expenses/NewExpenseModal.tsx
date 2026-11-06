@@ -12,7 +12,19 @@ interface NewExpenseModalProps {
   onError: (message: string) => void;
 }
 
-const categories = ["rent", "utilities", "payroll", "maintenance", "commission", "other"];
+const categories = [
+  "rent",
+  "utilities",
+  "payroll",
+  "maintenance",
+  "commission",
+  "other",
+  "event_participation",
+  "celebrations",
+  "personal_withdrawals",
+  "inventory_purchases",
+  "reconciliations",
+];
 const paymentMethods = ["cash", "transfer", "card"];
 const emptyForm = { amount: "", date: "", description: "", category: "rent", payment_method: "cash" };
 
@@ -69,7 +81,7 @@ export default function NewExpenseModal({ isOpen, onClose, onCreated, onError }:
     event.preventDefault();
     setIsSaving(true);
     try {
-      await api.post("/expenses", { expense: { ...form, amount: Number(form.amount) } });
+      await api.post("/expenses", { expense: { ...form, amount: Number(form.amount), date: form.date || undefined } });
       setForm(emptyForm);
       onCreated();
       onClose();
@@ -126,7 +138,6 @@ export default function NewExpenseModal({ isOpen, onClose, onCreated, onError }:
                 <DatePicker
                   id="expense_date"
                   name="date"
-                  required
                   value={parseYYYYMMDDToDate(form.date)}
                   onChange={date => setForm(current => ({ ...current, date: parseDateToYYYYMMDD(date) }))}
                 />
